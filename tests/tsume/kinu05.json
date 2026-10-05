@@ -1,0 +1,54 @@
+{
+  "id": "kinu05",
+  "source": "/tmp/tsume/pages/kinu05.html",
+  "title": "中将棊絹篩第５問",
+  "format": "sk",
+  "sfen": "6+R5/4g3ok1+P/6ms1t2/4p1ppp2m/5Q6/9+D1+a/8X1n1/12/10+b1/5H6/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [
+      "3f1d",
+      "1f1d",
+      "6a2a",
+      "3b4c",
+      "7e2e",
+      "2g2e",
+      "4g6e",
+      "4c5b",
+      "7j2e",
+      "5b6b",
+      "2e6a+",
+      "6b7c",
+      "6a8c",
+      "8b8c",
+      "2a7a"
+    ],
+    "comments": {
+      "1": "先に２一龍王では、５二に逃げられてしまい不詰",
+      "7": "ここで獅子を取らないこと。原本では４五鳳凰とあるが、誤り。",
+      "8": "王は逃げの一手。歩・龍馬で取ると次の手２五龍馬で詰み。",
+      "9": "原本では２二龍馬（成駒）とあるが、そんな駒は実在しないので誤り。ここで獅子を取っての王手"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 2040,
+      "pv": [
+        "3f1d",
+        "3b4c",
+        "7e2e",
+        "1f2e",
+        "4g2e",
+        "2g2e",
+        "1d2e",
+        "4c3b",
+        "6a2a"
+      ]
+    }
+  }
+}

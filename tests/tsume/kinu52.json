@@ -1,0 +1,50 @@
+{
+  "id": "kinu52",
+  "source": "/tmp/tsume/pages/kinu52.html",
+  "title": "中将棊絹篩・第52問中将棊指南抄・第14問",
+  "format": "sk",
+  "sfen": "6+R4l/5+D2sk1a/6+H1+bf2/R9m1/9s1p/12/12/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 13,
+  "solution": {
+    "moves": [
+      "6a2a",
+      "3b2a",
+      "6c4c",
+      "2a2b",
+      "4c4b4c",
+      "2b1c",
+      "4c3c",
+      "1c1d",
+      "12d2d",
+      "3e2d",
+      "7b3f"
+    ],
+    "comments": {
+      "4": "ここは逃げの一手のみ。同銀なら、▲１２一飛車で一手詰めとなる。",
+      "12": "ここまで。原本にある手順以外にも新たな手順が考えられそうである。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 64721,
+      "pv": [
+        "6a2a",
+        "3b2a",
+        "6c4c",
+        "2a2b",
+        "4c4b4c",
+        "2b2c",
+        "7b3b",
+        "2c1c",
+        "4c3c",
+        "2d2c",
+        "3b3a"
+      ]
+    }
+  }
+}

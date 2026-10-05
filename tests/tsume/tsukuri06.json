@@ -1,0 +1,52 @@
+{
+  "id": "tsukuri06",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri06.txt",
+  "title": "中将棊作物収録作品・第六問",
+  "format": "sk",
+  "sfen": "7g2+F1/12/3m1+P3c2/6npke2/R8m2/10x1/5+D6/8X1N1/12/8+L3/8+h3/12 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [
+      "7g6f",
+      "6d6f",
+      "2h4f",
+      "6f4f",
+      "4h6f",
+      "4d5c",
+      "4j8f",
+      "5c5b",
+      "12e12b+",
+      "5b4a",
+      "8f4b",
+      "5a4b",
+      "12b11a",
+      "4a5b",
+      "11a10b",
+      "5b4a",
+      "10b9a",
+      "4a5b",
+      "9a8b",
+      "5b4a",
+      "8b7a",
+      "4a5b",
+      "7a6b",
+      "5b4a",
+      "6b6a"
+    ],
+    "comments": {
+      "3": "同鳳は８六駒のとき４十一鷹の縦利きで詰まない。そのため４手目に獅子を捨てて縦利きを消しておく(バケラッタさん)",
+      "25": "以上25手詰め。 取れる駒を取らない三代宗看らしい作品。竜ノコは詰中将棋でははじめて？ (手順・バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 109587,
+      "pv": []
+    }
+  }
+}

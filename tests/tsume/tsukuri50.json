@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri50",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri50.txt",
+  "title": "中将棊作物収録作品・第五十問",
+  "format": "sk",
+  "sfen": "+G+m2+Pxs+as+A1q/+L+r3b1CiG1C/+R1nv3+R4/2mg4+A2l/T1V+ct+FH+h+gv2/cD2+p2f+V+r+LM/+pp+l+i2N+TISP1/M+d+F1BtPp4/2D3+pS2k1/+b2+H4E1+p1/3O+d2+p1+h2/3+f1X3+a+p1 b - 1",
+  "to_move": "sente",
+  "pieces": 73,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 2277,
+      "pv": []
+    }
+  }
+}

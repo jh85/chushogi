@@ -1,0 +1,75 @@
+{
+  "id": "tumechu8",
+  "source": "/tmp/tsume/pages/tumechu8.html",
+  "title": "詰め中将棋 第8図ヒント：香が成って白駒を作りますが、その後が意外と捕まえにくいです。",
+  "format": "sk",
+  "sfen": "12/9cfm/5r2+a1k1/6M5/6p2p2/11L/9+i2/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 11,
+  "solution": {
+    "moves": [
+      "1f1d+",
+      "2c3c",
+      "1d1e",
+      "3c2c",
+      "1e2d",
+      "2c1d",
+      "2d2f",
+      "1d1c",
+      "2f3e",
+      "1c2c",
+      "3e2d",
+      "2c1d",
+      "2d2g",
+      "1d1e",
+      "6d6e+",
+      "1e1d",
+      "6e5d",
+      "1d1c",
+      "2g1f",
+      "1c2c",
+      "1f2e",
+      "2c1c",
+      "2e1d"
+    ],
+    "comments": {
+      "23": "以上、23手詰。白駒のパズルです。横行と白駒だと玉がノラリクラリとかわされるので非常に捕まえにくい。３五の歩を取った後に、２七白駒が狙いの限定移動です。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 4775,
+      "pv": [
+        "1f1d+",
+        "2c3c",
+        "1d1e",
+        "3c2c",
+        "6d2d",
+        "2c3c",
+        "2d5d",
+        "3c2c",
+        "1e2d",
+        "2c1d",
+        "2d2f",
+        "4c4d",
+        "5d4d+",
+        "1d1c",
+        "4d3e",
+        "1c1d",
+        "3e4d",
+        "1d1c",
+        "2f3e",
+        "1c2c",
+        "4d3d",
+        "2c3c",
+        "3d5b",
+        "3c2c",
+        "5b3b"
+      ]
+    }
+  }
+}

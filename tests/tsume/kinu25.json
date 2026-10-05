@@ -1,0 +1,77 @@
+{
+  "id": "kinu25",
+  "source": "/tmp/tsume/pages/kinu25.html",
+  "title": "中将棊絹篩・第25問",
+  "format": "sk",
+  "sfen": "12/4r2t2o+M/l4E1n1t2/1+P2m7/2+P3k1P+lp1/2ppp3g2Q/6p5/4m7/5N2+R3/5+d1+p4/A2Q8/12 b - 1",
+  "to_move": "sente",
+  "pieces": 28,
+  "solution": {
+    "moves": [
+      "7i6g",
+      "6e5d",
+      "9k5g",
+      "4f5g",
+      "1f5f",
+      "5g5f",
+      "4e4d+",
+      "5c4d5e",
+      "6g5f5e",
+      "5d5e",
+      "4i4e",
+      "5e6f",
+      "4e5f",
+      "6f7e",
+      "1b4e",
+      "7e7d",
+      "5f5d",
+      "7d7c",
+      "5d5c",
+      "7c7d",
+      "4e5f",
+      "7d8e",
+      "5f6e",
+      "7j7e",
+      "10e9e",
+      "8e9e",
+      "6e7e",
+      "8d8e",
+      "5c9c",
+      "9e10e",
+      "11d11e",
+      "10e11e",
+      "9c11c",
+      "11e10e",
+      "12k12c+",
+      "10e9e",
+      "11c9c"
+    ],
+    "comments": {
+      "25": "原本には６七とされているが、６五が正しい。",
+      "26": "原本には７六とされているが、７五が正しい。中象戯初心抄解読の武田先生の説による。",
+      "39": "ここまで。途中の手筋で原本の誤りがあったため不詰めと思われていたが、きちんと正解があった。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 27969,
+      "pv": [
+        "7i6g",
+        "6e7d",
+        "9k7i",
+        "5c7e",
+        "6g5e",
+        "7d8e",
+        "5e7g",
+        "8e7d",
+        "7g9e",
+        "7d6e",
+        "9e8d7e"
+      ]
+    }
+  }
+}

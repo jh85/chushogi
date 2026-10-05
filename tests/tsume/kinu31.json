@@ -1,0 +1,51 @@
+{
+  "id": "kinu31",
+  "source": "/tmp/tsume/pages/kinu31.html",
+  "title": "中将棊絹篩・第31問",
+  "format": "sk",
+  "sfen": "3+P2kg4/4e3+P3/5o3f2/4t+D1t2m1/4p2O4/12/1+M1+d6H1/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 16,
+  "solution": {
+    "moves": [
+      "11g12g",
+      "9g12g",
+      "7d6c",
+      "7c6b",
+      "4b5b",
+      "5a5b",
+      "6c5b4a",
+      "6b5a",
+      "5e5c+",
+      "5d5c",
+      "2g8a+",
+      "8b7a",
+      "4a6c",
+      "5a6b",
+      "8a7a",
+      "6a7a",
+      "6c8a"
+    ],
+    "comments": {
+      "4": "ここは麒麟しかいない。金ならと金寄るで終わり、７一玉将ならこれもと金寄りでおわり。",
+      "14": "こんな展開は角鷹を大切に。そうしないと詰めません。",
+      "15": "同盲虎なら同角鷹で終わり。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 19330,
+      "pv": [
+        "7d6c",
+        "5a6b",
+        "4b5b",
+        "6a7a",
+        "9a8a"
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "kinu18",
+  "source": "/tmp/tsume/pages/kinu18.html",
+  "title": "中将棊絹篩・第18問",
+  "format": "sk",
+  "sfen": "6k3d1/1f3e3f2/2+D2+vt+M+m2N/6p3O+b/7m4/2+F9/12/12/12/1R7q2/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "10c12a",
+      "11b12a",
+      "11j11a+",
+      "6a5b",
+      "5c4b",
+      "5b4b",
+      "1c2b",
+      "2a2b",
+      "2d4d",
+      "4b5b",
+      "4d6d+",
+      "7c6d",
+      "11a5a"
+    ],
+    "comments": {
+      "6": "原本４三玉将とあるが、４二同玉将が正しいと思われる。",
+      "13": "ここまで、初手で猛豹を取らずに飛び越えるのがいかにも詰め将棋らしい手。奔王の利きを潰すねらい。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 3943,
+      "pv": [
+        "10c12a",
+        "6a5b",
+        "5c4b",
+        "5b4b",
+        "1c2b",
+        "2a2b",
+        "2d4d",
+        "4b5b",
+        "4d6d+",
+        "7c6d",
+        "12a5a"
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "kinu21",
+  "source": "/tmp/tsume/pages/kinu21.html",
+  "title": "中将棊絹篩・第21問",
+  "format": "sk",
+  "sfen": "12/4t4t2/2f3+B1f2+D/3p2pp2+v1/3i+b1k1p1p1/2+M+F5p1N/5+pPTi3/11+h/2+r9/5R+a5/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 27,
+  "solution": {
+    "moves": [
+      "9f8g",
+      "7g8g",
+      "10f5f",
+      "6e5f",
+      "1f3d",
+      "4c3d",
+      "5g6f",
+      "5f6e",
+      "6c7d",
+      "8e7d",
+      "7j7e",
+      "7d7e",
+      "1c8c",
+      "7e7d",
+      "8c8g"
+    ],
+    "comments": {
+      "15": "以上１５手詰め。ところが原本には１６手詰めにされている。それは１０手目７四同馬のあと、さらに同馬と書かれているためであるが、あきらかに誤植。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 3892,
+      "pv": [
+        "9f8g",
+        "6e7e",
+        "10f6f"
+      ]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "tsukuri22",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri22.txt",
+  "title": "中将棊作物収録作品・第二十二問",
+  "format": "sk",
+  "sfen": "7+v1tfl/6g4k/6f1r3/4+D3+D3/8g1d1/5QP3O1/12/12/12/7+V4/12/5+m6 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 85191,
+      "pv": [
+        "4d3d",
+        "1b1c",
+        "7f4c",
+        "5a3c",
+        "4c3c",
+        "2e2c",
+        "3c2c"
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "kinu55",
+  "source": "/tmp/tsume/pages/kinu55.html",
+  "title": "中将棊絹篩・第55問中将棊指南抄・第17問",
+  "format": "sk",
+  "sfen": "l2t1Q6/ak2f7/1vc3s5/pp1pp7/1g5+H4/1+Fb1+V7/2+O9/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "8f11c",
+      "11b11c",
+      "7a9a",
+      "8b9a",
+      "5e11e",
+      "11d11e",
+      "10g10e",
+      "11c10b",
+      "10e8c",
+      "10b11c",
+      "8c9c",
+      "11c12c",
+      "9c10c"
+    ],
+    "comments": {
+      "9": "原本ではこれより獅子一枚にてつむ。とだけあるが、これ以降も手順は進む。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 13397,
+      "pv": [
+        "5e8b",
+        "9a8b",
+        "8f11c",
+        "11b11c",
+        "7a11a",
+        "11c12c",
+        "10g10f11e",
+        "11d11e",
+        "11f10e",
+        "10c11d",
+        "11a11d"
+      ]
+    }
+  }
+}

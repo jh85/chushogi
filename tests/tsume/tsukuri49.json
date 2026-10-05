@@ -1,0 +1,31 @@
+{
+  "id": "tsukuri49",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri49.txt",
+  "title": "中将棊作物収録作品・第四十九問",
+  "format": "sk",
+  "sfen": "2v3d+S4/3gm4c2/4+P4+P2/1p4+M1+P3/+P1+P+f2+Ip4/2n2+h4g1/1+e2c1H2C1l/3p3Pf3/3P+hB6/H3T3+R3/3+A1+pTM4/+l3Q1D3VL b - 1",
+  "to_move": "sente",
+  "pieces": 42,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 16437,
+      "pv": [
+        "7i10f",
+        "9e10f",
+        "8l11l",
+        "11g12g",
+        "12e12f",
+        "12g12h",
+        "6d10h"
+      ]
+    }
+  }
+}

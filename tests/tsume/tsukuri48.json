@@ -1,0 +1,71 @@
+{
+  "id": "tsukuri48",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri48.txt",
+  "title": "中将棊作物収録作品・第四十八問",
+  "format": "sk",
+  "sfen": "6m5/12/+S2gs4+P2/h1p9/1X2p1p3H1/10p1/10ke/A10A/8M2Q/9+M1+r/10+t1/12 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "2e1f",
+      "2g1f",
+      "1h1g",
+      "1f2g",
+      "3j1h",
+      "2g1g",
+      "1h2h",
+      "1g2g",
+      "2h3g",
+      "2g3f",
+      "3g4f",
+      "3f4e",
+      "4f5e",
+      "4e5d",
+      "5e6d",
+      "5d6c",
+      "6d7c",
+      "6c7b",
+      "7c8b",
+      "7b8a",
+      "11e11d+",
+      "12d11d",
+      "8b9a",
+      "8a9b",
+      "1i8b",
+      "9b10c",
+      "8b11b",
+      "10c11b",
+      "12c11c",
+      "11d11c",
+      "12h12a+"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 37587,
+      "pv": [
+        "2e1f",
+        "2g3f",
+        "1f3d+",
+        "3f4g",
+        "1i3g",
+        "4g5h",
+        "3d1d",
+        "5h6h",
+        "1d5h",
+        "6h5h",
+        "4i5i",
+        "5h6h",
+        "3g6g",
+        "6h5i",
+        "6g6j"
+      ]
+    }
+  }
+}

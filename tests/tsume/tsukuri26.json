@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri26",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri26.txt",
+  "title": "中将棊作物収録作品・第二十六問",
+  "format": "sk",
+  "sfen": "5q6/6+ackg1+P/5+V+P1bv+h1/4+O1r1x3/12/10N1/1R10/1+v2+H7/5Q6/1+a10/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 136427,
+      "pv": []
+    }
+  }
+}

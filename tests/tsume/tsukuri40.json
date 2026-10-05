@@ -1,0 +1,60 @@
+{
+  "id": "tsukuri40",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri40.txt",
+  "title": "中将棊作物収録作品・第四十問",
+  "format": "sk",
+  "sfen": "12/5e6/4v7/12/3IP1s+P4/12/5f4+p1/6+pkI+p2/5+p5+H/12/8+H3/5N3+v2 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [
+      "1i4i",
+      "3h4i",
+      "7l5j",
+      "4i5j",
+      "4k4i",
+      "5h5g",
+      "4i4g",
+      "5g6f",
+      "4g6e",
+      "6f5g",
+      "6e4g",
+      "5g6f",
+      "4g5f",
+      "6f7e",
+      "5e6e",
+      "7e8e",
+      "5f9f",
+      "8e8d",
+      "9f9d",
+      "8d7c",
+      "9d6d"
+    ],
+    "comments": {
+      "2": "「２手目５七玉は４七鷹，５六玉，６五鷹，５七玉，５六鷹，４八玉，４六鷹以下」(バケラッタさん)",
+      "3": "「３手目同鷹は３十一牛の９六への利きが残っているため詰まない」",
+      "4": "「４手目６七玉は４九獅，７六玉，５七獅，８五玉，７七獅以下」(バケラッタさん)",
+      "21": "以上21手詰め。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 4107,
+      "pv": [
+        "1i4i",
+        "3h4i",
+        "7l5j",
+        "5h5g",
+        "5j4i",
+        "5g6f",
+        "4i4g",
+        "6f7f",
+        "4g6e"
+      ]
+    }
+  }
+}

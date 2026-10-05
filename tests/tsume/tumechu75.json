@@ -1,0 +1,41 @@
+{
+  "id": "tumechu75",
+  "source": "/tmp/tsume/pages/tumechu75.html",
+  "title": "詰め中将棋 第75図やさしいあぶり出し曲詰です。前図74図とペアです。",
+  "format": "sk",
+  "sfen": "12/12/12/10+R1/3S1S2+l3/12/5k1P4/3GR1P5/6+a5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 10,
+  "solution": {
+    "moves": [
+      "9e8f",
+      "7g7f",
+      "9h8g",
+      "6i8g",
+      "8h7h",
+      "4e7h",
+      "2d2f",
+      "7f6e",
+      "2f5f"
+    ],
+    "comments": {
+      "9": "迄、9手詰。詰上がり風船模様の曲詰です。盤の中央にくっきりと浮き出ます。前74図の詰め上がりと重ね合わせると番の中央4×4の密集形になります。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 111,
+      "pv": [
+        "9e8f",
+        "7g7f",
+        "9h8g",
+        "7f6e",
+        "2d6d"
+      ]
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "id": "kinu17",
+  "source": "/tmp/tsume/pages/kinu17.html",
+  "title": "中将棊絹篩・第17問",
+  "format": "sk",
+  "sfen": "2Q5+P2l/7g2+v1/6t2f2/7p1p2/7t2X1/12/5+B+v5/7f4/12/6+p2+bk1/7N4/2+r8L b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [
+      "7g3k",
+      "3j3k",
+      "10a2i",
+      "2j2i",
+      "2e2d+",
+      "2b2d",
+      "5k3k"
+    ],
+    "comments": {
+      "7": "原本ではここまで。後は獅子の寄せということだと思われる。しかし2四鳳凰成るはいらないかと思われるが…"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 610056,
+      "pv": [
+        "7g3k",
+        "3j3k",
+        "10a2i",
+        "2j2i",
+        "2e2d+",
+        "2b2d",
+        "5k3k",
+        "2i2h",
+        "3k3j",
+        "2h2g",
+        "3j4h"
+      ]
+    }
+  }
+}

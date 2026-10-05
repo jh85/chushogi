@@ -1,0 +1,66 @@
+{
+  "id": "tukurimono01",
+  "source": "/tmp/tsume/pages/tukurimono01.html",
+  "title": "詰め中将棋『中象戯作物 図五十・初代伊藤宗看』より第一問",
+  "format": "te",
+  "sfen": "3s1xkg4/4+D1e2s2/2+dN5f2/5c2p3/3p2+HO4/4+v7/12/2+V9/6q5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "10h10e",
+      "10c10e",
+      "9c7a",
+      "6b7a",
+      "8b6d",
+      "8f6d",
+      "6e6c",
+      "6d6c",
+      "5e5c+"
+    ],
+    "comments": {
+      "7": "ここで飛牛を飛び越すのがポイント",
+      "9": "ここまで、飛牛を取ってしまうと奔王が来てしまい、麒麟が動けなくなる。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "6i10e",
+        "6e6c",
+        "6b6c",
+        "9c7a"
+      ],
+      "full_line": [
+        "10h10e",
+        "6i10e",
+        "6e6c",
+        "6b6c",
+        "9c7a"
+      ],
+      "comments": {
+        "4": "醉象が離れたことで獅子の詰めがきく。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 21716,
+      "pv": [
+        "10h10e",
+        "6a5b",
+        "5e4d+",
+        "5b4a",
+        "4d3c2b",
+        "4a5b",
+        "2b3b"
+      ]
+    }
+  }
+}

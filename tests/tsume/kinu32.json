@@ -1,0 +1,41 @@
+{
+  "id": "kinu32",
+  "source": "/tmp/tsume/pages/kinu32.html",
+  "title": "中将棊絹篩・第32問",
+  "format": "sk",
+  "sfen": "8+lc1l/7+h2ok/4+H3Q3/9Fg1/11p/9D2/12/12/12/12/4+L7/12 b - 1",
+  "to_move": "sente",
+  "pieces": 13,
+  "solution": {
+    "moves": [
+      "3d2c",
+      "2d2c",
+      "3f3d+",
+      "2c3d",
+      "8k1d",
+      "4a1d",
+      "4c2a",
+      "1b2a",
+      "8c2c"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 680,
+      "pv": [
+        "3d2c",
+        "4a2c",
+        "3f3d+",
+        "1b1c",
+        "4c2c",
+        "2d2c",
+        "8c2c"
+      ]
+    }
+  }
+}

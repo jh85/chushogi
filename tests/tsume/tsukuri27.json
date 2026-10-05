@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri27",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri27.txt",
+  "title": "中将棊作物収録作品・第二十七問",
+  "format": "sk",
+  "sfen": "l+m1d1+v6/1+P1kc7/d3e7/2+H1p7/sv1t8/+L1N2+D6/12/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 217048,
+      "pv": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "kinu15",
+  "source": "/tmp/tsume/pages/kinu15.html",
+  "title": "中将棊絹篩・第15問",
+  "format": "sk",
+  "sfen": "10+Gl/7xe3/6+D4+v/6pptk2/3+H1r3pn1/6+d3O1/3p8/9N2/5+H1+h4/12/12/10+A1 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "7i7h",
+      "7e7h",
+      "6c2c",
+      "2e2c",
+      "9e4e",
+      "3d4e",
+      "3h4g",
+      "4e3d",
+      "4g2e",
+      "3d2e",
+      "2f2d+"
+    ],
+    "comments": {
+      "9": "ここで後手獅子は先手獅子を取ることが出来ません。とても珍しい形のウラ足が成立しています。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 1519,
+      "pv": [
+        "7i7h",
+        "2e4e",
+        "2a2d",
+        "1c2d",
+        "2f2d+"
+      ]
+    }
+  }
+}

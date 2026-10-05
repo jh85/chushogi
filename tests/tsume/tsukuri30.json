@@ -1,0 +1,33 @@
+{
+  "id": "tsukuri30",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri30.txt",
+  "title": "中将棊作物収録作品・第三十問",
+  "format": "sk",
+  "sfen": "2+C9/r2g1+I6/3k2+h5/ce1p8/l1Pi+m2+D1r2/4G1N1+p3/6+p5/4Q1B1+G3/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 21643,
+      "pv": [
+        "6f8e",
+        "6c8e",
+        "5e7c",
+        "9b8c",
+        "7b8c",
+        "9c10c",
+        "8c9c",
+        "10c11c",
+        "9c10b"
+      ]
+    }
+  }
+}

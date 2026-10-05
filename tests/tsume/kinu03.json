@@ -1,0 +1,49 @@
+{
+  "id": "kinu03",
+  "source": "/tmp/tsume/pages/kinu03.html",
+  "title": "中将棊絹篩第３問",
+  "format": "sk",
+  "sfen": "11l/5t2o1+O1/5n1t1s2/3m3k3q/5pP2p2/12/5N3f2/3+L4+b3/6+A5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "7g5f",
+      "5d6c",
+      "2b4a",
+      "1d4a",
+      "6e6d+",
+      "7c6d",
+      "6i6d",
+      "9d6d",
+      "5f5e",
+      "6c6b",
+      "5e6d5d",
+      "6b6a",
+      "5d7c"
+    ],
+    "comments": {
+      "3": "４一獅子が妙手。",
+      "4": "奔王の四段の利きをこれで無くすのがミソ。",
+      "6": "ここで６四盲虎の場合、△６五獅子、▼６二玉将、△６四（盲虎）・７五（歩）獅子で、玉将は７一でも５一でも次に獅子が７三に来て詰み。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 101937,
+      "pv": [
+        "7g5f",
+        "5d6c",
+        "2b4a",
+        "1d4a",
+        "6e6d",
+        "5c6d",
+        "5f5d"
+      ]
+    }
+  }
+}

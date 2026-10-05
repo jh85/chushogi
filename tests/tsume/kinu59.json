@@ -1,0 +1,69 @@
+{
+  "id": "kinu59",
+  "source": "/tmp/tsume/pages/kinu59.html",
+  "title": "中将棊絹篩・第５９問中将棊指南抄・第２１問",
+  "format": "sk",
+  "sfen": "l3qo+b5/an+de1dv1+FN2/mfg1t1b5/k2pg1+Osp1+F1/2GipCsp2p1/pTp2pp1X3/tT3+H2+H3/12/+h1+h9/1V10/12/6q5 b - 1",
+  "to_move": "sente",
+  "pieces": 45,
+  "solution": {
+    "moves": [
+      "10e11e",
+      "12d11e",
+      "11g10f",
+      "11e10d",
+      "10f11e",
+      "10d9c",
+      "7e8d",
+      "10b8d",
+      "6d8d",
+      "9c8d",
+      "4b7e",
+      "7b7e",
+      "7g7e",
+      "8d7e",
+      "4f6d+",
+      "7e6d",
+      "3b5c",
+      "6d5c",
+      "4g9g",
+      "5c4c",
+      "9g4b",
+      "4c3d",
+      "4b3c",
+      "3d4e",
+      "3c3e",
+      "4e5f",
+      "3e5g",
+      "5f4e",
+      "5g4f",
+      "4e3d",
+      "4f3e",
+      "3d2c",
+      "3e3c",
+      "2c1d",
+      "3c1c"
+    ],
+    "comments": {
+      "35": "ここまで。中将棊指南抄の問題においては珍しく詰め将棋らしい名問題。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 68919,
+      "pv": [
+        "10e11e",
+        "12d11e",
+        "11g10f",
+        "11e11d",
+        "11f10e",
+        "11d12d",
+        "10f11e"
+      ]
+    }
+  }
+}

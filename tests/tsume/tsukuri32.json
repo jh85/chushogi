@@ -1,0 +1,63 @@
+{
+  "id": "tsukuri32",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri32.txt",
+  "title": "中将棊作物収録作品・第三十二問",
+  "format": "sk",
+  "sfen": "10k1/4+b+G2+L1q1/6gc+T+v2/6r1e3/8p+H2/8m+H2/5N1P4/5+A6/11Q/12/11+A/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [
+      "1i1a",
+      "2b1a",
+      "1k2l",
+      "3c2b",
+      "4c3b",
+      "2a3b",
+      "4b4d",
+      "8b7b",
+      "3f3d",
+      "3b3a",
+      "4d5c",
+      "3a2a",
+      "3d4c",
+      "2a1b",
+      "3e1c",
+      "2b1c",
+      "4c2c"
+    ],
+    "comments": {
+      "4": "22奔は同鯨,同牛(同玉は33鹿以下清算から獅子追い),32鹿,同玉,14鷹,23牛,43駒,同玉,23鷹,33象,55獅まで",
+      "8": "31玉は32飛,同玉(21玉は22鯨以下),34鷹(36),31玉,61鷹,32玉,34鷹(35)まで",
+      "17": "以上17手詰 (手順・隴西の李徴さん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 15564,
+      "pv": [
+        "1i1a",
+        "2b1a",
+        "1k2l",
+        "1a2b",
+        "2l2b",
+        "2a2b",
+        "4c3c",
+        "2b2a",
+        "4b4c",
+        "2a1a",
+        "7b1b",
+        "1a1b",
+        "3f1d",
+        "1b1a",
+        "3c2b",
+        "1a2b",
+        "1d1c"
+      ]
+    }
+  }
+}

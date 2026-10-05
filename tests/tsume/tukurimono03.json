@@ -1,0 +1,65 @@
+{
+  "id": "tukurimono03",
+  "source": "/tmp/tsume/pages/tukurimono03.html",
+  "title": "詰中将棋モード",
+  "format": "te",
+  "sfen": "5k6/2+P2g+d2b2/2x1t7/1p3p2N3/3op2+X4/9q2/12/12/6+A5/4Q7/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 16,
+  "solution": {
+    "moves": [
+      "4d5c",
+      "6b5c6b",
+      "8j12f",
+      "3f12f",
+      "5e1a",
+      "7a8b",
+      "1a9a"
+    ],
+    "comments": {
+      "1": "獅子を飛鷲の左の角へ行く。",
+      "2": "飛鷲がとると書かれている。（居喰いかどうかは書かれていない）",
+      "3": "奔王を左の端へ王手と行く。と書かれている。",
+      "7": "まで。５手目６一飛鷲でも▲同奔王で後は同じ。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 3,
+      "moves": [
+        "9e11e",
+        "12f12a",
+        "10c12a",
+        "5e9a"
+      ],
+      "full_line": [
+        "4d5c",
+        "6b5c6b",
+        "8j12f",
+        "9e11e",
+        "12f12a",
+        "10c12a",
+        "5e9a"
+      ],
+      "comments": {
+        "1": "麒麟にて間にした場合",
+        "4": "これでも詰み。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 11241,
+      "pv": [
+        "8j12f",
+        "7a8a",
+        "10b9a"
+      ]
+    }
+  }
+}

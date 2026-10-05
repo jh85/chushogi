@@ -1,0 +1,43 @@
+{
+  "id": "kinu16",
+  "source": "/tmp/tsume/pages/kinu16.html",
+  "title": "中将棊絹篩・第16問",
+  "format": "sk",
+  "sfen": "9c2/4+v2t1+Pf+M/5+P1n1t2/4m2k4/8I1p1/4p3g2Q/6N5/5+a6/8R3/4+L7/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [
+      "8j5g",
+      "4f5g",
+      "1f7f",
+      "7h7f",
+      "6g5g5f",
+      "5d4c",
+      "4e4d",
+      "5c4d",
+      "4i4d",
+      "8d4d",
+      "5f5e",
+      "4c3b",
+      "5e5c"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 65,
+      "pv": [
+        "6g4f",
+        "5d4c",
+        "4f3e",
+        "4c3b",
+        "3e5c"
+      ]
+    }
+  }
+}

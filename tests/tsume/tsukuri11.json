@@ -1,0 +1,37 @@
+{
+  "id": "tsukuri11",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri11.txt",
+  "title": "中将棊作物収録作品・第十一問",
+  "format": "sk",
+  "sfen": "5n6/2se8/1c1tk7/1f3g1N+m3/1pp2F6/3P2+b5/2+D1X7/12/7+a4/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "10g8e",
+      "7d8e",
+      "7e7d",
+      "8c9d",
+      "5d7c",
+      "9d10c",
+      "7d8e+",
+      "10c10d",
+      "7c9e",
+      "5i9e",
+      "8g8f"
+    ],
+    "comments": {
+      "3": "「成ると△8二玉将▲7三獅子のときに足がないので△同獅子と取られてしまう」(もずさん談)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 87320,
+      "pv": []
+    }
+  }
+}

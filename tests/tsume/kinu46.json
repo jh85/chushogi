@@ -1,0 +1,38 @@
+{
+  "id": "kinu46",
+  "source": "/tmp/tsume/pages/kinu46.html",
+  "title": "中将棊絹篩・第46問改1中将棊指南抄・第８問",
+  "format": "sk",
+  "sfen": "5+D3c1l/6N2fka/8ts1m/10pp/8iDX1/8+vp2/12/12/12/8D3/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "3e2d+",
+      "3c2d",
+      "6b4d",
+      "4e4d",
+      "7a4d",
+      "4f4d",
+      "4j4d+",
+      "2b2a",
+      "2e2d+",
+      "3a2b",
+      "2d2b"
+    ],
+    "comments": {
+      "1": "原題の手順による。なお、原題の駒図に１三横行を追加した。",
+      "6": "ここで原題の図なら１三玉将逃げで不詰めとなった。それを回避するため横行を配置したが、次いで２三玉将と逃げるとはたして詰むことは出来るのだろうか？"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 60772,
+      "pv": []
+    }
+  }
+}

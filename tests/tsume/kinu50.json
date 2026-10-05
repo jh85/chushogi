@@ -1,0 +1,41 @@
+{
+  "id": "kinu50",
+  "source": "/tmp/tsume/pages/kinu50.html",
+  "title": "中将棊絹篩・第50問中将棊指南抄・第12問",
+  "format": "sk",
+  "sfen": "1+R2+B7/4g1ekd2+l/5tt2s2/2p3p2p2/3sp5+H1/1Hf2X6/12/9+a1L/12/5+v6/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [
+      "11f6a+",
+      "5b6a",
+      "8a6c",
+      "6b7a",
+      "11a7a",
+      "6a7a",
+      "2e2f",
+      "7a6a",
+      "7f9d+",
+      "7c8c",
+      "9d9a",
+      "7j7a",
+      "9a7a"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 45140,
+      "pv": [
+        "11f6a+",
+        "5b5c",
+        "2e5e"
+      ]
+    }
+  }
+}

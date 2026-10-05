@@ -1,0 +1,53 @@
+{
+  "id": "kinu07",
+  "source": "/tmp/tsume/pages/kinu07.html",
+  "title": "中将棊絹篩第７問",
+  "format": "sk",
+  "sfen": "3b3+M3+H/7k1c2/5tt1e3/5p3p2/7g3p/8+D3/1+F1r8/12/12/9+a2/3R3q4/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "5a4b",
+      "5b4b",
+      "4f6d",
+      "4b5b",
+      "1a5a",
+      "5b5a",
+      "6d7c8b",
+      "9g9e",
+      "11g9e",
+      "5a4a",
+      "8b7a",
+      "4a4b",
+      "7a5a"
+    ],
+    "comments": {
+      "4": "逃げの一手のみ。盲虎で取ると、角鷹が寄せて詰め",
+      "12": "原本では６二飛鷲まで、とあるが、王手ではないため誤り。",
+      "14": "１２手目以降は原本を補足。飛鷲が金将を取らずに進んだのが（奔王の筋を潰す）利いている。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 19152,
+      "pv": [
+        "5a4b",
+        "5b4b",
+        "4f6d",
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "5a6a",
+        "8b8a",
+        "6a5b",
+        "8a5a"
+      ]
+    }
+  }
+}

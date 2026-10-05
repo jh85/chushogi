@@ -1,0 +1,38 @@
+{
+  "id": "tumechu1",
+  "source": "/tmp/tsume/pages/tumechu1.html",
+  "title": "詰め中将棋 第1図 ヒント：獅子の付け食いに注意。",
+  "format": "sk",
+  "sfen": "12/7Q4/7N3n/10g1/10P1/9P1k/10+p1/9qt1/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 10,
+  "solution": {
+    "moves": [
+      "2e2d",
+      "1f1g",
+      "5b1f",
+      "1g1f",
+      "5c3e"
+    ],
+    "comments": {
+      "1": "成ると、最終手に対して、２四３五獅子が成立して詰まない。",
+      "5": "以上、5手詰。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 234,
+      "pv": [
+        "2e2d",
+        "1c2e",
+        "5b2e",
+        "1f1g",
+        "2e1e"
+      ]
+    }
+  }
+}

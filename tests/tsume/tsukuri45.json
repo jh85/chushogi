@@ -1,0 +1,45 @@
+{
+  "id": "tsukuri45",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri45.txt",
+  "title": "中将棊作物収録作品・第四十五問",
+  "format": "sk",
+  "sfen": "12/4+B3+V1+AQ/7g1m2/1p1p1+P5e/l9+M1/2+I9/3s2+dc3+t/N2D1p1p1ps1/1M6+a+p2/12/D1+p1+p7/1+p2k7 b - 1",
+  "to_move": "sente",
+  "pieces": 31,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 209585,
+      "pv": [
+        "9h9l",
+        "8k9l",
+        "12h10j",
+        "10k10j",
+        "2e1e",
+        "1d1e",
+        "2b2f",
+        "1e2f",
+        "8b3g",
+        "2f3g",
+        "4b4h",
+        "3g4h",
+        "1b8b",
+        "6g8i",
+        "8b8i",
+        "8l7l",
+        "8i8k",
+        "7l6l",
+        "8k7k",
+        "6l5l",
+        "7k7l"
+      ]
+    }
+  }
+}

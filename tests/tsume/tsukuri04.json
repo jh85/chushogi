@@ -1,0 +1,51 @@
+{
+  "id": "tsukuri04",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri04.txt",
+  "title": "中将棊作物収録作品・第四問",
+  "format": "sk",
+  "sfen": "4+r4+bm1/7+a4/7xk3/6p1sp1r/5+D1F1H1+M/12/7N3+S/8+M3/2+f9/12/9+a2/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "4h9h",
+      "10i9h",
+      "5e5d+",
+      "9h5d",
+      "5g5e",
+      "4d5e",
+      "3e4d+",
+      "5e4d",
+      "7e2e",
+      "4c3b",
+      "2e1d",
+      "3b2b",
+      "1d1b",
+      "2b1b",
+      "1e3c"
+    ],
+    "comments": {
+      "15": "以下１三馬と合馬をしても、仝竪行と指されて詰みです。 「（猛）馬獅猪が全てジャマ駒！」(TETSUさん談) (手順初出・カピタン23号 (1981年4月20日発行))"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 8015,
+      "pv": [
+        "4h9h",
+        "8a8g",
+        "3e4d+",
+        "4c3b",
+        "4d3c",
+        "3b4a",
+        "7e7a",
+        "5b5a",
+        "7a5a"
+      ]
+    }
+  }
+}

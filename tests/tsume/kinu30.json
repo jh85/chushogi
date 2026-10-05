@@ -1,0 +1,85 @@
+{
+  "id": "kinu30",
+  "source": "/tmp/tsume/pages/kinu30.html",
+  "title": "中将棊絹篩・第30問",
+  "format": "sk",
+  "sfen": "3q3g2Q1/5e4f1/6k5/6pp4/4p3i+H2/7t2N1/6t4H/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 15,
+  "solution": {
+    "moves": [
+      "2f4d",
+      "4e4d",
+      "3e8e",
+      "6c7c",
+      "2a4c",
+      "4d4c",
+      "1g5c+",
+      "7c8b",
+      "8e8d",
+      "8b8a",
+      "5c5a",
+      "8a9b",
+      "8d9d",
+      "9b10a",
+      "9d10c",
+      "10a11a",
+      "5a9a"
+    ],
+    "comments": {
+      "8": "ここで原本には角鷹二枚にて詰む。とだけ記載されているが、実際にはそこからが難しい（笑）",
+      "9": "８四角鷹がおそらく最善か",
+      "10": "受け手は８一か９二のどちらかしかない。９二玉将の場合なら、正解２の手順となる。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 9,
+      "moves": [
+        "8b9b",
+        "5c9c",
+        "9b10a",
+        "9c10c"
+      ],
+      "full_line": [
+        "2f4d",
+        "4e4d",
+        "3e8e",
+        "6c7c",
+        "2a4c",
+        "4d4c",
+        "1g5c+",
+        "7c8b",
+        "8e8d",
+        "8b9b",
+        "5c9c",
+        "9b10a",
+        "9c10c"
+      ],
+      "comments": {
+        "1": "玉将が９二に行った場合は簡単である。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 24962,
+      "pv": [
+        "2f4d",
+        "6c7c",
+        "4d5d6d",
+        "7c6d",
+        "3e5c",
+        "6d7d",
+        "2a5d",
+        "9a6d",
+        "5d6d"
+      ]
+    }
+  }
+}

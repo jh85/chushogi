@@ -1,0 +1,75 @@
+{
+  "id": "kinu62",
+  "source": "/tmp/tsume/pages/kinu62.html",
+  "title": "中将棊絹篩・第６２問中将棊指南抄・第２４問",
+  "format": "sk",
+  "sfen": "3o+d1e5/+D2fkgt+a+h1+F1/2X1x1c1+m3/1p3p1gc3/12/12/12/3+V1N6/10+a1/+v2q8/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [
+      "10c8a",
+      "8b8a",
+      "12b9b",
+      "8a7a",
+      "9b9a"
+    ],
+    "comments": {
+      "2": "ここで７三玉なら正解２の手順。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "8b7c",
+        "12b9e",
+        "7c6d",
+        "7h6f",
+        "6d5c",
+        "9e3e",
+        "4d3e",
+        "9h5d",
+        "6c5d",
+        "6f4d",
+        "4b4d",
+        "2b3a"
+      ],
+      "full_line": [
+        "10c8a",
+        "8b7c",
+        "12b9e",
+        "7c6d",
+        "7h6f",
+        "6d5c",
+        "9e3e",
+        "4d3e",
+        "9h5d",
+        "6c5d",
+        "6f4d",
+        "4b4d",
+        "2b3a"
+      ],
+      "comments": {
+        "12": "なんと鳳凰の不成がここで利いてくる。獅子がなくなっても詰めるという、中将棋ならではのおもしろさを感じる問題。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 520,
+      "pv": [
+        "10c8a",
+        "8b8a",
+        "12b9b",
+        "8a7a",
+        "9b9a"
+      ]
+    }
+  }
+}

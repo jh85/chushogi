@@ -1,0 +1,40 @@
+{
+  "id": "tsukuri24",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri24.txt",
+  "title": "中将棊作物収録作品・第二十四問",
+  "format": "sk",
+  "sfen": "5+H2e1+H1/7+h1f1+P/6f1tk1l/6p2b2/10p1/7P2q1/7+vN3/12/11Q/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "4g3e",
+      "2f3e",
+      "2a2d",
+      "3e2d",
+      "7a4d",
+      "3c4d",
+      "1i5e"
+    ],
+    "comments": {
+      "2": "�u�����͂S�l��C�����C�Q�l��C���ʁC�P�O�z�܂ŁD �S��ʂ���������Q�l��Ƃ��� �@�R�O�^�͂Q�O���i�R�l���j�܂ŁD �A�R�O�Ղ͓���C���^�C�Q�O���i�R�l���j�܂ŁD�v �i�o�P���b�^����j",
+      "7": "�ȏ�V��l�߁B"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 5264,
+      "pv": [
+        "4g3e",
+        "3c4b",
+        "2a2d",
+        "3b3c",
+        "3e3d2c"
+      ]
+    }
+  }
+}

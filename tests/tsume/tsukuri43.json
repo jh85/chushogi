@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri43",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri43.txt",
+  "title": "中将棊作物収録作品・第四十三問",
+  "format": "sk",
+  "sfen": "12/12/12/4v1c5/6f+H4/2sp1p6/2dk2p+p4/1+m10/+f2S2P+H1M2/C2IR7/+p1M2+tN5/2+p1+A3+v3 b - 1",
+  "to_move": "sente",
+  "pieces": 27,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 114371,
+      "pv": []
+    }
+  }
+}

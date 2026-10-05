@@ -1,0 +1,54 @@
+{
+  "id": "tsukuri09",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri09.txt",
+  "title": "中将棊作物収録作品・第九問",
+  "format": "sk",
+  "sfen": "2c+F8/bv1e1+h6/7+M4/+mkp+D8/1p10/2+M9/1t10/+H2+i8/12/1+p5+a4/2Q9/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "10f9f",
+      "5j9f",
+      "10k10e",
+      "9f10e",
+      "9d9f",
+      "11d12e",
+      "9f12f",
+      "11g12f",
+      "12h12g",
+      "12e11d",
+      "5c12c",
+      "11d12c",
+      "12g12f12e"
+    ],
+    "comments": {
+      "2": "１２五玉は９八鷹で １１六歩は１０五奔から１１六猪、 １１六虎は同鷹、同歩、１０五奔以下",
+      "4": "１２五玉は１２七奔、同虎、同鷹、１１四玉、９六鷲まで"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 7512,
+      "pv": [
+        "10f9f",
+        "11d12e",
+        "12h9h",
+        "11e11f",
+        "5c7e",
+        "11b11e",
+        "9f11f",
+        "12e11d",
+        "7e10e",
+        "11e10e",
+        "11f10e",
+        "5j10e",
+        "10k10e"
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "kinu20",
+  "source": "/tmp/tsume/pages/kinu20.html",
+  "title": "中将棊絹篩・第20問",
+  "format": "sk",
+  "sfen": "4+F7/6g1e1+m1/4so1Rm3/4g3kp1+P/7tp1M1/3N6c1/5n6/6H5/3+a3+L4/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "6h3e",
+      "3d3e",
+      "5c5d",
+      "5e5d",
+      "2e2d",
+      "4d5c",
+      "9f7d",
+      "8d7d",
+      "2d5d",
+      "5c5b",
+      "5d7d+",
+      "5b6a",
+      "7d4a"
+    ],
+    "comments": {
+      "5": "ならずに上がるのがミソ",
+      "9": "ここでも原本ではならずにいく",
+      "11": "原本ではナルと記載されていないが、９手目か１１手目のいずれかで成れば良いと思われる。",
+      "13": "原本４四奔猪とあるが、間違い。なお、この後▽５一醉象、同奔猪で詰み。１９問目が疑問の問題だっただけに非常に良作。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 838,
+      "pv": [
+        "6h3e",
+        "3d3e",
+        "5c5d",
+        "4d3c",
+        "5d3d",
+        "3c3d",
+        "2e2d",
+        "3d3c",
+        "1d2c"
+      ]
+    }
+  }
+}

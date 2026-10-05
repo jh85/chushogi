@@ -1,0 +1,43 @@
+{
+  "id": "kinu38",
+  "source": "/tmp/tsume/pages/kinu38.html",
+  "title": "中将棊絹篩・第38問",
+  "format": "sk",
+  "sfen": "3s1xkg4/4+D1e2s2/2+dN5f2/5c2p3/3p2+HO4/4+v7/12/2+V9/6q5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "10h10e",
+      "10c10e",
+      "9c7a",
+      "6b7a",
+      "8b6d",
+      "8f6d",
+      "6e6c",
+      "6d6c",
+      "5e5c+"
+    ],
+    "comments": {
+      "9": "原本には６三麒麟、牛を取って成るなり。とされているが、誤り。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 21716,
+      "pv": [
+        "10h10e",
+        "6a5b",
+        "5e4d+",
+        "5b4a",
+        "4d3c2b",
+        "4a5b",
+        "2b3b"
+      ]
+    }
+  }
+}

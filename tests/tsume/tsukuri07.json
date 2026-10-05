@@ -1,0 +1,47 @@
+{
+  "id": "tsukuri07",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri07.txt",
+  "title": "中将棊作物収録作品・第七問",
+  "format": "sk",
+  "sfen": "2+F1n7/4Q7/1seg1q1+D4/3kp1N5/P3f1p5/2P2g3b2/GP8B1/12/+r11/12/12/1V10 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [
+      "8b7b",
+      "7c7b",
+      "6d7c",
+      "7b7c",
+      "5c9g",
+      "9d10d",
+      "9g11e",
+      "10d11e",
+      "12g11f",
+      "11e11d",
+      "2g5j",
+      "3f6i+",
+      "5j6i",
+      "12i6i",
+      "11f10e",
+      "11d12e",
+      "11l12l"
+    ],
+    "comments": {
+      "17": "以上17手詰め。 獅子が邪魔駒なのだが、単に捨てると角や奔王が利いてきて詰まない。形を崩さず捨てる巧妙な手順。 (手順・バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 3844,
+      "pv": [
+        "6d7c7d",
+        "9d10d",
+        "7d8e9f"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "id": "tsukuri05",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri05.txt",
+  "title": "中将棊作物収録作品・第五問",
+  "format": "sk",
+  "sfen": "12/+r2v1r6/3k+ds6/+H2ib2f4/m1q1+D7/6N5/3+h+p7/1+SP9/+L6+V4/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [
+      "12i12f",
+      "12e12f",
+      "5i10d",
+      "10e10d",
+      "8e10c",
+      "10d10c",
+      "12d10d",
+      "10c10d",
+      "6f8e",
+      "9c8b",
+      "8e10d",
+      "8b7a",
+      "10d8c"
+    ],
+    "comments": {
+      "13": "以上13手詰め。 (手順初出・カピタン23号 (1981年4月20日発行))"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 39304,
+      "pv": [
+        "12i12f",
+        "10e10d",
+        "12d10d"
+      ]
+    }
+  }
+}

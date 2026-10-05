@@ -1,0 +1,43 @@
+{
+  "id": "kinu10",
+  "source": "/tmp/tsume/pages/kinu10.html",
+  "title": "中将棊絹篩・第１０問",
+  "format": "sk",
+  "sfen": "3q8/7kg2a/3+D1x2s3/3m1pf4m/2+H1p2pN3/10Q+f/12/3r5R2/5+L+v5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "7i7d",
+      "9d7d",
+      "10e7b",
+      "7c7b",
+      "9c6c",
+      "6d6c",
+      "4e5c",
+      "4b5c",
+      "2f2b",
+      "5b6a",
+      "3h3a+"
+    ],
+    "comments": {
+      "5": "原文では６（巳）二飛鷲とあるが、６三の間違いと見られる。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 11357,
+      "pv": [
+        "7i7d",
+        "5b5a",
+        "9c7a",
+        "9a7a",
+        "2f7a"
+      ]
+    }
+  }
+}

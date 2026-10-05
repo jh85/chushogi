@@ -1,0 +1,10 @@
+# Build artifacts
+chushogi-gen
+*.o
+
+# Generated random-match records (regenerate with: make random-games)
+random_games/
+
+# Python
+__pycache__/
+*.pyc

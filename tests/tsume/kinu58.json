@@ -1,0 +1,37 @@
+{
+  "id": "kinu58",
+  "source": "/tmp/tsume/pages/kinu58.html",
+  "title": "中将棊絹篩・第５８問中将棊指南抄・第２０問",
+  "format": "sk",
+  "sfen": "6+D2ckl/8s+dga/5+H+O3m1/8o2p/8F1X1/9p2/8pg2/12/12/10+S1/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "6c4a",
+      "3b4a",
+      "4e5d+",
+      "2b3b",
+      "5d3b",
+      "4a3b",
+      "7c2c",
+      "3b2c",
+      "2e4c+",
+      "4b4c",
+      "6a4c",
+      "2a2b",
+      "4c2c"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 26487,
+      "pv": []
+    }
+  }
+}

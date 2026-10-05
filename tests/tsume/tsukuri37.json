@@ -1,0 +1,63 @@
+{
+  "id": "tsukuri37",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri37.txt",
+  "title": "中将棊作物収録作品・第三十七問",
+  "format": "sk",
+  "sfen": "6+P5/6+C5/3q3d2+O1/4t1pkp2+d/4G2p1X2/5+ArtC2N/12/11+b/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "2c4c",
+      "5c4c",
+      "3e5c",
+      "5d6e",
+      "7f7d",
+      "8d7d",
+      "8e7e",
+      "9c7e",
+      "5c4c+",
+      "1h5d",
+      "4c5d",
+      "6e5d",
+      "1f3e",
+      "5d6e",
+      "3e5g",
+      "6e5d",
+      "5g6f7e",
+      "5d4c",
+      "7e7d6d",
+      "4c3d",
+      "6d5d",
+      "3d2c",
+      "5d4c",
+      "2c1c",
+      "4c3c"
+    ],
+    "comments": {
+      "2": "同玉は５三鳳成以下．",
+      "4": "同奔，同竜は３五獅〜５七獅〜５五銅以下．",
+      "27": "以上25手詰 (手順バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 4851,
+      "pv": [
+        "2c4c",
+        "5c4c",
+        "3e5c",
+        "4c5c",
+        "1f3e",
+        "5d6e",
+        "3e5g",
+        "6e5d",
+        "5g5f5e"
+      ]
+    }
+  }
+}

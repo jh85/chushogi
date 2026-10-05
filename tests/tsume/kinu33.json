@@ -1,0 +1,64 @@
+{
+  "id": "kinu33",
+  "source": "/tmp/tsume/pages/kinu33.html",
+  "title": "中将棊絹篩・第33問",
+  "format": "sk",
+  "sfen": "12/3g5+D2/2m2nF1c3/3+P1+P2k1f1/5x2pp+R1/3N3t4/M2p1Of1P3/12/12/10+r1/5+a6/12 b - 1",
+  "to_move": "sente",
+  "pieces": 23,
+  "solution": {
+    "moves": [
+      "2e3d",
+      "4c3d",
+      "3b4b",
+      "4d5e",
+      "9f7e",
+      "7c7d7e",
+      "7g5g",
+      "5e6e",
+      "4b4c",
+      "7e5d",
+      "4c5d",
+      "6e7e",
+      "5g7g",
+      "7k7g",
+      "5d8d",
+      "7e6e",
+      "6c5d",
+      "6e7f",
+      "12g12f",
+      "7g8f",
+      "8d8f"
+    ],
+    "comments": {
+      "18": "原本には６四猛豹とあるが、▽５四玉将と逃げると詰まないことになるので、５四猛豹と改めた。正解発見者…チャモ君に感謝します。",
+      "19": "５四猛豹に改めたことで、原本の通り▽７六玉将としか逃げる手がなくなった。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 3048,
+      "pv": [
+        "2e3d",
+        "4c3d",
+        "3b4b",
+        "4d5e",
+        "9f7e",
+        "7c7d7e",
+        "7g5g",
+        "5e6e",
+        "4b3b",
+        "7e5d",
+        "3b5d",
+        "6e7e",
+        "5g7g",
+        "7e8e",
+        "5d7d"
+      ]
+    }
+  }
+}

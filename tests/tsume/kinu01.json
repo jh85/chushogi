@@ -1,0 +1,47 @@
+{
+  "id": "kinu01",
+  "source": "/tmp/tsume/pages/kinu01.html",
+  "title": "中将棊絹篩第一問",
+  "format": "sk",
+  "sfen": "5ex1+Pc2/6okt3/3s4X2+H/2+D9/3p+v1+Dpt3/12/12/2+a6q2/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "10d7d",
+      "8e7d",
+      "4c6a+",
+      "5b6a",
+      "6e8c",
+      "7d8c",
+      "1c6c"
+    ],
+    "comments": {
+      "1": "原本では８四飛鷲だが、王手ではないので間違いと思われる",
+      "2": "原本では同飛牛だが、初手が間違っているのでこのように変更",
+      "4": "ここで酔象が取ると、４三角鷹で詰み",
+      "5": "飛牛を取らないのがミソ",
+      "7": "角鷹にて合い駒利かずの詰め"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 856,
+      "pv": [
+        "10d7d",
+        "5b4a",
+        "6e6c",
+        "4a5a",
+        "4c3c",
+        "4b3c",
+        "1c3a",
+        "10h3a",
+        "6c5b"
+      ]
+    }
+  }
+}

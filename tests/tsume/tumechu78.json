@@ -1,0 +1,20 @@
+{
+  "id": "tumechu78",
+  "source": "/tmp/tsume/pages/tumechu78.html",
+  "title": "詰め中将棋 第78図手番を特定して１手詰み。",
+  "format": "sk",
+  "sfen": "12/12/12/12/12/12/11E/10Pv/10Sk/12/11K/11+i w - 1",
+  "to_move": "gote",
+  "pieces": 7,
+  "solution": {
+    "moves": [
+      "1i2i"
+    ],
+    "comments": {
+      "1": "迄、後手番1手詰。先手側が手番だとすると、直前の後手の一手が玉将か酔象(成仲)を動かしたとしか考えられない。玉将を動かしたとすれば２十か１十にいたはずだが、攻め方王将の効き筋にいたことになりあり得ない。また酔象(成仲)を動かした場合は２十一か２十二にいたはずだが王手がかかっているためあり得ない（このとき１十二に先手に太子がいてそれを取った場合は有効だが、盤上１七に酔象があるためそのケースはない）。よって、手番は後手番ということになる。先手から指した場合１十銀将となり詰め上がり「１」の曲詰となるが２手指の反則扱いとなり不正解。"
+    }
+  },
+  "variations": [],
+  "conditional": true,
+  "note": "retro-analysis problem (曲詰): gote is to move; the listed line is the illegal sente-first trap"
+}

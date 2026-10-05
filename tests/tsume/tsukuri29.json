@@ -1,0 +1,35 @@
+{
+  "id": "tsukuri29",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri29.txt",
+  "title": "中将棊作物収録作品・第二十九問",
+  "format": "sk",
+  "sfen": "6d4Q/6+I2kr1/5x2+A3/6g3C1/6+m1p1CH/7s1p+d1/6+A1t3/7P+D3/4+p4+H+p1/12/11q/12 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 902,
+      "pv": [
+        "4c4a",
+        "6a4a",
+        "2d3c",
+        "3b4c",
+        "1a4a",
+        "2b4b",
+        "4a4b",
+        "4c5d",
+        "4b5b",
+        "5d4d",
+        "5b5c"
+      ]
+    }
+  }
+}

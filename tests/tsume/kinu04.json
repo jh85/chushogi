@@ -1,0 +1,52 @@
+{
+  "id": "kinu04",
+  "source": "/tmp/tsume/pages/kinu04.html",
+  "title": "中将棊絹篩第４問",
+  "format": "sk",
+  "sfen": "2c1+O2g2f1/5+a1x1e2/7k2t1/2+h1p1p1p3/4s1BGt2+b/9r2/4N4H2/5+M1q4/12/+v10L/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 25,
+  "solution": {
+    "moves": [
+      "6e4c+",
+      "3b4c",
+      "8g6e",
+      "6d6e",
+      "7h12c",
+      "12j12c",
+      "8a6c",
+      "5c6c",
+      "5e6d",
+      "6c6b",
+      "6d6e+",
+      "6b7a",
+      "3g9a+",
+      "7b8a",
+      "9a7c"
+    ],
+    "comments": {
+      "2": "初手５四角行成では、玉将が４二へ逃げてしまうため不詰み",
+      "7": "ここで鯨鯢を取らないこと。",
+      "11": "原本には成ると書かれていないが王手が無くなるため、ここでは成るのが正しい。",
+      "15": "獅子を２枚も切るという荒技がこの問題のすごさ。普通の対局では考えられません（笑）"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 41669,
+      "pv": [
+        "6e4c+",
+        "3b4c",
+        "8g6e",
+        "5c4b",
+        "8a6c",
+        "4b3b",
+        "6c4c"
+      ]
+    }
+  }
+}

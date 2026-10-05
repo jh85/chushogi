@@ -1,0 +1,42 @@
+{
+  "id": "kinu48",
+  "source": "/tmp/tsume/pages/kinu48.html",
+  "title": "中将棊絹篩・第48問中将棊指南抄・第10問",
+  "format": "sk",
+  "sfen": "l5d3Q1/1khn1+Dcr4/m1r9/pppp8/3sxH+v5/3N8/7+l4/8H3/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [
+      "9f9d",
+      "11b12b",
+      "9d10c11d",
+      "9b11d",
+      "7e10b+",
+      "11d10b",
+      "7b10b"
+    ],
+    "comments": {
+      "1": "原本の手順。▲１０二角鷹でも詰ませることは出来るが、手数がかかってしまう。",
+      "8": "ここまで。比較的簡単だが、初手獅子（飛鷲の足が利く）が見つけられるかがポイント。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 428475,
+      "pv": [
+        "9f9e9d",
+        "11b11a",
+        "7b7a",
+        "6a7a",
+        "2a7a",
+        "11a12b",
+        "9d10c10d"
+      ]
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "kinu02",
+  "source": "/tmp/tsume/pages/kinu02.html",
+  "title": "中将棊絹篩第二問",
+  "format": "sk",
+  "sfen": "5+R2s2l/3c3g2f1/3+P1ek2m2/4p3p2+a/3p1p2i+Rp1/7P4/3i1+B4nH/3H8/8V3/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 25,
+  "solution": {
+    "moves": [
+      "9h5d+",
+      "6c5d",
+      "3e4d",
+      "5d6c",
+      "4d5d",
+      "6c5d",
+      "1g4d+",
+      "4e4d",
+      "7g5e",
+      "5d4c",
+      "4i4d",
+      "4c3b",
+      "4d4a+",
+      "3b2a",
+      "4a2c"
+    ],
+    "comments": {
+      "1": "原本の解答",
+      "7": "原本ではここで４四龍となっているが、龍王はいないので龍馬を指している物と思われる"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 6550,
+      "pv": [
+        "9h5d+",
+        "6c5d",
+        "3e4d",
+        "5d6e",
+        "4d5d",
+        "6e5d",
+        "1g4d+",
+        "5d6e",
+        "7g6f"
+      ]
+    }
+  }
+}

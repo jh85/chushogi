@@ -1,0 +1,67 @@
+{
+  "id": "tumechu29",
+  "source": "/tmp/tsume/pages/tumechu29.html",
+  "title": "詰め中将棋 第29図ヒント：奔王が大活躍します。",
+  "format": "sk",
+  "sfen": "9g1k/7Q1m1l/11g/10+B1/11O/12/10+D1/2q9/3+p8/2B9/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 12,
+  "solution": {
+    "moves": [
+      "2d3c",
+      "3b3c",
+      "2g2b",
+      "3a2b",
+      "5b5a",
+      "2b2a",
+      "5a3c",
+      "2a2b",
+      "3c5a",
+      "2b2a",
+      "5a5e",
+      "2a2b",
+      "5e9a",
+      "2b2a",
+      "10j9i",
+      "10h9i",
+      "9a9i",
+      "2a2b",
+      "9i9a",
+      "2b2a",
+      "9a5e",
+      "2a2b",
+      "5e5a",
+      "2b2a",
+      "5a3c",
+      "2a2b",
+      "3c3a",
+      "2b2a",
+      "1e1c+",
+      "1b1c",
+      "3a1c",
+      "2a1b",
+      "1c3a"
+    ],
+    "comments": {
+      "5": "ここで奔王の行き先を間違うとどうにも詰まない。",
+      "9": "３一奔王 は、同奔王で不詰め。",
+      "33": "以上、33手詰。狙いは無論、奔王の単騎詰である。不動玉で詰め上がりが僅か３枚という珍品でもある。奔王の軌跡、動きに注目あれ。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 1085,
+      "pv": [
+        "2d3c",
+        "3a2b",
+        "3c2b",
+        "3b2b",
+        "5b2b"
+      ]
+    }
+  }
+}

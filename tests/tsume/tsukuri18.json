@@ -1,0 +1,71 @@
+{
+  "id": "tsukuri18",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri18.txt",
+  "title": "中将棊作物収録作品・第十八問",
+  "format": "sk",
+  "sfen": "1+r1s1ke5/3+R1fr5/3+P4q3/1N8m1/1+D2P4X2/5P6/9+a2/8+A3/11+b/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "9c8b",
+      "9a8b",
+      "11e9c",
+      "8b9c",
+      "9b8b",
+      "7a8b",
+      "11d10c",
+      "8b7c",
+      "10c9c",
+      "7c6c",
+      "9c7e",
+      "6c5b",
+      "3e5c+",
+      "5b4a",
+      "5c4c",
+      "4a3a",
+      "7e5c",
+      "3a2b",
+      "5c4a",
+      "2b1b",
+      "4a2a"
+    ],
+    "comments": {
+      "2": "同鯨は９三鷲，同奔，同獅．",
+      "4": "同奔は同獅，同銀，５三鳳生．",
+      "6": "同銀や同鯨は９二獅．",
+      "14": "同奔は４一鯨，同玉，５三獅． （こっちの方が捌けて気持ちいいが・・・）",
+      "21": "以上21手詰め。 (手順・バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 2686,
+      "pv": [
+        "9c8b",
+        "9a8b",
+        "11e9c",
+        "8b9c",
+        "9b8b",
+        "7a8b",
+        "11d10c",
+        "8b7c",
+        "10c9c",
+        "7c6c",
+        "9c7e",
+        "6c5b",
+        "3e5c+",
+        "5b4a",
+        "5c4c",
+        "4a5a",
+        "4c4b",
+        "6b4b",
+        "7e5c"
+      ]
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "kinu35",
+  "source": "/tmp/tsume/pages/kinu35.html",
+  "title": "中将棊絹篩・第35問",
+  "format": "sk",
+  "sfen": "11l/4+P1r1+M3/3f8/3p1spp3a/3i3kt1+m+P/1m1+r3b4/4TTP2O2/3I8/3P8/10Q1/5+Sr5/12 b - 1",
+  "to_move": "sente",
+  "pieces": 27,
+  "solution": {
+    "moves": [
+      "4b3c",
+      "5e6e",
+      "2j7e",
+      "6e7e",
+      "7g8f",
+      "7e8e",
+      "8g7f",
+      "8e8d",
+      "8b8c",
+      "7d8c",
+      "8f7e",
+      "8d7e",
+      "7f6e",
+      "7e6e",
+      "3c8c",
+      "6e5e",
+      "3g5g",
+      "5e4d",
+      "5g4f",
+      "4d3d",
+      "1e2d",
+      "3d2d",
+      "4f2f",
+      "2d3d",
+      "8c4c",
+      "3d4c",
+      "2f2d+",
+      "4c5c",
+      "2d3c",
+      "5c6c",
+      "3c5a"
+    ],
+    "comments": {
+      "29": "ここで原本には３三獅子ゆくとあって続きがない。ほぼ一手詰めなのでわかるかと思うが補足しておく。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 8292,
+      "pv": [
+        "4b3c",
+        "4e4d",
+        "2j2e",
+        "5f4e",
+        "3g3e",
+        "5e5f",
+        "3e4d+",
+        "5f5g",
+        "4d4e",
+        "5g4h",
+        "4e4g"
+      ]
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "id": "tukurimono02",
+  "source": "/tmp/tsume/pages/tukurimono02.html",
+  "title": "詰め中将棋『中象戯作物 図五十・初代伊藤宗看』より第二問",
+  "format": "te",
+  "sfen": "3b3+M3+H/7k1c2/5tt1e3/5p3p2/7g3p/8+D3/1+F1r8/12/12/9+a2/3R3q4/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "5a4b",
+      "5b4b",
+      "4f6d",
+      "7c6d",
+      "1a5a"
+    ],
+    "comments": {
+      "3": "ここで金将は取らずに飛び越すこと。",
+      "5": "ここまで。角鷹でとどめを刺すという発想が浮かべば、比較的簡単かもしれない。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 3,
+      "moves": [
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "6c6b",
+        "8b6b",
+        "5a4a",
+        "6b5a"
+      ],
+      "full_line": [
+        "5a4b",
+        "5b4b",
+        "4f6d",
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "6c6b",
+        "8b6b",
+        "5a4a",
+        "6b5a"
+      ],
+      "comments": {
+        "1": "玉将が右に逃げた場合の対処も書かれているが、一部不明な点があったところを投稿により解明。",
+        "2": "角鷹で誘い出すことが重要。",
+        "3": "とる一手",
+        "4": "７手目で８二まで盲虎をとりながら進む。角行で王手。"
+      },
+      "legal": true
+    },
+    {
+      "parent": 2,
+      "branch_after_ply": 7,
+      "moves": [
+        "5a4a",
+        "8b7a",
+        "4a4b",
+        "7a5a"
+      ],
+      "full_line": [
+        "5a4b",
+        "5b4b",
+        "4f6d",
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "5a4a",
+        "8b7a",
+        "4a4b",
+        "7a5a"
+      ],
+      "comments": {
+        "3": "５二玉将でも同じ。"
+      },
+      "legal": true
+    },
+    {
+      "parent": 2,
+      "branch_after_ply": 7,
+      "moves": [
+        "5a6a",
+        "8b8a",
+        "6a5b",
+        "8a5a"
+      ],
+      "full_line": [
+        "5a4b",
+        "5b4b",
+        "4f6d",
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "5a6a",
+        "8b8a",
+        "6a5b",
+        "8a5a"
+      ],
+      "comments": {
+        "4": "ここまで。６一玉将のあと、ついつい角行を潰しに９一飛鷲と考えてしまうのだが、それだと７二玉将と逃げられてしまい、詰めなくなってしまう。 DHTML中将棋盤作者様より正解手順を指摘頂きました。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 19152,
+      "pv": [
+        "5a4b",
+        "5b4b",
+        "4f6d",
+        "4b5b",
+        "1a5a",
+        "5b5a",
+        "6d7c8b",
+        "5a6a",
+        "8b8a",
+        "6a5b",
+        "8a5a"
+      ]
+    }
+  }
+}

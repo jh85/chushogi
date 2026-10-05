@@ -1,0 +1,80 @@
+{
+  "id": "kinu26",
+  "source": "/tmp/tsume/pages/kinu26.html",
+  "title": "中将棊絹篩・第26問",
+  "format": "sk",
+  "sfen": "3d3e3+H/6t3+P1/5g1+aks1m/4p1p1g1p1/11q/6N2H2/12/12/12/9D2/5R6/12 b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [
+      "1a2a",
+      "4c5b",
+      "3f6c+",
+      "7c6c",
+      "6f4d",
+      "3c4d",
+      "2a4c",
+      "1c4c",
+      "3j3d+",
+      "5b6a",
+      "3d4c"
+    ],
+    "comments": {
+      "4": "ここで同玉将なら… 正解２へ"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 3,
+      "moves": [
+        "5b6c",
+        "2a6e",
+        "1e6e",
+        "7k7c+",
+        "6c7c",
+        "6f6e7e",
+        "7c8b",
+        "7e8d",
+        "8b7a",
+        "8d8c"
+      ],
+      "full_line": [
+        "1a2a",
+        "4c5b",
+        "3f6c+",
+        "5b6c",
+        "2a6e",
+        "1e6e",
+        "7k7c+",
+        "6c7c",
+        "6f6e7e",
+        "7c8b",
+        "7e8d",
+        "8b7a",
+        "8d8c"
+      ],
+      "comments": {
+        "1": "同玉将で進んだ場合の手順",
+        "6": "原本ではここまでだが、この先の手順については…",
+        "7": "原本ではここまでだが、この先の手順については…",
+        "11": "おおよそこのような手順となる。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 13612,
+      "pv": [
+        "1a2a",
+        "4c4b",
+        "2a3b"
+      ]
+    }
+  }
+}

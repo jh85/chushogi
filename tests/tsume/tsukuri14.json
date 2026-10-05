@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri14",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri14.txt",
+  "title": "中将棊作物収録作品・第十四問",
+  "format": "sk",
+  "sfen": "10+R1/+P1+I1f1+Im4/+h1d7+A1/4ce6/2k2p1p4/1P2Q7/1+v1m8/1+p4N5/+l7+H3/5+s6/12/2+d9 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "unknown",
+      "nodes": 343428,
+      "pv": []
+    }
+  }
+}

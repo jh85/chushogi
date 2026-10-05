@@ -1,0 +1,81 @@
+{
+  "id": "kinu27",
+  "source": "/tmp/tsume/pages/kinu27.html",
+  "title": "中将棊絹篩・第27問",
+  "format": "sk",
+  "sfen": "l4d5+D/2f2+P1s1f2/+F1mg2kg2t1/3pp1pp1p2/3i2m3+D1/2B5P3/4P1PN4/2+r4P1H2/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 29,
+  "solution": {
+    "moves": [
+      "5g7e",
+      "6e7e",
+      "12c9f",
+      "9e9f",
+      "3h7d+",
+      "6c7d",
+      "2e7e",
+      "7d7e",
+      "1a7g",
+      "7e6e",
+      "6g6f",
+      "6e5f",
+      "7g5g"
+    ],
+    "comments": {
+      "4": "原本では９六獅子と書かれているが、存在しないので同仲人とした。",
+      "6": "ここで同横行とすると…正解２へ"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 5,
+      "moves": [
+        "7e7d",
+        "2e8e",
+        "8d8e",
+        "7b6b",
+        "7a6b",
+        "1a8a",
+        "6b7b",
+        "8a8e"
+      ],
+      "full_line": [
+        "5g7e",
+        "6e7e",
+        "12c9f",
+        "9e9f",
+        "3h7d+",
+        "7e7d",
+        "2e8e",
+        "8d8e",
+        "7b6b",
+        "7a6b",
+        "1a8a",
+        "6b7b",
+        "8a8e"
+      ],
+      "comments": {
+        "2": "原本には５五飛鷲と書かれており、居喰いを狙う手のようなのだが筋がずれている。中象戯初心抄解読の武田先生によるとここで８五とするのが正しい模様。",
+        "8": "原本を見た限りでは７手目の手順を間違えたばかりに後が全てめちゃくちゃであったが、武田先生の解読を見比べた結果、正しく詰めることが出来た。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 13758,
+      "pv": [
+        "5g7e",
+        "6c7b",
+        "1a7a",
+        "7b7a",
+        "7e7c"
+      ]
+    }
+  }
+}

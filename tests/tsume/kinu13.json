@@ -1,0 +1,47 @@
+{
+  "id": "kinu13",
+  "source": "/tmp/tsume/pages/kinu13.html",
+  "title": "詰め中将棋・中将棊絹篩第１３問",
+  "format": "sk",
+  "sfen": "1+h3k3c2/2o1xgs1g3/+DN1+Ps5qm/8+O2+F/Bp2pp1p4/6p5/11+L/11+b/12/12/8D3/12 b - 1",
+  "to_move": "sente",
+  "pieces": 25,
+  "solution": {
+    "moves": [
+      "9c8b",
+      "10b8b",
+      "12e8a+",
+      "11a8a",
+      "11c9c",
+      "8b9c",
+      "12c9c",
+      "7a6a",
+      "1g1f",
+      "6a5a",
+      "1f5b",
+      "4b5b",
+      "4d3c",
+      "2c3c",
+      "4k4a+"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 186415,
+      "pv": [
+        "12e8a+",
+        "7a8a",
+        "11c10b10c",
+        "8a7a",
+        "10c8b",
+        "7b8b",
+        "4d6b"
+      ]
+    }
+  }
+}

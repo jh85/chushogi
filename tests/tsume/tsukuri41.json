@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri41",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri41.txt",
+  "title": "中将棊作物収録作品・第四十一問",
+  "format": "sk",
+  "sfen": "7Q4/4f4+L2/10+H1/2p2en1N3/1M6H3/3g1t6/1pf2p+M1p3/A3k1p2C2/5P4+D1/12/7+a4/12 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "unknown",
+      "nodes": 132185,
+      "pv": []
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "tukurimono20",
+  "source": "/tmp/tsume/pages/tukurimono20.html",
+  "title": "詰中将棋モード",
+  "format": "te",
+  "sfen": "5k1oN3/2+P1tge1t2f/+lb6m2+P/9+Hp1/3ps1X5/R10q/3P8/1+m2p7/3+L8/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 715281,
+      "pv": [
+        "4a6a",
+        "7a6a",
+        "6e4c",
+        "6a7a",
+        "4c6a",
+        "7a8a",
+        "3d11d",
+        "8b9b",
+        "10b9b"
+      ]
+    }
+  }
+}

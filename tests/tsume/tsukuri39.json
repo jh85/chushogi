@@ -1,0 +1,41 @@
+{
+  "id": "tsukuri39",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri39.txt",
+  "title": "中将棊作物収録作品・第三十九問",
+  "format": "sk",
+  "sfen": "12/12/12/6o5/8rq2/3n2t1k+d2/3m2H1pg2/4+b2+HQ2+D/12/12/6+S+a4/12 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [
+      "4h5g",
+      "6f5g",
+      "6g5f",
+      "5g5f",
+      "5h5g",
+      "9g5g",
+      "1h6h",
+      "4f5e",
+      "6h6d"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 791,
+      "pv": [
+        "4h5g",
+        "6f5g",
+        "6g5f",
+        "5g5f",
+        "5h5g",
+        "4f5g",
+        "1h6h"
+      ]
+    }
+  }
+}

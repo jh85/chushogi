@@ -1,0 +1,100 @@
+{
+  "id": "kinu47",
+  "source": "/tmp/tsume/pages/kinu47.html",
+  "title": "中将棊絹篩・第47問中将棊指南抄・第９問",
+  "format": "sk",
+  "sfen": "3s1R2+D3/3c1e6/3gvk2+dm2/+H1q2p3tN1/1ppp1b4p1/m2+ap1cp4/8i3/1Q9p/+r5+r5/5X5R/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 32,
+  "solution": {
+    "moves": [
+      "7a7b",
+      "7c7b",
+      "11h1h",
+      "7b8b",
+      "1h1b",
+      "8b7c",
+      "4a5a",
+      "7c6d",
+      "1b6b",
+      "4c6c",
+      "2d3d4e"
+    ],
+    "comments": {
+      "2": "ここで８四玉将なら正解２の手順、６四玉将なら正解３の手順となる。",
+      "11": "ここまで。非常に実践的な譜面からの詰め方。",
+      "12": "ここまで。非常に実践的な譜面からの詰め方。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "7c8d",
+        "4a7d",
+        "9f7d",
+        "11h7d"
+      ],
+      "full_line": [
+        "7a7b",
+        "7c8d",
+        "4a7d",
+        "9f7d",
+        "11h7d"
+      ],
+      "comments": {
+        "1": "正解１の派生。８四玉将へ逃げた場合。"
+      },
+      "legal": true
+    },
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "7c6d",
+        "4a7d",
+        "9f7d",
+        "11h7d",
+        "10d7d",
+        "12d7d",
+        "6d5e",
+        "2d3d3e"
+      ],
+      "full_line": [
+        "7a7b",
+        "7c6d",
+        "4a7d",
+        "9f7d",
+        "11h7d",
+        "10d7d",
+        "12d7d",
+        "6d5e",
+        "2d3d3e"
+      ],
+      "comments": {
+        "1": "正解１の派生。６四玉将と逃げた場合。",
+        "8": "ここまで。原本には盲虎を居喰い詰む。とあるが、実際には盲虎を取らなくても同じ。",
+        "9": "ここまで。原本には盲虎を居喰い詰む。とあるが、実際には盲虎を取らなくても同じ。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 216285,
+      "pv": [
+        "4a5a",
+        "7c6c",
+        "2d3d4c",
+        "3c4c",
+        "11h1h",
+        "6c6d",
+        "1h5d"
+      ]
+    }
+  }
+}

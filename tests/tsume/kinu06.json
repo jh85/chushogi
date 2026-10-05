@@ -1,0 +1,43 @@
+{
+  "id": "kinu06",
+  "source": "/tmp/tsume/pages/kinu06.html",
+  "title": "中将棊絹篩第６問",
+  "format": "sk",
+  "sfen": "12/3t2+M2t2/4f1k1f3/4p3p3/3p2m2p2/4P+p2P3/2R6N2/7+p2b1/11+D/1Q3+b6/4R7/7R4 b - 1",
+  "to_move": "sente",
+  "pieces": 23,
+  "solution": {
+    "moves": [
+      "3g5e",
+      "6e5e",
+      "8k6k",
+      "7j6k",
+      "1i6i",
+      "5h6i",
+      "10g6g",
+      "7f6g",
+      "11j6e",
+      "5e6e",
+      "5l5c+"
+    ],
+    "comments": {
+      "11": "原本ではここまで。この後７四玉将、７三龍で詰み。とてもおもしろい手順です。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 10299,
+      "pv": [
+        "3g5e",
+        "6c6b",
+        "5e6e6d",
+        "6b6a",
+        "6d6c"
+      ]
+    }
+  }
+}

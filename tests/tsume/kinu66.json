@@ -1,0 +1,53 @@
+{
+  "id": "kinu66",
+  "source": "/tmp/tsume/pages/kinu66.html",
+  "title": "中将棊絹篩・第６６問中将棊指南抄・第２８問玉将詰めから太子詰めに変化する、中将棋ならではの問題。",
+  "format": "sk",
+  "sfen": "8k1+hl/7tsc1a/4N+H2g3/7ppp1p/8tbp1/12/4+D5R1/7ex3/6b3R1/6+p+i4/8+c3/12 b - 1",
+  "to_move": "sente",
+  "pieces": 26,
+  "solution": {
+    "moves": [
+      "8c6c",
+      "5b6c",
+      "7c6c",
+      "4a3a",
+      "6c6a",
+      "3a2b",
+      "6a2a",
+      "2b1c",
+      "2a2b",
+      "1c2b",
+      "2g2e",
+      "2b3a",
+      "2e2a+",
+      "5h4i+",
+      "2a3a",
+      "4i3j",
+      "8g3g",
+      "3j2i",
+      "3a2a",
+      "2i1j",
+      "3g3l",
+      "1j1k",
+      "2a2l"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 100,
+      "pv": [
+        "8c6c",
+        "4a3a",
+        "6c5b",
+        "3a2b",
+        "5b4c4b"
+      ]
+    }
+  }
+}

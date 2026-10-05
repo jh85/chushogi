@@ -1,0 +1,53 @@
+{
+  "id": "kinu64",
+  "source": "/tmp/tsume/pages/kinu64.html",
+  "title": "中将棊絹篩・第６４問中将棊指南抄・第２６問",
+  "format": "sk",
+  "sfen": "1f8+H1/1c3x1s2+v1/4vgko1fm1/2p3g5/3+H8/b5N5/4P7/12/C1+c+i8/3+s1+a6/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 23,
+  "solution": {
+    "moves": [
+      "2a6a",
+      "5b6a",
+      "6f4e",
+      "6c5b",
+      "9e9f",
+      "7c7d",
+      "9f1f",
+      "5b6b",
+      "4e4c",
+      "6b7a",
+      "4c5c",
+      "7a8b",
+      "5c6d6c",
+      "8b9c",
+      "1f6f",
+      "9c9b",
+      "6c7b7a",
+      "9b10c",
+      "7a8c",
+      "10c11d",
+      "6f9f",
+      "11d11e",
+      "8c9e",
+      "11e12d",
+      "9e10d11d"
+    ],
+    "comments": {
+      "8": "原本には酉一（１０一）玉将となっているが明らかな誤り。",
+      "12": "原本「これより獅子と角鷹二枚にて詰む」とだけ記されている。玉将の逃げ筋によって以後の展開は大きく変わるが一応参考の詰め手順を用意した。",
+      "28": "と、だいたいこのような形で左端に追いやればいいと思われる。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 28882,
+      "pv": []
+    }
+  }
+}

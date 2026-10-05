@@ -1,0 +1,87 @@
+{
+  "id": "kinu08",
+  "source": "/tmp/tsume/pages/kinu08.html",
+  "title": "中将棊絹篩第８問",
+  "format": "sk",
+  "sfen": "5k6/2+P2g+d2b2/2x1t7/1p3p2N3/3op2+X4/9q2/12/12/6+A5/4Q7/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 16,
+  "solution": {
+    "moves": [
+      "8j12f",
+      "3f12f",
+      "4d5c",
+      "6b5c",
+      "5e1a",
+      "7a8b",
+      "1a9a"
+    ],
+    "comments": {
+      "1": "原本の手順",
+      "3": "獅子は捨て駒。奔王の道をあける。",
+      "7": "べつに初手の奔王は無くても良い感じがします。１一に奔王を進めずに９一だったら８一鳳凰で詰めません。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 0,
+      "moves": [
+        "4d6b",
+        "7b6b",
+        "5e5a",
+        "7a8b",
+        "5a6b",
+        "8b9c",
+        "8j5g",
+        "9c10d",
+        "5g8d",
+        "10d11c",
+        "8d9e",
+        "11c12d",
+        "9e12h",
+        "12d11e",
+        "6b9e",
+        "11e11f",
+        "12h11g"
+      ],
+      "full_line": [
+        "4d6b",
+        "7b6b",
+        "5e5a",
+        "7a8b",
+        "5a6b",
+        "8b9c",
+        "8j5g",
+        "9c10d",
+        "5g8d",
+        "10d11c",
+        "8d9e",
+        "11c12d",
+        "9e12h",
+        "12d11e",
+        "6b9e",
+        "11e11f",
+        "12h11g"
+      ],
+      "comments": {
+        "1": "別解・獅子で飛鷲をとった場合です。",
+        "17": "まで。でも手数がかかるのでこれを正解とするのは駄目でしょう。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 11241,
+      "pv": [
+        "8j12f",
+        "7a8a",
+        "10b9a"
+      ]
+    }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "id": "kinu29",
+  "source": "/tmp/tsume/pages/kinu29.html",
+  "title": "中将棊絹篩・第29問",
+  "format": "sk",
+  "sfen": "5e4d1/3t2okb2+l/4n5m1/8g3/6N3+D1/+H6p3+D/+h11/12/11L/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [
+      "1f3d",
+      "4d3d",
+      "2e4c",
+      "2c4c",
+      "12f9f",
+      "5b5a",
+      "6e4c"
+    ],
+    "comments": {}
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "5b5a",
+        "3d3c",
+        "4b3c",
+        "2e5e",
+        "5a6a",
+        "5e5b",
+        "6a5b",
+        "12f9f",
+        "5b5a",
+        "6e6c"
+      ],
+      "full_line": [
+        "1f3d",
+        "5b5a",
+        "3d3c",
+        "4b3c",
+        "2e5e",
+        "5a6a",
+        "5e5b",
+        "6a5b",
+        "12f9f",
+        "5b5a",
+        "6e6c"
+      ],
+      "comments": {},
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 172187,
+      "pv": [
+        "1f3d",
+        "5b5a",
+        "3d3c",
+        "5a5b",
+        "6e4c",
+        "4d4c",
+        "2e4c",
+        "5b4a",
+        "3c4b3c",
+        "6b4b",
+        "3c4b"
+      ]
+    }
+  }
+}

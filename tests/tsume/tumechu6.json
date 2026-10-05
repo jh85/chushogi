@@ -1,0 +1,47 @@
+{
+  "id": "tumechu6",
+  "source": "/tmp/tsume/pages/tumechu6.html",
+  "title": "詰め中将棋 第6図ヒント：先手玉、太子は二重取り王手。これを避けて相手玉を詰ますには？",
+  "format": "sk",
+  "sfen": "10k1/7+P4/8i1+EK/7+a2n1/8+B2t/7p3+p/12/9Q2/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 12,
+  "solution": {
+    "moves": [
+      "2c3b",
+      "2a1a",
+      "1c1b",
+      "2d1b",
+      "4e1b",
+      "1a1b",
+      "3h3d",
+      "1b1a",
+      "3d3c",
+      "1a1b",
+      "3c2b"
+    ],
+    "comments": {
+      "11": "以上、11手詰。初手は、これよりない。３手目先に馬だと獅子に王と馬を二重に取られてしまうので王を敢えて突き出すのが面白い手。難しくないが、詰めにくい味があると思う。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 162,
+      "pv": [
+        "2c3b",
+        "2a1a",
+        "1c1b",
+        "2d1b",
+        "4e1b",
+        "1a1b",
+        "3h3d",
+        "1b1c",
+        "3d2c"
+      ]
+    }
+  }
+}

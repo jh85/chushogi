@@ -1,0 +1,54 @@
+{
+  "id": "tsukuri20",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri20.txt",
+  "title": "中将棊作物収録作品・第二十問",
+  "format": "sk",
+  "sfen": "3+B3q2+Ml/5emt4/4+B2k2b1/7p1pp1/3M1p2p1f+D/6P1c3/9+D2/5P6/6V5/12/1+p10/1H+b8L b - 1",
+  "to_move": "sente",
+  "pieces": 27,
+  "solution": {
+    "moves": [
+      "9a6d",
+      "5c6d",
+      "9e9d",
+      "6d5c",
+      "3g3e",
+      "3d3e",
+      "9d5d",
+      "5c4b",
+      "5d2d+",
+      "4b5c",
+      "2d3c",
+      "5a3c",
+      "1e3c",
+      "5c6d",
+      "8c6e"
+    ],
+    "comments": {
+      "3": "成ると▽５三玉将で不詰",
+      "4": "▽６三玉将は▲７四龍馬以下詰み",
+      "10": "▽同猛豹も同手数",
+      "15": "以上15手詰 (手順・隴西の李徴さん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 6225,
+      "pv": [
+        "9a6d",
+        "5c6d",
+        "9e9d",
+        "6d6c",
+        "8c7d",
+        "6c5c",
+        "7d6d",
+        "5c4d",
+        "2a5d"
+      ]
+    }
+  }
+}

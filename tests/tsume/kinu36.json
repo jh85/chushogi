@@ -1,0 +1,53 @@
+{
+  "id": "kinu36",
+  "source": "/tmp/tsume/pages/kinu36.html",
+  "title": "中将棊絹篩・第36問",
+  "format": "sk",
+  "sfen": "1+l+B1g4r2/5s1+Pc+P1l/2+d1f7/+a2tpp1k1p2/6ppp1d1/1p2S2m1x2/5NP1PX2/2H+b6Q1/+b11/11L/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 34,
+  "solution": {
+    "moves": [
+      "3g5e",
+      "5d6c",
+      "5e3c+",
+      "4b3c",
+      "2h6d",
+      "6c6d",
+      "8f7e",
+      "6d7c",
+      "7e7d",
+      "12i7d",
+      "7g9e",
+      "7c8b",
+      "9e9d10c",
+      "8b7c",
+      "10h5c+",
+      "7b6c",
+      "10c9e",
+      "7c8b",
+      "5c6b",
+      "6c7b",
+      "9e10c"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 68459,
+      "pv": [
+        "3g5e",
+        "5d6d",
+        "5e7c+",
+        "6d5d",
+        "7c6d",
+        "5d4c",
+        "5b4b"
+      ]
+    }
+  }
+}

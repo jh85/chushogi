@@ -1,0 +1,93 @@
+{
+  "id": "kinu60",
+  "source": "/tmp/tsume/pages/kinu60.html",
+  "title": "中将棊絹篩・第６０問中将棊指南抄・第２２問",
+  "format": "sk",
+  "sfen": "+D3s1ksn1vl/2r2xo1t2a/2tg2evf1+P1/2p3m5/3FDN5p/5H3p2/4+F7/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 27,
+  "solution": {
+    "moves": [
+      "12a8a",
+      "7b7a",
+      "8a8c",
+      "9c8c",
+      "8e8c+",
+      "6a5b",
+      "7f4c+",
+      "4a4c",
+      "8g4c",
+      "5b4a",
+      "7e6d6c",
+      "5c6c",
+      "8c6c",
+      "4a3a",
+      "6c3f",
+      "3a4a",
+      "2c3b",
+      "4b3b",
+      "3f3b"
+    ],
+    "comments": {
+      "10": "ここで同玉なら正解２へ"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 9,
+      "moves": [
+        "5b4c",
+        "7e6d6e",
+        "4c3d",
+        "6e4f",
+        "3d2c",
+        "4f3e",
+        "2c2b",
+        "3e4d"
+      ],
+      "full_line": [
+        "12a8a",
+        "7b7a",
+        "8a8c",
+        "9c8c",
+        "8e8c+",
+        "6a5b",
+        "7f4c+",
+        "4a4c",
+        "8g4c",
+        "5b4c",
+        "7e6d6e",
+        "4c3d",
+        "6e4f",
+        "3d2c",
+        "4f3e",
+        "2c2b",
+        "3e4d"
+      ],
+      "comments": {
+        "1": "正解１の派生、▲４三角のあと、同玉ならこの手順となる。",
+        "2": "６五獅子とだけ書かれていたが、横行を喰う必要がある。",
+        "3": "６五獅子とだけ書かれていたが、横行を喰う必要がある。",
+        "4": "これより獅子にて詰む。とあるが、この先は少し考える必要がある",
+        "9": "ここで４四獅子にする必要がある。あとは一手詰め。３一玉なら竪行取りの４三獅子で、１三玉なら３四獅子で詰む。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 223655,
+      "pv": [
+        "12a8a",
+        "6a5b",
+        "7e6d7d",
+        "6c7d",
+        "8e7d+"
+      ]
+    }
+  }
+}

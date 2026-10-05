@@ -1,0 +1,33 @@
+{
+  "id": "tumechu2",
+  "source": "/tmp/tsume/pages/tumechu2.html",
+  "title": "詰め中将棋 第2図 ヒント：こちらは王様２つですから。",
+  "format": "sk",
+  "sfen": "10k1/11+G/9+E1K/8n3/11L/12/12/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 6,
+  "solution": {
+    "moves": [
+      "1b1a",
+      "2a1a",
+      "1c1b"
+    ],
+    "comments": {
+      "3": "以上、3手詰。最終手を２二王などでは、獅子に2枚取りされてしまいます。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 4,
+      "pv": [
+        "1b1a",
+        "2a1a",
+        "1c1b"
+      ]
+    }
+  }
+}

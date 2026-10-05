@@ -1,0 +1,39 @@
+{
+  "id": "kinu09",
+  "source": "/tmp/tsume/pages/kinu09.html",
+  "title": "中将棊絹篩第９問",
+  "format": "sk",
+  "sfen": "12/1+l2s+P1k1+P2/4g1g1bc2/6x1p3/3t1N2tX2/1Qf2+r2B3/2p9/5+M6/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "3b4b",
+      "6d4b",
+      "3e5c+",
+      "6c5c",
+      "7h9f",
+      "7f9f",
+      "7b6b",
+      "5b6b",
+      "4f7c+",
+      "8c7c",
+      "11f7b",
+      "7c7b",
+      "7e7d"
+    ],
+    "comments": {
+      "13": "原本ではここまで。この形でようやく獅子が追い込める形になりました。６一または５一玉将なら５三獅子で詰み。７一玉将なら９二獅子で、そこから右側へ追い込む形のようです。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 182911,
+      "pv": []
+    }
+  }
+}

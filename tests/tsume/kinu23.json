@@ -1,0 +1,51 @@
+{
+  "id": "kinu23",
+  "source": "/tmp/tsume/pages/kinu23.html",
+  "title": "中将棊絹篩・第23問",
+  "format": "sk",
+  "sfen": "12/5+P6/1m5g3r/3+v+B1s1t+M2/1N4k5/m2etP3p2/7p+T3/2Px8/+p+A1+o7+M/1T3+i2+p1n1/4+r7/12 b - 1",
+  "to_move": "sente",
+  "pieces": 29,
+  "solution": {
+    "moves": [
+      "8d6f",
+      "6e6f",
+      "1i9i",
+      "9h9i",
+      "4g5f",
+      "6f7g",
+      "5f6g",
+      "7g8h",
+      "6g7h",
+      "8h9h",
+      "11i11f",
+      "12f11f",
+      "11j10i",
+      "9h10i",
+      "11e12g",
+      "10i9j",
+      "7h7j",
+      "4d3d",
+      "12g11h",
+      "9j9k",
+      "11h9i",
+      "9k8l",
+      "9i8k"
+    ],
+    "comments": {
+      "15": "原本にはこれ以降は獅子で追うとあるが、その詳細な手順は記録されていない。",
+      "17": "ここで獅子が寄ると、逃げられてしまって不詰め。",
+      "23": "おそらくこのような手順で詰むことが出来る。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 4259931,
+      "pv": []
+    }
+  }
+}

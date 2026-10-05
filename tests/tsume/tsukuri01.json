@@ -1,0 +1,104 @@
+{
+  "id": "tsukuri01",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri01.txt",
+  "title": "中将棊作物収録作品・第一問",
+  "format": "sk",
+  "sfen": "12/4+b7/12/3+v8/4F1tx4/12/3p1NPH4/2p3+H5/+Fk+gn8/10+mQ/A3G7/2+m1O7 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "5g11a+",
+      "2j11a",
+      "7g9h",
+      "9i9h",
+      "6h11c",
+      "8b11e",
+      "11c11e",
+      "9d11f",
+      "11e11f",
+      "9h11f",
+      "1j11j",
+      "11i12h",
+      "12i10g"
+    ],
+    "comments": {
+      "6": "この二手はあまり意味がありません。",
+      "7": "=6",
+      "13": "以下、12十猪・同反・12九飛・同反と生き延びる手がありますが、詰みは不可避です。 (手順初出・カピタン23号 (1981年4月20日発行))"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 2,
+      "moves": [
+        "1j11j",
+        "9i11j",
+        "7g9i",
+        "11j9i",
+        "6h11c",
+        "9i11g",
+        "11c11g",
+        "11i10j",
+        "8l8j",
+        "10l8j",
+        "11g11j",
+        "10j9i",
+        "11j8j",
+        "9i9h",
+        "8j6h",
+        "9h9i",
+        "6h7i",
+        "9i9h",
+        "7i7h",
+        "9h9i",
+        "8k9j"
+      ],
+      "full_line": [
+        "5g11a+",
+        "2j11a",
+        "1j11j",
+        "9i11j",
+        "7g9i",
+        "11j9i",
+        "6h11c",
+        "9i11g",
+        "11c11g",
+        "11i10j",
+        "8l8j",
+        "10l8j",
+        "11g11j",
+        "10j9i",
+        "11j8j",
+        "9i9h",
+        "8j6h",
+        "9h9i",
+        "6h7i",
+        "9i9h",
+        "7i7h",
+        "9h9i",
+        "8k9j"
+      ],
+      "comments": {},
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 8805,
+      "pv": [
+        "5g11a+",
+        "8b11e",
+        "11a11e",
+        "9d11f",
+        "7g9g",
+        "11i10j",
+        "6h10l"
+      ]
+    }
+  }
+}

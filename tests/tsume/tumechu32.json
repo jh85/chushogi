@@ -1,0 +1,51 @@
+{
+  "id": "tumechu32",
+  "source": "/tmp/tsume/pages/tumechu32.html",
+  "title": "詰め中将棋 第32図ヒント：一瞬詰みそうもない形になりますがピッタリ詰みます。",
+  "format": "sk",
+  "sfen": "12/5+t6/9+l2/11+B/5+b4G+P/12/10pk/10vp/5+DV5/4H7/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 13,
+  "solution": {
+    "moves": [
+      "6i6b+",
+      "7b6b",
+      "7i3i",
+      "7e3i",
+      "8j3e",
+      "3c3e",
+      "1e1f",
+      "1g1f",
+      "1d1e",
+      "1f1g",
+      "1e2f",
+      "3e2f",
+      "2e1d+"
+    ],
+    "comments": {
+      "4": "同白駒は、1六と金 同玉将 1五龍馬(成角) 1七玉将 2六龍馬(成角) 迄9手詰。",
+      "12": "ここで盤上攻め方が金将１枚のみになるところに注目。",
+      "13": "以上、13手詰。詰上がり金飛車一枚の単騎詰です。詰め上がる直前に攻め方の駒が金将一枚になっているところに注目。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 209,
+      "pv": [
+        "6i6b+",
+        "7b6b",
+        "7i3i",
+        "3c3i",
+        "1e1f",
+        "1g1f",
+        "1d1e",
+        "1f1g",
+        "1e2f"
+      ]
+    }
+  }
+}

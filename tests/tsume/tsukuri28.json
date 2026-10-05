@@ -1,0 +1,49 @@
+{
+  "id": "tsukuri28",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri28.txt",
+  "title": "中将棊作物収録作品・第二十八問",
+  "format": "sk",
+  "sfen": "3s8/q1kr1+H6/4+R+v6/1+fp9/PO1iQ+r6/12/12/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 14,
+  "solution": {
+    "moves": [
+      "8c9c",
+      "10b9c",
+      "7b8c",
+      "9c10b",
+      "8e11b",
+      "10b11b",
+      "8c12c",
+      "11b11a",
+      "12c12b",
+      "11a12b",
+      "11e10d+",
+      "12b11a",
+      "10d11c"
+    ],
+    "comments": {
+      "2": "�P�O��ʂ͂P�Q��z�`�P�P�O�i�� �P�P��ʂ͂P�P�O�i���C���z�C�����ȉ�",
+      "6": "���z�͂P�O�l�i���� �@�P�O��ʂ͂X�O���܂� �A�P�P��ʂ͂P�P�O��i�����ɕϊ������Ӗ��j�C�P�O��ʁC�P�P���C����C�P�O�O���i�P�P�l���j�܂�",
+      "8": "�@���ʂ͂P�Q�i���܂� �A���z�͂P�O�l�i���`�P�Q�O���i�P�P�l���j�܂� �B���p�͂P�Q�l�i���`�P�O�O���܂� �C�P�O��ʂ͂P�Q���C�X�O�ʁC�P�O�l�i���܂ł҂�����",
+      "10": "����͂P�P�O�i���܂�",
+      "13": "�ȏ�13��l�߁B �i�ق�����邩�ǂ����C�Ƃ����̂���� ����ƂR��ڂŗ����ɕς��Ă����̂��|�C���g (�o�P���b�^����)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 13237,
+      "pv": [
+        "8c9c",
+        "10b10a",
+        "8e12a",
+        "12b12a",
+        "11e11c+"
+      ]
+    }
+  }
+}

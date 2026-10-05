@@ -1,0 +1,43 @@
+{
+  "id": "kinu37",
+  "source": "/tmp/tsume/pages/kinu37.html",
+  "title": "中将棊絹篩・第37問",
+  "format": "sk",
+  "sfen": "5o6/+h2ctkegs+P1+P/8+O2r/m2g1Fp3p1/6+Dt4/3N8/12/+M11/10q1/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [
+      "12h1h",
+      "1c1h",
+      "7d8c",
+      "9b8c",
+      "9f7d",
+      "8c7d",
+      "4c6a",
+      "7b6a",
+      "6e8c",
+      "6a5a",
+      "3b4a",
+      "5a4a",
+      "8c2c",
+      "4a5a",
+      "2c2a",
+      "4b3a",
+      "2a3a"
+    ],
+    "comments": {
+      "15": "原本ではここまでとなっているが、正確にはあと１手詰め"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "unknown",
+      "nodes": 534166,
+      "pv": []
+    }
+  }
+}

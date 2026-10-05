@@ -1,0 +1,47 @@
+{
+  "id": "kinu39",
+  "source": "/tmp/tsume/pages/kinu39.html",
+  "title": "中将棊絹篩・第39問中将棊指南抄・第１問",
+  "format": "sk",
+  "sfen": "4ge1g3l/4tkx4a/2f2o2t3/12/m4s2p1Gp/5pp5/11Q/12/2H7+p1/12/9+o2/9+v2 b - 1",
+  "to_move": "sente",
+  "pieces": 23,
+  "solution": {
+    "moves": [
+      "10i12g",
+      "7b6c",
+      "12g11h",
+      "6c6d",
+      "2e2d+",
+      "4c5d",
+      "1g3g",
+      "6d5c",
+      "3g3c",
+      "5d4c",
+      "3c3e",
+      "5c4b",
+      "2d2b",
+      "4c3b",
+      "2b3b",
+      "4b4c",
+      "3e3c",
+      "4c5d",
+      "11h7d+",
+      "7e6d",
+      "7d5f"
+    ],
+    "comments": {
+      "19": "ここで中将棊絹篩には成ると書かれていないが、誤り。ちなみに中将棊指南抄には成ると書かれている。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 57,
+      "pv": []
+    }
+  }
+}

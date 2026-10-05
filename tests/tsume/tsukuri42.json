@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri42",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri42.txt",
+  "title": "中将棊作物収録作品・第四十二問",
+  "format": "sk",
+  "sfen": "11l/12/12/11+H/8+d1s1/8px+v1/7pkb2/8s2+M/6P2+f2/3+M1+r+D5/10+R1/11+D b - 1",
+  "to_move": "sente",
+  "pieces": 19,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 262463,
+      "pv": []
+    }
+  }
+}

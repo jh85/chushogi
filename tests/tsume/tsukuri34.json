@@ -1,0 +1,35 @@
+{
+  "id": "tsukuri34",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri34.txt",
+  "title": "中将棊作物収録作品・第三十四問",
+  "format": "sk",
+  "sfen": "7+P4/5xm1+m2l/5t6/2ppd1pk1+I1+P/7qVM2/5+pP5/5+r+D5/7N4/12/10+p1/8+D3/9+M2 b - 1",
+  "to_move": "sente",
+  "pieces": 24,
+  "solution": {
+    "moves": [
+      "5h3f",
+      "5d6c",
+      "3f5e"
+    ],
+    "comments": {
+      "3": "以上３手詰め。 まあ１００％早詰でしょう（笑）(バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 458,
+      "pv": [
+        "5h3f",
+        "5d5c",
+        "3d4c",
+        "5c6c",
+        "3f5e"
+      ]
+    }
+  }
+}

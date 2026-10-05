@@ -1,0 +1,35 @@
+{
+  "id": "tsukuri13",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri13.txt",
+  "title": "中将棊作物収録作品・第十三問",
+  "format": "sk",
+  "sfen": "x1g1+Br6/l1k3+V5/+T3m7/2p9/1X1I2pt4/5b6/5N6/1n10/5D6/12/+a5+L5/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 4414,
+      "pv": [
+        "6b8d",
+        "8c8d",
+        "11e9c+",
+        "10b9c",
+        "9e9d+",
+        "9c9d",
+        "7g8f",
+        "9d9c",
+        "8f9e",
+        "9c10b",
+        "12c11c"
+      ]
+    }
+  }
+}

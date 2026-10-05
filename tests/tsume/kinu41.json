@@ -1,0 +1,99 @@
+{
+  "id": "kinu41",
+  "source": "/tmp/tsume/pages/kinu41.html",
+  "title": "中将棊絹篩・第41問中将棊指南抄・第3問",
+  "format": "sk",
+  "sfen": "2r3k1+B3/l2c2+h2c1+r/3ft2t1f+D1/3p1p1p1p2/6+H5/X1+M9/12/12/12/6R5/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 21,
+  "solution": {
+    "moves": [
+      "4a5b",
+      "5c5b",
+      "2c4a",
+      "5b4a",
+      "6e6c",
+      "6a7a",
+      "6c6b6a",
+      "7a8b",
+      "6j6b+",
+      "8c7b",
+      "6b7b"
+    ],
+    "comments": {
+      "2": "ここで同角鷹なら正解２の手順、同玉将なら正解３の手順となる。"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "6b5b",
+        "6e7d",
+        "5c6b",
+        "2c4a",
+        "5b4a",
+        "6j6b+"
+      ],
+      "full_line": [
+        "4a5b",
+        "6b5b",
+        "6e7d",
+        "5c6b",
+        "2c4a",
+        "5b4a",
+        "6j6b+"
+      ],
+      "comments": {
+        "1": "同角鷹の手順。同玉将なら正解３の手順。同盲虎なら正解１の手順。"
+      },
+      "legal": true
+    },
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "6a5b",
+        "6e5d",
+        "5b5a",
+        "5d5c",
+        "5a6a",
+        "2c4a",
+        "6a7b",
+        "6j6b+"
+      ],
+      "full_line": [
+        "4a5b",
+        "6a5b",
+        "6e5d",
+        "5b5a",
+        "5d5c",
+        "5a6a",
+        "2c4a",
+        "6a7b",
+        "6j6b+"
+      ],
+      "comments": {
+        "1": "同玉将の手順。同角鷹・同盲虎なら正解１．２を参照。",
+        "4": "ここで原本には（指南抄・絹篩とも）５五とあるが、おそらく５三の誤りであると思う。後手角鷹は奔猪のにらみによって動けず、逃げの一手しかない。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 50783,
+      "pv": [
+        "4a5b",
+        "6a7a",
+        "10f6b",
+        "7a8a",
+        "2c4a"
+      ]
+    }
+  }
+}

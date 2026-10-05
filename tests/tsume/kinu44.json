@@ -1,0 +1,91 @@
+{
+  "id": "kinu44",
+  "source": "/tmp/tsume/pages/kinu44.html",
+  "title": "中将棊絹篩・第44問中将棊指南抄・第６問",
+  "format": "sk",
+  "sfen": "2+P1d1+P1s1f+l/2t4x1c2/3m1k6/1m3p1pppp1/6p5/1N2C3+O3/12/9+i2/1+V4+v5/9+t2/11L/12 b - 1",
+  "to_move": "sente",
+  "pieces": 26,
+  "solution": {
+    "moves": [
+      "11f9e",
+      "7c6c",
+      "4f6d",
+      "6c6d",
+      "9e7f",
+      "6d5c",
+      "8f8e",
+      "5c4c",
+      "7f6d",
+      "4c3c",
+      "6d5d5e",
+      "3c2c",
+      "5e4d4e",
+      "2c2b",
+      "4e2d"
+    ],
+    "comments": {
+      "2": "８二玉将と動いた場合の手順は正解２へ"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 1,
+      "moves": [
+        "7c8b",
+        "4f6d",
+        "8b9b",
+        "10a10b",
+        "9b10b",
+        "11i10h",
+        "10b9b",
+        "10h10a",
+        "8a10a",
+        "6d8d",
+        "11d8d",
+        "9e8d",
+        "9b9a",
+        "8d9c"
+      ],
+      "full_line": [
+        "11f9e",
+        "7c8b",
+        "4f6d",
+        "8b9b",
+        "10a10b",
+        "9b10b",
+        "11i10h",
+        "10b9b",
+        "10h10a",
+        "8a10a",
+        "6d8d",
+        "11d8d",
+        "9e8d",
+        "9b9a",
+        "8d9c"
+      ],
+      "comments": {
+        "1": "８二玉将と動いた場合の手順。６三玉将なら正解１へ。"
+      },
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 72767,
+      "pv": [
+        "11f9e",
+        "7c7b",
+        "4f6d",
+        "7b6a",
+        "6d7c",
+        "9c7c",
+        "9e7c"
+      ]
+    }
+  }
+}

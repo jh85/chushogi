@@ -1,0 +1,53 @@
+{
+  "id": "kinu12",
+  "source": "/tmp/tsume/pages/kinu12.html",
+  "title": "中将棊絹篩・第１２問",
+  "format": "sk",
+  "sfen": "4ek1g+F3/l4to2+Dd1/1Ff4x3r/3psNp1p3/2m6p2/2+M4p4/5+H6/6+r3+L1/12/12/6Q5/12 b - 1",
+  "to_move": "sente",
+  "pieces": 26,
+  "solution": {
+    "moves": [
+      "10f11e",
+      "10e11e",
+      "7g10d",
+      "10c10d",
+      "11c10d+",
+      "7a6a",
+      "6k1f",
+      "1c1f",
+      "2h2e",
+      "2b2e",
+      "4a5b",
+      "5a5b",
+      "3b4a",
+      "5b5a",
+      "7d5b",
+      "5c5b",
+      "4a4c"
+    ],
+    "comments": {
+      "12": "ここは金のみ。鳳凰が下がると４三飛鷲で終わり。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 476870,
+      "pv": [
+        "10f11e",
+        "7a6a",
+        "6k1f",
+        "5a5b",
+        "7d5b",
+        "5c5b",
+        "4a5b",
+        "6a5a",
+        "3b4a"
+      ]
+    }
+  }
+}

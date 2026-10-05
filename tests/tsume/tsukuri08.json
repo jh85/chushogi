@@ -1,0 +1,33 @@
+{
+  "id": "tsukuri08",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri08.txt",
+  "title": "中将棊作物収録作品・第八問",
+  "format": "sk",
+  "sfen": "7rb1+P1/8+P2+m/7+m1d2/7p2k1/7+B1pp1/7QP3/10N1/9+a2/7+v3D/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [
+      "5f2c",
+      "1b2c",
+      "1i1c",
+      "2c1c",
+      "5e3c",
+      "1c3c",
+      "2g4e",
+      "2d1e",
+      "4e3d"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 17693,
+      "pv": []
+    }
+  }
+}

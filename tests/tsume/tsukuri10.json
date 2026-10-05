@@ -1,0 +1,37 @@
+{
+  "id": "tsukuri10",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri10.txt",
+  "title": "中将棊作物収録作品・第十問",
+  "format": "sk",
+  "sfen": "6r1g3/6s1m3/5+P1k1ts1/6p+M1p2/8G3/5+H+r3N1/11+a/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 16,
+  "solution": {
+    "moves": [
+      "5d4d",
+      "5c5b",
+      "4e5d+",
+      "5b4c",
+      "5d5c"
+    ],
+    "comments": {
+      "5": "以上５手詰め。 「まさかたった５手とは・・・？ 早詰かもしれません．」(バケラッタさん)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 937,
+      "pv": [
+        "5d4d",
+        "3c4d",
+        "2f4d",
+        "1g4d",
+        "7f5d"
+      ]
+    }
+  }
+}

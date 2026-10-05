@@ -1,0 +1,23 @@
+{
+  "id": "tsukuri21",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri21.txt",
+  "title": "中将棊作物収録作品・第二十一問",
+  "format": "sk",
+  "sfen": "3+P1se5/6x1+l3/1+m+d1k+d4r1/7F4/5HPQ4/1+b10/4N7/12/4+A+t6/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 18,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "no",
+      "nodes": 91756,
+      "pv": []
+    }
+  }
+}

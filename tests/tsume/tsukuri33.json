@@ -1,0 +1,68 @@
+{
+  "id": "tsukuri33",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri33.txt",
+  "title": "中将棊作物収録作品・第三十三問",
+  "format": "sk",
+  "sfen": "1k1s2+H5/1+Mb1gr6/+P11/1p2p1p5/2fF2F5/1r10/+l4N6/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 17,
+  "solution": {
+    "moves": [
+      "11b12b",
+      "11a10a",
+      "6e7d+",
+      "7b7d",
+      "12b11b",
+      "10a9b",
+      "11b10c",
+      "9b10c",
+      "9e10d",
+      "10c10d",
+      "6a10e",
+      "10d10e",
+      "7g9g",
+      "10e9d",
+      "9g11f",
+      "9d8e",
+      "11f9g",
+      "8e9d",
+      "9g9f",
+      "9d8c",
+      "9f9e",
+      "8c9b",
+      "9e7d",
+      "9b8a",
+      "7d6b",
+      "8a9b",
+      "6b7a",
+      "9b10a",
+      "7a8b8c",
+      "10a11a",
+      "8c10c"
+    ],
+    "comments": {
+      "6": "�P�P��ʂ͂P�Q�꒖�C���ʁC�X�l�^���ȉ�",
+      "10": "�@�X��ʂ͂P�O�O�^�C���ʁC�X�܎��ȉ� �A���^�͂P�O�ܑ�C�X��ʁi���^�͂X�܎��ȉ��Q�R��j�C�P�O�O��i�P�O�l���j�C���ʁC�X�܎��C�X��ʁC�V�l���ȉ��{�菇���l�ɒǂ��đ����D",
+      "16": "���ɗ�����̂͂X�܎��ȉ��Q�V��ȓ��ŋl��",
+      "32": "�ȏ�31��l�߁B (�菇�E�o�P���b�^����)"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 38640,
+      "pv": [
+        "11b12b",
+        "11a12a",
+        "6a9a",
+        "10b11a",
+        "9a9d",
+        "10e9d",
+        "12b11b"
+      ]
+    }
+  }
+}

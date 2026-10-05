@@ -1,0 +1,47 @@
+{
+  "id": "tsukuri17",
+  "source": "/tmp/tsume/tsukuri/kifu/tsukuri17.txt",
+  "title": "中将棊作物収録作品・第十七問",
+  "format": "sk",
+  "sfen": "12/8t2a/11r/2+l1+F7/5P+B2p2/1m1X8/5k5L/2N1+bt+p1ic2/+V8+p2/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 20,
+  "solution": {
+    "moves": [],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 15197,
+      "pv": [
+        "8d9e",
+        "10d9e",
+        "10h8f",
+        "9e8f",
+        "9f9e",
+        "7g6g",
+        "9e9d+",
+        "8f8e",
+        "12i8e",
+        "11f7f",
+        "8e7f",
+        "6g5g",
+        "9d5d",
+        "5g4f",
+        "5d5f",
+        "4f3g",
+        "6e6d",
+        "3g2g",
+        "6d2h",
+        "2g2h",
+        "5f2f",
+        "2h1h",
+        "7f1l"
+      ]
+    }
+  }
+}

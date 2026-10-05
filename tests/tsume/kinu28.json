@@ -1,0 +1,104 @@
+{
+  "id": "kinu28",
+  "source": "/tmp/tsume/pages/kinu28.html",
+  "title": "中将棊絹篩・第28問",
+  "format": "sk",
+  "sfen": "10D1/2+P1g1k1g2+H/3f1s1b1f2/4ppo2p2/3p2D3p1/9B2/3+v5+pP1/12/6+L5/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 22,
+  "solution": {
+    "moves": [
+      "2a6a",
+      "6b6a",
+      "1b2a",
+      "6a6b",
+      "3f6c+",
+      "6b6c",
+      "6e5d+",
+      "6c6b",
+      "5d6c",
+      "6b6c",
+      "2a6e",
+      "6c5b",
+      "6e6d6c",
+      "5b4c",
+      "6i6e",
+      "4c4d",
+      "6c5d",
+      "4d3e",
+      "6e6h"
+    ],
+    "comments": {
+      "12": "ここで▽７二玉将なら…正解２へ",
+      "16": "ここで原本には▲５四角鷹 ▲６五白駒と攻め手が続くが誤植と思われる"
+    }
+  },
+  "variations": [
+    {
+      "parent": 1,
+      "branch_after_ply": 11,
+      "moves": [
+        "6c7b",
+        "6e6d6c",
+        "7b8c",
+        "6i10e",
+        "9c9d",
+        "6c6a",
+        "8b7b",
+        "6a10a",
+        "8c8b",
+        "10a9a"
+      ],
+      "full_line": [
+        "2a6a",
+        "6b6a",
+        "1b2a",
+        "6a6b",
+        "3f6c+",
+        "6b6c",
+        "6e5d+",
+        "6c6b",
+        "5d6c",
+        "6b6c",
+        "2a6e",
+        "6c7b",
+        "6e6d6c",
+        "7b8c",
+        "6i10e",
+        "9c9d",
+        "6c6a",
+        "8b7b",
+        "6a10a",
+        "8c8b",
+        "10a9a"
+      ],
+      "comments": {},
+      "legal": true
+    }
+  ],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 3187,
+      "pv": [
+        "2a6a",
+        "6b6a",
+        "1b2a",
+        "6a6b",
+        "3f6c+",
+        "6b6c",
+        "6e5d+",
+        "6c6b",
+        "5d6c",
+        "6b6c",
+        "2a6e",
+        "6c6b",
+        "6e6d6c",
+        "6b7a",
+        "6c6a"
+      ]
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "kinu34",
+  "source": "/tmp/tsume/pages/kinu34.html",
+  "title": "中将棊絹篩・第34問",
+  "format": "sk",
+  "sfen": "1r9+V/+M+F2d2et3/2m1+P1g1s1x1/1+V3spk1p+H1/3p1p1Tp3/7+M1b1+v/3r4i3/1+F+p9/1+p7+L2/+p6+a2+r1/11Q/3+H3B4 b - 1",
+  "to_move": "sente",
+  "pieces": 37,
+  "solution": {
+    "moves": [
+      "1k12k",
+      "12j12k",
+      "9l11j",
+      "11i11j",
+      "11h10i",
+      "10h10i",
+      "5l9h",
+      "9g9h",
+      "11d8g",
+      "5j8g",
+      "5f7f",
+      "6d6e",
+      "2d3d",
+      "1f3d",
+      "5e6e",
+      "7d6e",
+      "3i5g",
+      "5d6d",
+      "1a5e",
+      "6d7d",
+      "7f9d",
+      "8g8d",
+      "8c8d",
+      "8b8d",
+      "11b10a",
+      "11a10a",
+      "12b9b",
+      "10c8c",
+      "9b8c"
+    ],
+    "comments": {
+      "27": "原本には８六奔猪まで、とあるが誤り。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "unknown",
+      "nodes": 30000000,
+      "pv": []
+    }
+  }
+}

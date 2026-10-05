@@ -1,0 +1,51 @@
+{
+  "id": "tumechu98",
+  "source": "/tmp/tsume/pages/tumechu98.html",
+  "title": "詰め中将棋 第98図単騎図式です。飛鷲ではこれが最長だと思います。",
+  "format": "sk",
+  "sfen": "11k/10sl/10x1/10h1/10h1/10+b1/10+b1/10+m1/10+m1/10+f1/10+t1/+D11 b - 1",
+  "to_move": "sente",
+  "pieces": 13,
+  "solution": {
+    "moves": [
+      "12l12a",
+      "2j11a",
+      "12a11a",
+      "2i10a",
+      "11a10a",
+      "2h9a",
+      "10a9a",
+      "2g8a",
+      "9a8a",
+      "2f7a",
+      "8a7a",
+      "2e6a",
+      "7a6a",
+      "2d5a",
+      "6a5a",
+      "2c4a",
+      "5a4a",
+      "2b3a",
+      "4a3a",
+      "2k2a",
+      "3a3c"
+    ],
+    "comments": {
+      "21": "迄21手詰。初手は飛鷲で王手しかない。２二から２十の受方の駒は２十一の飛鹿の効き筋を塞いでいるため１枚ずつ捨てていくというだけである。初形が攻方飛鷲１枚のみという制約ではこれ以上のものは作れそうにない。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 1415,
+      "pv": [
+        "12l12a",
+        "2b3a",
+        "12a3a"
+      ]
+    }
+  }
+}

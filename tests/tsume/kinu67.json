@@ -1,0 +1,35 @@
+{
+  "id": "kinu67",
+  "source": "/tmp/tsume/pages/kinu67.html",
+  "title": "中将棊絹篩・第６７問中将棊指南抄・第２９問",
+  "format": "sk",
+  "sfen": "5k6/2+P2g+d2b2/2x1t7/1p3p2N3/3op2+X4/9q2/12/12/6+A5/4Q7/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 16,
+  "solution": {
+    "moves": [
+      "8j12f",
+      "3f12f",
+      "4d5c",
+      "6b5c",
+      "5e1a",
+      "7a8b",
+      "1a9a"
+    ],
+    "comments": {}
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 11241,
+      "pv": [
+        "8j12f",
+        "7a8a",
+        "10b9a"
+      ]
+    }
+  }
+}

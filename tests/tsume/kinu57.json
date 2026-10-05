@@ -1,0 +1,56 @@
+{
+  "id": "kinu57",
+  "source": "/tmp/tsume/pages/kinu57.html",
+  "title": "中将棊絹篩・第５７問中将棊指南抄・第１９問",
+  "format": "sk",
+  "sfen": "8+a2l/6s5/8+le1f/7nkg2/8g2+A/5NO5/5Q4P1/12/12/12/12/12 b - 1",
+  "to_move": "sente",
+  "pieces": 15,
+  "solution": {
+    "moves": [
+      "6f6d",
+      "5d6d5e",
+      "7g5e",
+      "4e5e",
+      "7f6d",
+      "4d3e",
+      "6d5e",
+      "3e2d",
+      "1e2f",
+      "3d2e",
+      "5e3f",
+      "2d2c",
+      "3f2e3e",
+      "2c3b",
+      "2f2a",
+      "3b4b",
+      "2a4c",
+      "3c4c",
+      "3e2c"
+    ],
+    "comments": {
+      "15": "原本には金を取るとは書かれていないが、次の手から取るものと判断した。",
+      "21": "これより獅子にて詰む。と書かれており、詳細な手順は記されていない。とりあえず次の攻め手で３一獅子とし、鯨鯢を潰してから玉を追いつめれば獅子一枚で詰むと思われる。"
+    }
+  },
+  "variations": [],
+  "engine_check": {
+    "sfen_roundtrip": true,
+    "solution_legal": true,
+    "mate": {
+      "result": "yes",
+      "nodes": 129289,
+      "pv": [
+        "6f6d+",
+        "4d3e",
+        "6d5d5e",
+        "3e2e",
+        "5e3g",
+        "2e2d",
+        "1e2f",
+        "2d1d",
+        "3g1f"
+      ]
+    }
+  }
+}

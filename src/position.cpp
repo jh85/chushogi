@@ -35,4 +35,36 @@ void Position::apply(const Move& m) {
   ++moveNumber;
 }
 
+Position Position::flipped() const {
+  Position out;
+  for (int s = 0; s < kSquares; ++s) out.board[flipSquare(s)] = flipPiece(board[s]);
+  out.sideToMove = !sideToMove;
+  out.lastLionCapture =
+      lastLionCapture == kNoSquare ? kNoSquare : flipSquare(lastLionCapture);
+  out.moveNumber = moveNumber;
+  return out;
+}
+
+std::string flipUsiMove(const std::string& token) {
+  std::string out;
+  size_t i = 0;
+  while (i < token.size()) {
+    if (token[i] == '+') {
+      out += '+';
+      ++i;
+      continue;
+    }
+    // one square = file digits + rank letter
+    size_t j = i;
+    while (j < token.size() && token[j] >= '0' && token[j] <= '9') ++j;
+    if (j == i || j >= token.size()) break;
+    int file = std::stoi(token.substr(i, j - i));
+    char rank = token[j];
+    out += std::to_string(file);
+    out += static_cast<char>('a' + ('l' - rank));
+    i = j + 1;
+  }
+  return out;
+}
+
 }  // namespace chu

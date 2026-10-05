@@ -10,6 +10,21 @@ GAMES2 ?= /data2/cs/chu_shogi_downloader/data2/games
 $(BIN): $(SRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h
 	$(CXX) $(CXXFLAGS) -o $@ $(SRC)
 
+# AlphaZero side: encoding inspection / MCTS / self-play binary.
+AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
+         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/main.cpp
+AZBIN := chushogi-az
+
+$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h
+	$(CXX) $(CXXFLAGS) -o $@ $(AZSRC)
+
+PY ?= /data2/cs/venv/bin/python
+
+az-test: $(BIN) $(AZBIN)
+	$(PY) tests/az_encode_test.py $(GAMES1) $(GAMES2) --az ./$(AZBIN) --gen ./$(BIN)
+	$(PY) tests/az_selfplay_test.py --az ./$(AZBIN) --gen ./$(BIN)
+
+
 # Regenerate the test-case file from the downloaded game records.
 tests/chushogi_cases.tsv: tests/make_cases.py
 	python3 tests/make_cases.py $@ $(GAMES1) $(GAMES2)

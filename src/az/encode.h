@@ -48,4 +48,9 @@ void encodePlanes(const chu::Position& pos, int repCount, int ply,
 void encodePosition(const chu::Position& pos, int repCount, int ply,
                     float* out);
 
+// Packs planes 0..80 (binary) MSB-first into out (81*144/8 = 1458 bytes);
+// plane 81 (ply progress) is returned separately.
+constexpr int kPackedBytes = 81 * kBoard / 8;
+float packPlanes(const float* planes, uint8_t* out);
+
 }  // namespace az

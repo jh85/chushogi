@@ -14,19 +14,6 @@ namespace az {
 
 namespace {
 
-// Packs planes 0..80 (binary) as bits; plane 81 is the progress scalar.
-// Bit order: MSB first, matching numpy.unpackbits' default.
-constexpr int kPackedBytes = 81 * chu::kSquares / 8;
-
-std::vector<uint8_t> packPlanes(const float* planes) {
-  std::vector<uint8_t> out(kPackedBytes, 0);
-  for (int p = 0; p < 81; ++p)
-    for (int s = 0; s < chu::kSquares; ++s)
-      if (planes[p * chu::kSquares + s] != 0.f)
-        out[(p * chu::kSquares + s) / 8] |= 0x80 >> ((p * chu::kSquares + s) % 8);
-  return out;
-}
-
 const char* kB64 =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
@@ -118,8 +105,8 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
     smp.ply = plies;
     smp.stm = pos.sideToMove;
     encodePlanes(canon, repCount, plies, planes.data());
-    smp.packedPlanes = packPlanes(planes.data());
-    smp.progress = planes[81 * kBoard];
+    smp.packedPlanes.resize(kPackedBytes);
+    smp.progress = packPlanes(planes.data(), smp.packedPlanes.data());
     smp.policy = res.policy;
     smp.rootQ = res.rootQ;
     smp.a0gb = res.a0gb;

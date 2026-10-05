@@ -75,4 +75,13 @@ void encodePosition(const chu::Position& pos, int repCount, int ply,
     encodePlanes(pos, repCount, ply, out);
 }
 
+float packPlanes(const float* planes, uint8_t* out) {
+  std::fill(out, out + kPackedBytes, 0);
+  for (int p = 0; p < 81; ++p)
+    for (int s = 0; s < kBoard; ++s)
+      if (planes[p * kBoard + s] != 0.f)
+        out[(p * kBoard + s) / 8] |= 0x80 >> ((p * kBoard + s) % 8);
+  return planes[81 * kBoard];
+}
+
 }  // namespace az

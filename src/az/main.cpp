@@ -20,6 +20,7 @@
 #include "../sfen.h"
 #include "../usi.h"
 #include "encode.h"
+#include "eval_client.h"
 #include "selfplay.h"
 
 namespace {
@@ -47,25 +48,37 @@ int main() {
     if (tok[0] == "quit") break;
     if (tok[0] == "selfplay") {
       // selfplay --games N --sims S --batch B --seed K --out DIR
+      //          [--eval random|pipe] [--port N]
       int games = 1;
+      int port = 51589;
+      std::string evalKind = "random";
       az::SelfplayConfig cfg;
       std::string out = "az/data";
       for (size_t i = 1; i + 1 < tok.size(); i += 2) {
         if (tok[i] == "--games") games = std::stoi(tok[i + 1]);
-        else if (tok[i] == "--sims") cfg.sims = cfg.mcts.sims = std::stoi(tok[i + 1]);
-        else if (tok[i] == "--batch") cfg.batchSize = cfg.mcts.batchSize = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--sims") cfg.sims = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--batch") cfg.batchSize = std::stoi(tok[i + 1]);
         else if (tok[i] == "--seed") cfg.seed = std::stoull(tok[i + 1]);
         else if (tok[i] == "--out") out = tok[i + 1];
+        else if (tok[i] == "--eval") evalKind = tok[i + 1];
+        else if (tok[i] == "--port") port = std::stoi(tok[i + 1]);
         else fatal("unknown selfplay option: " + tok[i]);
       }
       cfg.mcts.sims = cfg.sims;
       cfg.mcts.batchSize = cfg.batchSize;
       std::string mkdir = "mkdir -p " + out;
       if (std::system(mkdir.c_str()) != 0) fatal("mkdir failed");
-      az::RandomEval eval;
+      az::RandomEval randomEval;
+      std::unique_ptr<az::PipeEval> pipeEval;
+      if (evalKind == "pipe")
+        pipeEval = std::make_unique<az::PipeEval>("127.0.0.1",
+                                                  static_cast<uint16_t>(port));
+      else if (evalKind != "random")
+        fatal("unknown --eval: " + evalKind);
+      az::Evaluator* evalp = pipeEval ? static_cast<az::Evaluator*>(pipeEval.get()) : static_cast<az::Evaluator*>(&randomEval);
       for (int g = 0; g < games; ++g) {
         cfg.seed += 1;
-        az::GameRecord rec = az::playGame(kInitialSfen, cfg, eval);
+        az::GameRecord rec = az::playGame(kInitialSfen, cfg, *evalp);
         char name[256];
         std::snprintf(name, sizeof(name), "%s/game_%04d.json", out.c_str(), g);
         az::writeGameRecord(rec, name);

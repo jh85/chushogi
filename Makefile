@@ -12,10 +12,10 @@ $(BIN): $(SRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src
 
 # AlphaZero side: encoding inspection / MCTS / self-play binary.
 AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
-         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/main.cpp
+         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/main.cpp
 AZBIN := chushogi-az
 
-$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h
+$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/selfplay.h src/az/eval_client.h
 	$(CXX) $(CXXFLAGS) -o $@ $(AZSRC)
 
 PY ?= /data2/cs/venv/bin/python

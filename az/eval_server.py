@@ -83,9 +83,9 @@ class Handler(socketserver.BaseRequestHandler):
                                      dtype=np.float16)
             except ConnectionError:
                 return
-            if srv.watch:
-                srv.reload()
             with srv.lock:
+                if srv.watch:
+                    srv.reload()
                 policy, wdl = srv.eval(packed, prog.astype(np.float32))
             out = struct.pack("<I", n) + policy.tobytes() + wdl.tobytes()
             self.request.sendall(out)

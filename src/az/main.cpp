@@ -117,12 +117,21 @@ int main() {
       pipeEval = std::make_unique<az::PipeEval>("127.0.0.1",
                                                 static_cast<uint16_t>(port));
       std::cout << "ok\n" << std::flush;
-    } else if (tok[0] == "go") {  // go az --sims N
+    } else if (tok[0] == "go") {  // go az --sims N [--eval random]
       if (tok.size() < 2 || tok[1] != "az") fatal("expected: go az --sims N");
       int sims = 200;
-      for (size_t i = 2; i + 1 < tok.size(); i += 2)
+      std::string evalKind = "pipe";
+      for (size_t i = 2; i + 1 < tok.size(); i += 2) {
         if (tok[i] == "--sims") sims = std::stoi(tok[i + 1]);
-      if (!pipeEval) fatal("go az needs eval-server first");
+        else if (tok[i] == "--eval") evalKind = tok[i + 1];
+      }
+      if (evalKind != "random" && !pipeEval)
+        fatal("go az needs eval-server first");
+      az::RandomEval randomEval;
+      az::Evaluator* evalp =
+          evalKind == "random"
+              ? static_cast<az::Evaluator*>(&randomEval)
+              : static_cast<az::Evaluator*>(pipeEval.get());
       az::MctsConfig mc;
       mc.sims = sims;
       mc.rootNoise = false;
@@ -130,7 +139,7 @@ int main() {
       const bool flip = pos.sideToMove == chu::Gote;
       const chu::Position canon = flip ? pos.flipped() : pos;
       const int plies = static_cast<int>(hashes.size());
-      az::SearchResult res = mcts.search(canon, hashes, plies, *pipeEval, rng);
+      az::SearchResult res = mcts.search(canon, hashes, plies, *evalp, rng);
       const auto legal = chu::generateLegal(pos);
       if (legal.empty()) {
         std::cout << "bestmove resign\n" << std::flush;

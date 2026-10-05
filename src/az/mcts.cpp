@@ -167,7 +167,9 @@ Mcts::Descent Mcts::descend() {
 }
 
 void Mcts::backup(const Descent& d) {
-  float v = d.value;
+  // d.value is the leaf's value from the leaf's side-to-move perspective;
+  // the last edge leads into the leaf, so it receives the flipped value.
+  float v = 1.f - d.value;
   for (auto it = d.path.rbegin(); it != d.path.rend(); ++it) {
     Edge& e = arena_[it->first].edges[it->second];
     e.inflight--;  // the virtual visit becomes the real one

@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <memory>
+#include <random>
 
 #include "../movegen.h"
 #include "../position.h"
@@ -39,6 +41,9 @@ constexpr const char* kInitialSfen =
 int main() {
   chu::Position pos;
   if (!chu::parseSfen(kInitialSfen, pos)) fatal("bad initial SFEN");
+  std::vector<uint64_t> hashes;         // canonical keys before current pos
+  std::unique_ptr<az::PipeEval> pipeEval;
+  std::mt19937_64 rng(0xC0FFEE);
   std::string line;
   while (std::getline(std::cin, line)) {
     std::istringstream iss(line);
@@ -92,15 +97,51 @@ int main() {
       if (tok.size() < 3 || tok[1] != "sfen") fatal("expected: position sfen");
       std::string sfen = tok[2] + " " + tok[3] + " " + tok[4] + " " + tok[5];
       if (!chu::parseSfen(sfen, pos)) fatal("bad SFEN");
+      hashes.clear();
       if (tok.size() > 6) {
         if (tok[6] != "moves") fatal("expected: moves");
         for (size_t i = 7; i < tok.size(); ++i) {
           chu::Move m;
           if (!chu::parseUsiMove(tok[i], m)) fatal("bad move: " + tok[i]);
+          const chu::Position canon =
+              pos.sideToMove == chu::Gote ? pos.flipped() : pos;
+          hashes.push_back(az::positionKey(canon));
           pos.apply(m);
         }
       }
       std::cout << "ok\n" << std::flush;
+    } else if (tok[0] == "eval-server") {  // eval-server --port N
+      int port = 51589;
+      for (size_t i = 1; i + 1 < tok.size(); i += 2)
+        if (tok[i] == "--port") port = std::stoi(tok[i + 1]);
+      pipeEval = std::make_unique<az::PipeEval>("127.0.0.1",
+                                                static_cast<uint16_t>(port));
+      std::cout << "ok\n" << std::flush;
+    } else if (tok[0] == "go") {  // go az --sims N
+      if (tok.size() < 2 || tok[1] != "az") fatal("expected: go az --sims N");
+      int sims = 200;
+      for (size_t i = 2; i + 1 < tok.size(); i += 2)
+        if (tok[i] == "--sims") sims = std::stoi(tok[i + 1]);
+      if (!pipeEval) fatal("go az needs eval-server first");
+      az::MctsConfig mc;
+      mc.sims = sims;
+      mc.rootNoise = false;
+      az::Mcts mcts(mc);
+      const bool flip = pos.sideToMove == chu::Gote;
+      const chu::Position canon = flip ? pos.flipped() : pos;
+      const int plies = static_cast<int>(hashes.size());
+      az::SearchResult res = mcts.search(canon, hashes, plies, *pipeEval, rng);
+      const auto legal = chu::generateLegal(pos);
+      if (legal.empty()) {
+        std::cout << "bestmove resign\n" << std::flush;
+        continue;
+      }
+      chu::Move best = res.bestMove;
+      if (best.from == chu::kNoSquare) {  // search found nothing: fall back
+        best = legal[0];
+      }
+      if (flip) best = chu::flipMove(best);
+      std::cout << "bestmove " << chu::moveToUsi(best) << "\n" << std::flush;
     } else if (tok[0] == "sfen") {
       std::cout << "sfen " << chu::toSfen(pos) << "\n" << std::flush;
     } else if (tok[0] == "encode") {      // moveNumber counts plies + 1

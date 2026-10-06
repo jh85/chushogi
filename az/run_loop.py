@@ -15,6 +15,7 @@ Usage: run_loop.py [--run-dir az/data/run1] [--workers 4] [--games 8]
 
 import argparse
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -125,6 +126,8 @@ def main():
             last = [x for x in t.stdout.splitlines() if " loss " in x]
             say(f"[loop] iter {it}: trained {a.train_steps} steps in "
                 f"{time.time() - t0:.0f}s; {last[-1] if last else 'no log'}")
+            # archive per-iteration checkpoints for A/B strength matches
+            shutil.copy(current, ckpt_dir / f"iter_{it:04d}.pt")
         say("[loop] finished")
         return 0
     finally:

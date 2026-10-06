@@ -90,6 +90,45 @@ unresolved leaf `abn=obn=1`, proved mate `{0, INF}`, proved no-mate
 AND node dual, child thresholds `min(second + 1, ABN)` /
 `OBN - (node.obn - best.obn)`.
 
+## AlphaZero self-play agent (az/)
+
+A from-scratch AlphaZero loop lives in `az/` (Python) + `src/az/` (C++):
+
+- **Encoding** (`src/az/encode.*`, `az/encode.py`): positions canonicalized to
+  the side-to-move's view (`Position::flipped` — mirror + color swap when gote
+  is to move), 82 planes of 12x12 (39 roles x 2 sides, lion-capture square,
+  repetition counts, ply-cap progress). Policy space is 50,688: the from x to
+  matrix (144 x 144 = 20,736), a second from x to matrix for promotions, and
+  a from x midDir x toDir block (144 x 8 x 8 = 9,216) for two-step lion-power
+  moves (lion / horned falcon / soaring eagle, incl. igui). Legal-move masking
+  and softmax happen outside the net.
+- **MCTS** (`src/az/mcts.*`): dlshogi/JHBR3-style PUCT (c_init 1.25, c_base
+  19652, FPU, virtual loss, batched leaf eval, root Dirichlet noise 0.25/0.15).
+  Terminal values from the engine's status rules + in-tree repetition cutoff +
+  1000-ply cap. Each root search reports the visit policy plus three value
+  targets: z (game result), rootQ (soft-Z), and the A0GB greedy-path leaf.
+- **Bridge**: `chushogi-az` self-play workers send bit-packed positions over
+  TCP to `az/eval_server.py` (PyTorch, GPU, checkpoint --watch reload).
+- **Net** (`az/model.py`): transformer over the 144 squares; policy head is
+  QK^T per square (the from x to matrix) x2 + a per-square double-move MLP;
+  WDL value head.
+- **Training** (`az/train.py`, `az/buffer.py`): soft cross-entropy on visit
+  counts + WDL CE; value target switch `z | softz | a0gb | blend(lambda)`
+  (default blend 0.5). Atomic checkpoint publishing.
+- **Loop**: `az/run_loop.py` — W workers x G games per iteration, then train
+  and publish. `az/eval_match.py` — matches vs the random player (`go random`)
+  or another checkpoint for strength tracking.
+
+Tests: `make az-test` runs az_encode_test (C++/Python encoding agreement +
+move round-trip over real data), az_selfplay_test (record validity), az_mcts_test
+(mate-in-1 must be found — guards the backup-perspective convention), and
+az_pipe_test (untrained net end-to-end).
+
+``` 
+make chushogi-az
+python3 az/run_loop.py --workers 8 --games 2 --sims 64 --iterations 300
+```
+
 ## Random players and matches
 
 `go random` turns the engine into a random player speaking the USI idiom:

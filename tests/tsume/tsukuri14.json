@@ -15,9 +15,21 @@
     "sfen_roundtrip": true,
     "solution_legal": true,
     "mate": {
-      "result": "unknown",
+      "result": "yes",
       "nodes": 343428,
-      "pv": []
+      "pv": [
+        "2c10k",
+        "10e11d",
+        "2a11a",
+        "10c11b",
+        "11a11b",
+        "12c11c",
+        "11b12c",
+        "11c12c",
+        "8f10d",
+        "11d12e",
+        "10d11e"
+      ]
     }
   }
 }

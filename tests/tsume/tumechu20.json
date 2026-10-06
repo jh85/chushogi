@@ -480,7 +480,7 @@
     "solution_legal": true,
     "mate": {
       "result": "unknown",
-      "nodes": 16079315,
+      "nodes": 3000000,
       "pv": []
     }
   }

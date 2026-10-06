@@ -15,9 +15,7 @@
     "sfen_roundtrip": true,
     "solution_legal": true,
     "mate": {
-      "result": "unknown",
-      "nodes": 132185,
-      "pv": []
+      "result": "timeout"
     }
   }
 }

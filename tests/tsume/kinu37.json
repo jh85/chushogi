@@ -35,9 +35,19 @@
     "sfen_roundtrip": true,
     "solution_legal": true,
     "mate": {
-      "result": "unknown",
+      "result": "yes",
       "nodes": 534166,
-      "pv": []
+      "pv": [
+        "12h1h",
+        "5b6c",
+        "4c4b5b",
+        "6b5b",
+        "7d6c+",
+        "5b6c",
+        "9f7d",
+        "7b8a",
+        "7d6c7c"
+      ]
     }
   }
 }

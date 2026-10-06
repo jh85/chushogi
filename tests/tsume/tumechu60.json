@@ -1377,7 +1377,7 @@
     "solution_legal": true,
     "mate": {
       "result": "unknown",
-      "nodes": 10301731,
+      "nodes": 3000000,
       "pv": []
     }
   }

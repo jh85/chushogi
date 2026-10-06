@@ -9,5 +9,5 @@ random_games/
 __pycache__/
 *.pyc
 
-# AZ training run artifactsz/data/
+az/data/
 

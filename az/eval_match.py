@@ -90,11 +90,19 @@ def main():
     ap.add_argument("--games", type=int, default=20)
     ap.add_argument("--sims", type=int, default=200)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--mate-nodes", type=int, default=0)
+    ap.add_argument("--probe-depth", type=int, default=0)
     a = ap.parse_args()
 
-    az = Player(a.az, f"go az --sims {a.sims}", port=a.port)
+    extra = ""
+    if a.mate_nodes:
+        extra += f" --mate-nodes {a.mate_nodes}"
+    if a.probe_depth:
+        extra += f" --probe-depth {a.probe_depth}"
+
+    az = Player(a.az, f"go az --sims {a.sims}{extra}", port=a.port)
     if a.port2 is not None:
-        opp = Player(a.az, f"go az --sims {a.sims}", port=a.port2)
+        opp = Player(a.az, f"go az --sims {a.sims}{extra}", port=a.port2)
         opp_name = f"az@{a.port2}"
     else:
         opp = Player(a.gen, "go random", seed=a.seed)

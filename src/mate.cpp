@@ -1,6 +1,7 @@
 #include "mate.h"
 
 #include "sfen.h"
+#include "usi.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -395,6 +396,138 @@ void MateSolver::searchImpl(Position& pos, uint64_t hash, int ply,
   }
 }
 
+bool MateSolver::pvValidates(const Position& root, const MateAnswer& out)
+    const {
+  const Color attacker = root.sideToMove;
+  const Color defender = !attacker;
+  Position verify = root;
+  for (const Move& m : out.pv) {
+    if (!isLegal(verify, m)) return false;
+    verify.apply(m);
+  }
+  if (royalCount(verify, defender) > 0) {
+    // Otherwise the pv must end with the defender to move and no evasion.
+    if (verify.sideToMove != defender) return false;
+    for (const Move& m : generateLegal(verify)) {
+      Position c = verify;
+      c.apply(m);
+      const bool capturedOut =
+          royalCount(verify, attacker) > 0 && royalCount(c, attacker) == 0;
+      if (capturedOut || !royalAttacked(c, defender))
+        return false;  // the defender escapes: the pv is not a mate
+    }
+  }
+  return true;
+}
+
+void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
+                                    size_t budget) {
+  // Greedy re-solve walk, replicating the search's AND/OR alternation.
+  // Attacker nodes: the fastest-proving checking child (fewest nodes).
+  // Defender nodes: any evasion whose child is still a proven mate.
+  // The mate ends with the royal captured or the defender out of evasions.
+  // Transpositions are allowed (tsume lines can drive a king around); the
+  // walk stalls only if a position occurs for the third time.
+  const Color attacker = root.sideToMove;
+  const Color defender = !attacker;
+  const size_t perChild = budget;
+  extractPvEnabled_ = false;
+
+  // Does this defender-to-move position still lose on every line?
+  // (AND node: all evasions must fail.)
+  auto allEvasionsLose = [&](const Position& dpos) {
+    for (const Move& e : generateLegal(dpos)) {
+      Position c2 = dpos;
+      c2.apply(e);
+      if (royalCount(dpos, attacker) > 0 && royalCount(c2, attacker) == 0)
+        return false;  // attacker captured out: refutation
+      if (royalAttacked(c2, defender))
+        continue;  // not an evasion
+      if (solveInternal(c2, perChild).result != MateResult::kMate)
+        return false;
+    }
+    return true;  // no evasion saves the royal: mated
+  };
+
+  Position pos = root;
+  std::vector<Move> pv;
+  std::vector<uint64_t> seen{hashPosition(pos)};
+  auto repeats = [&](uint64_t h) {
+    return std::count(seen.begin(), seen.end(), h) >= 2;
+  };
+  for (int ply = 0; ply < 2 * maxPly_; ++ply) {
+    const bool attackerTurn = pos.sideToMove == attacker;
+    Move best;
+    size_t bestNodes = 0;
+    bool found = false, done = false;
+    if (!attackerTurn) {
+      bool anyEvasion = false;
+      for (const Move& m : generateLegal(pos)) {
+        Position c = pos;
+        c.apply(m);
+        if (royalCount(pos, attacker) > 0 && royalCount(c, attacker) == 0)
+          continue;  // would refute the proof: never on a proved node
+        if (royalAttacked(c, defender))
+          continue;  // not an evasion
+        anyEvasion = true;
+        const uint64_t h = hashPosition(c);
+        if (repeats(h)) continue;
+        if (solveInternal(c, perChild).result != MateResult::kMate) continue;
+        best = m;
+        found = true;
+        break;
+      }
+      if (!anyEvasion) break;  // mate complete: defender has no evasion
+    } else {
+      for (const Move& m : generateLegal(pos)) {
+        Position c = pos;
+        c.apply(m);
+        if (royalCount(c, defender) == 0) {  // capture the last royal
+          best = m;
+          found = done = true;
+          break;
+        }
+        if (!royalAttacked(c, defender)) continue;  // must give check
+        const uint64_t h = hashPosition(c);
+        if (repeats(h)) continue;
+        if (!allEvasionsLose(c)) continue;
+        // prefer the fastest-proving line (fewest nodes): the remaining mate
+        // distance shrinks, so the walk cannot circle indefinitely
+        size_t n = 0;
+        {  // one more sub-solve for the node count of this accepted child
+          Position c2 = pos;
+          c2.apply(m);
+          // allEvasionsLose already re-solved the grandchildren; for the
+          // child itself, its own verdict is mate by construction here
+          MateAnswer sub = solveInternal(c2, perChild);
+          n = sub.nodes;
+        }
+        if (!found || n < bestNodes) {
+          best = m;
+          bestNodes = n;
+          found = true;
+        }
+      }
+    }
+    if (!found) {
+      pv.clear();
+      break;
+    }
+    pv.push_back(best);
+    pos.apply(best);
+    const uint64_t h = hashPosition(pos);
+    if (repeats(h)) {  // third occurrence: not a clean PV
+      pv.clear();
+      break;
+    }
+    seen.push_back(h);
+    if (done) break;
+  }
+  extractPvEnabled_ = true;
+  out.pv = std::move(pv);
+  out.matePly = static_cast<int>(out.pv.size());
+}
+
 void MateSolver::extractPv(const Position& root, MateAnswer& out) {
   Position pos = root;
   std::vector<Move> pv;
@@ -435,6 +568,15 @@ void MateSolver::extractPv(const Position& root, MateAnswer& out) {
 }
 
 MateAnswer MateSolver::solve(const Position& root, size_t nodeLimit) {
+  MateAnswer out;
+  if (royalCount(root, !root.sideToMove) != 1) {
+    // Only single-royal defenders are supported (see mate.h).
+    return out;
+  }
+  return solveInternal(root, nodeLimit);
+}
+
+MateAnswer MateSolver::solveInternal(const Position& root, size_t nodeLimit) {
   std::fill(tt_.begin(), tt_.end(), TTEntry{});
   path_.clear();
   nodes_ = 0;
@@ -444,10 +586,6 @@ MateAnswer MateSolver::solve(const Position& root, size_t nodeLimit) {
   MateAnswer out;
   const Color attacker = root.sideToMove;
   const Color defender = !attacker;
-  if (royalCount(root, defender) != 1) {
-    // Only single-royal defenders are supported (see mate.h).
-    return out;
-  }
   // The attacker may be kingless: tsume problems conventionally omit the
   // attacking king, and such an attacker can never be captured out.
 
@@ -464,42 +602,22 @@ MateAnswer MateSolver::solve(const Position& root, size_t nodeLimit) {
   out.nodes = nodes_;
   if (ra == 0) {
     out.result = MateResult::kMate;
-    extractPv(root, out);
-    // Self-check the line: every move must be legal, and it must end with
-    // the enemy royal captured or the defender without any evasion.
-    Position verify = root;
-    bool ok = true;
-    for (const Move& m : out.pv) {
-      if (!isLegal(verify, m)) {
-        ok = false;
-        break;
+    if (extractPvEnabled_) {
+      extractPv(root, out);
+      if (!pvValidates(root, out)) {
+        // The TT-based walk can stall (the search resolves some children
+        // via pinned or transposed paths that never land an entry at the
+        // ply the extractor needs). Re-extract by re-solving: verdict-only
+        // sub-solves, correct by construction.
+        extractPvByResolve(root, out, nodeLimit);
       }
-      verify.apply(m);
-    }
-    if (ok && royalCount(verify, defender) > 0) {
-      // Otherwise the pv must end with the defender to move and no evasion.
-      if (verify.sideToMove != defender) {
-        ok = false;
-      } else {
-        for (const Move& m : generateLegal(verify)) {
-          Position c = verify;
-          c.apply(m);
-          const bool capturedOut =
-              royalCount(verify, attacker) > 0 && royalCount(c, attacker) == 0;
-          if (capturedOut || !royalAttacked(c, defender)) {
-            ok = false;  // the defender escapes: the pv is not a mate
-            break;
-          }
-        }
+      if (!pvValidates(root, out)) {
+        std::fprintf(stderr, "error: mate pv failed self-validation: %s\n",
+                     toSfen(root).c_str());
+        out.result = MateResult::kUnknown;
+        out.pv.clear();
+        out.matePly = 0;
       }
-    }
-    if (!ok) {
-      // one line: workers' stderr interleaves under parallel self-play
-      std::fprintf(stderr, "error: mate pv failed self-validation: %s\n",
-                   toSfen(root).c_str());
-      out.result = MateResult::kUnknown;
-      out.pv.clear();
-      out.matePly = 0;
     }
   } else if (rb == 0 && !rt) {
     out.result = MateResult::kNoMate;

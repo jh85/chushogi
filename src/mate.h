@@ -49,6 +49,12 @@ class MateSolver {
 
   MateAnswer solve(const Position& root, size_t nodeLimit);
 
+  // solve() without the single-royal-defender entry guard, for the PV walk:
+  // a proved line may legally promote the defender's elephant mid-line, and
+  // the search internals handle multi-royal defenders (mate = all royals
+  // captured; the sacrifice corner taints to unknown as before).
+  MateAnswer solveInternal(const Position& root, size_t nodeLimit);
+
  private:
   bool pndn_ = false;
   int maxPly_ = 200;
@@ -73,6 +79,14 @@ class MateSolver {
                   bool& outTaint);
 
   void extractPv(const Position& root, MateAnswer& out);
+  // Robust fallback when the TT-based extraction cannot reproduce a valid
+  // line (some proof-tree children never get a TT entry at the ply the
+  // extractor needs): walk the PV by re-solving each child (verdicts only).
+  void extractPvByResolve(const Position& root, MateAnswer& out,
+                          size_t budget);
+  // Legal move-by-move and ends in capture or no-evasion.
+  bool pvValidates(const Position& root, const MateAnswer& out) const;
+  bool extractPvEnabled_ = true;  // off for sub-solves inside extractPvByResolve
 };
 
 }  // namespace chu

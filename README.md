@@ -169,9 +169,9 @@ Records live in `tests/tsume/<id>.json` and are exercised by
 `tests/mate_test.py` (every published line must be legal; problems the
 solver proved must stay provable). The collection: 231 problems from the
 中象戯作物図五十, 中将棋絹篩, 中将棊作物収録作品, and asahi-net
-詰め中将棋 series — 185 proved mate by BNS, 21 disproved (mostly problems
+詰め中将棋 series — 187 proved mate by BNS, 22 disproved (mostly problems
 whose own pages note the original text is broken or reconstructed, plus a
-few genuinely cooked ones confirmed by independent brute force), 24 unknown
+few genuinely cooked ones confirmed by independent brute force), 21 unknown
 (very deep lines beyond the node cap; two have multi-royal defenders,
 outside the solver model by design), one retro-analysis problem (tumechu78:
 gote to move). Notable: tukurimono20 has no published solution line (the

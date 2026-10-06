@@ -171,8 +171,15 @@ int main(int argc, char** argv) {
                 << "\n" << std::flush;
     } else if (tok[0] == "mate") {
       size_t limit = tok.size() > 1 ? std::stoull(tok[1]) : 300000;
-      chu::MateSolver solver(32);
+      size_t ttMb = 32;
+      for (size_t i = 2; i + 1 < tok.size(); ++i)
+        if (tok[i] == "--tt-mb") ttMb = std::stoull(tok[i + 1]);
+      chu::MateSolver solver(ttMb);
       if (tok.size() > 2 && tok[2] == "pndn") solver.setPnDnArithmetic(true);
+      // optional depth cap (plies) as in the MCTS in-tree probes
+      for (size_t i = 2; i + 1 < tok.size(); ++i) {
+        if (tok[i] == "--depth") solver.setMaxPly(std::stoi(tok[i + 1]));
+      }
       chu::MateAnswer ans = solver.solve(session.pos(), limit);
       const char* r = ans.result == chu::MateResult::kMate      ? "yes"
                       : ans.result == chu::MateResult::kNoMate  ? "no"

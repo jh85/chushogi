@@ -494,8 +494,9 @@ MateAnswer MateSolver::solve(const Position& root, size_t nodeLimit) {
       }
     }
     if (!ok) {
-      std::fprintf(stderr, "error: mate pv failed self-validation\n");
-      std::fprintf(stderr, "position: %s\n", toSfen(root).c_str());
+      // one line: workers' stderr interleaves under parallel self-play
+      std::fprintf(stderr, "error: mate pv failed self-validation: %s\n",
+                   toSfen(root).c_str());
       out.result = MateResult::kUnknown;
       out.pv.clear();
       out.matePly = 0;

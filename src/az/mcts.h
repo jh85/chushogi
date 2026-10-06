@@ -21,6 +21,7 @@
 #include <random>
 #include <vector>
 
+#include "../mate.h"
 #include "../position.h"
 #include "encode.h"
 
@@ -48,6 +49,11 @@ struct MctsConfig {
   float dirichletAlpha = 0.15f;
   bool rootNoise = true;  // self-play on; eval matches off
   int maxPlyCap = 1000;   // game draw cap (plies from game start)
+  // Mate probes (the tsume-restricted model: attacker checks every move;
+  // "no"/"unknown" never override anything, only proven mates do).
+  size_t rootMateNodes = 0;  // BNS budget at the root; 0 disables the override
+  int probeDepth = 0;        // shallow forced-capture probe per new node (plies)
+  size_t probeNodes = 2000;  // BNS budget per new node
 };
 
 struct Edge {
@@ -74,6 +80,7 @@ struct SearchResult {
   float rootQ = 0.5f;
   float a0gb = 0.5f;
   int32_t rootVisits = 0;
+  bool provenMate = false;  // root probe found a forced mate; bestMove = pv[0]
 };
 
 class Mcts {
@@ -111,6 +118,8 @@ class Mcts {
   chu::Position rootPos_;
   std::vector<uint64_t> gameHashes_;
   int gamePly_ = 0;
+  std::unique_ptr<chu::MateSolver> mate_;  // reused across probes
+  chu::MateSolver& mateSolver();
 };
 
 // Stable 64-bit key of a position (board + side + lion history) for

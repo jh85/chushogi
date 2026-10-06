@@ -68,6 +68,9 @@ int main() {
         else if (tok[i] == "--out") out = tok[i + 1];
         else if (tok[i] == "--eval") evalKind = tok[i + 1];
         else if (tok[i] == "--port") port = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--mate-nodes") cfg.mcts.rootMateNodes = std::stoull(tok[i + 1]);
+        else if (tok[i] == "--probe-depth") cfg.mcts.probeDepth = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--probe-nodes") cfg.mcts.probeNodes = std::stoull(tok[i + 1]);
         else fatal("unknown selfplay option: " + tok[i]);
       }
       cfg.mcts.sims = cfg.sims;
@@ -122,10 +125,14 @@ int main() {
     } else if (tok[0] == "go") {  // go az --sims N [--eval random]
       if (tok.size() < 2 || tok[1] != "az") fatal("expected: go az --sims N");
       int sims = 200;
+      size_t mateNodes = 0;
+      int probeDepth = 0;
       std::string evalKind = "pipe";
       for (size_t i = 2; i + 1 < tok.size(); i += 2) {
         if (tok[i] == "--sims") sims = std::stoi(tok[i + 1]);
         else if (tok[i] == "--eval") evalKind = tok[i + 1];
+        else if (tok[i] == "--mate-nodes") mateNodes = std::stoull(tok[i + 1]);
+        else if (tok[i] == "--probe-depth") probeDepth = std::stoi(tok[i + 1]);
       }
       if (evalKind != "random" && !pipeEval)
         fatal("go az needs eval-server first");
@@ -137,6 +144,8 @@ int main() {
       az::MctsConfig mc;
       mc.sims = sims;
       mc.rootNoise = false;
+      mc.rootMateNodes = mateNodes;
+      mc.probeDepth = probeDepth;
       az::Mcts mcts(mc);
       const bool flip = pos.sideToMove == chu::Gote;
       const chu::Position canon = flip ? pos.flipped() : pos;

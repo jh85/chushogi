@@ -50,6 +50,11 @@ def main():
     ap.add_argument("--value-target", default="blend")
     ap.add_argument("--lam", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--mate-nodes", type=int, default=5000,
+                    help="root mate-probe budget per root (0=off)")
+    ap.add_argument("--probe-depth", type=int, default=3,
+                    help="in-tree shallow mate probe depth (0=off)")
+    ap.add_argument("--probe-nodes", type=int, default=2000)
     a = ap.parse_args()
 
     run = Path(a.run_dir)
@@ -90,7 +95,9 @@ def main():
                 p.stdin.write(
                     f"selfplay --games {a.games} --sims {a.sims} "
                     f"--batch {a.batch} --seed {seed} --out {games_dir} "
-                    f"--eval pipe --port {port}\n")
+                    f"--eval pipe --port {port} --mate-nodes {a.mate_nodes} "
+                    f"--probe-depth {a.probe_depth} --probe-nodes "
+                    f"{a.probe_nodes}\n")
                 p.stdin.flush()
                 procs.append(p)
             total_plies = 0

@@ -24,6 +24,7 @@ az-test: $(BIN) $(AZBIN)
 	$(PY) tests/az_encode_test.py $(GAMES1) $(GAMES2) --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_selfplay_test.py --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_mcts_test.py
+	$(PY) tests/az_probe_test.py
 
 
 # Regenerate the test-case file from the downloaded game records.

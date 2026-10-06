@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "../mate.h"
 #include "../movegen.h"
 #include "../status.h"
 
@@ -46,6 +47,11 @@ int terminalOf(const chu::Position& pos, uint64_t hash,
 }  // namespace
 
 Mcts::Mcts(MctsConfig cfg) : cfg_(cfg) {}
+
+chu::MateSolver& Mcts::mateSolver() {
+  if (!mate_) mate_ = std::make_unique<chu::MateSolver>(1);
+  return *mate_;
+}
 
 int Mcts::newNode() {
   arena_.emplace_back();
@@ -163,6 +169,22 @@ Mcts::Descent Mcts::descend() {
         d.value = child.leafValue;
         return d;
       }
+      // Shallow mate probe: if the side to move at the child can force the
+      // royal capture, the child is a proven win for it — the parent edge
+      // gets value 0 (never walk into a forced mate).
+      if (cfg_.probeDepth > 0) {
+        mateSolver().setMaxPly(cfg_.probeDepth);
+        chu::MateAnswer ma = mateSolver().solve(d.pos, cfg_.probeNodes);
+        if (ma.result == chu::MateResult::kMate) {
+          child.terminal = 1;
+          child.leafValue = 1.0f;
+          child.evaluated = true;
+          d.leaf = e.child;
+          d.needsEval = false;
+          d.value = 1.0f;
+          return d;
+        }
+      }
       d.leaf = e.child;
       d.needsEval = true;
       return d;
@@ -244,6 +266,24 @@ SearchResult Mcts::search(const chu::Position& root,
     rootNode.terminal = term;
     rootNode.leafValue = term == 2 ? 0.5f : (term == 1 ? 1.0f : 0.0f);
     return res;
+  }
+
+  // Root mate override: if the solver proves a forced mate, play the PV
+  // move; the policy target is a one-hot on it and the value targets are
+  // certain win. Only "yes" ever overrides; no/unknown fall through.
+  if (cfg_.rootMateNodes > 0) {
+    mateSolver().setMaxPly(200);
+    chu::MateAnswer ma = mateSolver().solve(rootPos_, cfg_.rootMateNodes);
+    if (ma.result == chu::MateResult::kMate && !ma.pv.empty()) {
+      res.bestMove = ma.pv[0];
+      res.provenMate = true;
+      res.rootQ = 1.0f;
+      res.a0gb = 1.0f;
+      res.rootVisits = 0;
+      const int idx = moveToIndex(ma.pv[0]);
+      res.policy.emplace_back(idx, 1.0f);
+      return res;
+    }
   }
   {
     // root evaluation (single-position batch)

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
+#include <unistd.h>
 #include <memory>
 #include <random>
 
@@ -85,7 +86,8 @@ int main() {
         cfg.seed += 1;
         az::GameRecord rec = az::playGame(kInitialSfen, cfg, *evalp);
         char name[256];
-        std::snprintf(name, sizeof(name), "%s/game_%04d.json", out.c_str(), g);
+        std::snprintf(name, sizeof(name), "%s/game_%ld_%04d.json", out.c_str(),
+                      static_cast<long>(::getpid()), g);
         az::writeGameRecord(rec, name);
         std::cout << "game " << g << ": " << rec.moves.size() << " plies, "
                   << rec.reason << ", result " << rec.result << "\n"

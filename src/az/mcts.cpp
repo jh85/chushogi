@@ -55,7 +55,13 @@ int Mcts::newNode() {
 void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
                     const float* policy, const float* wdl) {
   Node& node = arena_[nodeIdx];
-  node.leafValue = wdl[0] + wdl[1] * 0.5f;  // win + draw/2, stm perspective
+  {  // wdl arrives as raw logits: softmax -> [win, draw, loss]
+    const float mx = std::max(wdl[0], std::max(wdl[1], wdl[2]));
+    const float e0 = std::exp(wdl[0] - mx), e1 = std::exp(wdl[1] - mx),
+                e2 = std::exp(wdl[2] - mx);
+    const float s = e0 + e1 + e2;
+    node.leafValue = e0 / s + 0.5f * e1 / s;  // win + draw/2, stm perspective
+  }
   const std::vector<chu::Move> legal = chu::generateLegal(pos);
   std::vector<float> logits;
   logits.reserve(legal.size());

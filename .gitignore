@@ -8,3 +8,6 @@ random_games/
 # Python
 __pycache__/
 *.pyc
+
+# AZ training run artifactsz/data/
+

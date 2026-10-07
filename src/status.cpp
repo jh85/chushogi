@@ -18,6 +18,8 @@ bool bareKing(const Position& pos, Color color) {
   int ourPieces = 0, ourRoyals = 0, ourRoyalSq = kNoSquare;
   int theirPieces = 0, theirRoyals = 0;
   bool adjacentThreat = false;
+  int theirCounting[kSquares];
+  int nTheirCounting = 0;
 
   for (int s = 0; s < kSquares; ++s) {
     const uint8_t p = pos.board[s];
@@ -36,12 +38,16 @@ bool bareKing(const Position& pos, Color color) {
                           !isDead(r, s, colorOf(p));
       if (counts) {
         ++theirPieces;
-        if (ourRoyalSq != kNoSquare && dist(ourRoyalSq, s) == 1)
-          adjacentThreat = true;
+        theirCounting[nTheirCounting++] = s;
       }
       if (isRoyal(r)) ++theirRoyals;
     }
   }
+  // The adjacency test must not depend on the scan order: our royal may be
+  // found after some of their counting pieces.
+  if (ourRoyalSq != kNoSquare)
+    for (int i = 0; i < nTheirCounting; ++i)
+      if (dist(ourRoyalSq, theirCounting[i]) == 1) adjacentThreat = true;
 
   return ourPieces == 1 &&    // we have only a single (non-dead) piece
          ourRoyals == 1 &&    // and that piece is royal

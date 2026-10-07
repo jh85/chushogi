@@ -28,6 +28,16 @@ CRAFTED = [
     # ...and not while the lone king stands next to the gold (could capture)
     ("not-bare-adjacent-gold",
      "12/12/12/12/6k5/5G6/6K5/12/12/12/12/12 w - 1", "playing", None),
+    # the adjacency exception must not depend on the square scan order (lone
+    # sente king on b2; the adjacent gote gold is scanned before or after it)
+    ("not-bare-adjacent-gold-scanned-after-1",
+     "6k5/12/12/12/12/12/12/12/12/2g9/1K10/12 b - 1", "playing", None),
+    ("not-bare-adjacent-gold-scanned-after-2",
+     "6k5/12/12/12/12/12/12/12/12/g11/1K10/12 b - 1", "playing", None),
+    ("not-bare-adjacent-gold-scanned-before",
+     "6k5/12/12/12/12/12/12/12/12/12/1K10/g11 b - 1", "playing", None),
+    ("bare-gold-not-adjacent-control",
+     "6k5/12/12/12/3g8/12/12/12/12/12/1K10/12 b - 1", "bareking", "gote"),
     # ...and not while the lone king checks the winner's king (scalashogi sit5)
     ("not-bare-kings-adjacent",
      "12/12/12/12/6k5/5K6/12/4G7/12/12/12/12 w - 1", "playing", None),

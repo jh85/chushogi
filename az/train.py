@@ -41,6 +41,9 @@ def main():
     ap.add_argument("--blocks", type=int, default=6)
     ap.add_argument("--heads", type=int, default=8)
     ap.add_argument("--step0", type=int, default=0, help="starting step count")
+    ap.add_argument("--val-games-dir", default="",
+                    help="held-out games for a fixed val-loss print "
+                         "(default: sibling 'val' dir of --games-dirs[0])")
     ap.add_argument("--log-every", type=int, default=50)
     ap.add_argument("--save-every", type=int, default=500)
     a = ap.parse_args()
@@ -105,6 +108,42 @@ def main():
             torch.save({"model": net.state_dict(), "step": step + 1,
                         "config": vars(a)}, tmp)
             os.rename(tmp, a.out)  # atomic publish for the eval server
+
+    # Held-out validation loss on a fixed position set (stationary metric,
+    # unlike the noisy single-batch step prints). Auto-detects a "val" dir
+    # next to the first games dir when --val-games-dir is not given.
+    val_dir = a.val_games_dir
+    if not val_dir:
+        cand = Path(a.games_dirs[0]).parent / "val"
+        if cand.is_dir():
+            val_dir = str(cand)
+    if val_dir and list(Path(val_dir).rglob("game_*.json")):
+        vbuf = B.Buffer([val_dir])
+        vrng = np.random.default_rng(0)  # fixed subsample every run
+        vidx = vrng.choice(len(vbuf), size=min(4096, len(vbuf)),
+                           replace=False)
+        vpacked, vprog, (vi, vp) = vbuf.batch(vidx)
+        vt = torch.from_numpy(
+            vbuf.value_targets(a.value_target, a.lam)[vidx]).to(device)
+        vplanes = M.unpack_batch(vpacked.tobytes(), vprog).to(device)
+        vbi = torch.from_numpy(np.concatenate(
+            [np.full(len(p), i) for i, p in enumerate(vi)])).to(device)
+        vmi = torch.from_numpy(np.concatenate(vi)).to(device)
+        vmp = torch.from_numpy(np.concatenate(vp)).to(device)
+        lp = lv = 0.0
+        with torch.no_grad():
+            for s in range(0, len(vidx), 512):
+                r = slice(s, min(s + 512, len(vidx)))
+                policy, wdl = net(vplanes[r])
+                logp = F.log_softmax(policy.float(), dim=1)
+                sel = (vbi >= s) & (vbi < s + 512)
+                lp += -(vmp[sel] * logp[vbi[sel] - s, vmi[sel]]).sum().item()
+                lv += -(vt[r] *
+                        F.log_softmax(wdl.float(), dim=1)).sum().item()
+        lp /= len(vidx)
+        lv /= len(vidx)
+        print(f"[train] val loss {lp + lv:.4f} (p {lp:.4f} v {lv:.4f}) "
+              f"on {len(vidx)} held-out positions", flush=True)
     print("[train] done", flush=True)
     return 0
 

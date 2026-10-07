@@ -11,7 +11,7 @@ workers (C++ chushogi-az, pipe eval) + the trainer. Each iteration:
 Usage: run_loop.py [--run-dir az/data/run1] [--workers 4] [--games 8]
                    [--sims 200] [--batch 32] [--train-steps 2000]
                    [--iterations 100] [--value-target blend] [--lam 0.5]
-                   [--resume] [--python PATH]
+                   [--eval-servers N] [--resume] [--python PATH]
 """
 
 import argparse
@@ -19,6 +19,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -41,6 +42,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", default="az/data/run1")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--eval-servers", type=int, default=1,
+                    help="eval server processes sharing the GPU; workers "
+                         "are sharded round-robin across them")
     ap.add_argument("--games", type=int, default=8, help="per worker per iter")
     ap.add_argument("--sims", type=int, default=200)
     ap.add_argument("--batch", type=int, default=32)
@@ -69,11 +73,6 @@ def main():
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     current = ckpt_dir / "current.pt"
 
-    port = free_port()
-    server = subprocess.Popen(
-        [a.python, str(ROOT / "az/eval_server.py"), "--port", str(port),
-         "--checkpoint", str(current), "--watch"],
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     log = open(run / "loop.log", "a")
 
     def say(msg):
@@ -81,13 +80,34 @@ def main():
         log.write(msg + "\n")
         log.flush()
 
+    def start_server(port):
+        p = subprocess.Popen(
+            [a.python, str(ROOT / "az/eval_server.py"), "--port", str(port),
+             "--checkpoint", str(current), "--watch"],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        ready = threading.Event()
+
+        def drain():  # keep stdout drained so the server never blocks on it
+            for line in p.stdout:
+                log.write(line)
+                log.flush()
+                if "serving" in line:
+                    ready.set()
+
+        threading.Thread(target=drain, daemon=True).start()
+        return p, ready
+
+    servers = []
+    for _ in range(a.eval_servers):
+        port = free_port()
+        servers.append((port,) + start_server(port))
+
     try:
-        # wait for the server
         deadline = time.time() + 120
-        while time.time() < deadline:
-            if "serving" in server.stdout.readline():
-                break
-        say(f"[loop] eval server on :{port}")
+        for _, _, ready in servers:
+            ready.wait(max(deadline - time.time(), 0.0))
+        say(f"[loop] {len(servers)} eval server(s) on "
+            + ", ".join(f":{port}" for port, _, _ in servers))
 
         it0 = 0
         if a.resume:
@@ -101,6 +121,7 @@ def main():
             t0 = time.time()
             procs = []
             for w in range(a.workers):
+                port = servers[w % len(servers)][0]
                 p = subprocess.Popen([str(AZ)], stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE, text=True)
                 seed = a.seed + it * 100003 + w * 101
@@ -150,7 +171,8 @@ def main():
         say("[loop] finished")
         return 0
     finally:
-        server.terminate()
+        for _, p, _ in servers:
+            p.terminate()
         log.close()
 
 

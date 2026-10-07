@@ -11,6 +11,7 @@ workers (C++ chushogi-az, pipe eval) + the trainer. Each iteration:
 Usage: run_loop.py [--run-dir az/data/run1] [--workers 4] [--games 8]
                    [--sims 200] [--batch 32] [--train-steps 2000]
                    [--iterations 100] [--value-target blend] [--lam 0.5]
+                   [--resume] [--python PATH]
 """
 
 import argparse
@@ -34,7 +35,6 @@ def free_port():
 
 ROOT = Path(__file__).parent.parent
 AZ = ROOT / "chushogi-az"
-PY = "/data2/cs/venv/bin/python"
 
 
 def main():
@@ -50,6 +50,11 @@ def main():
     ap.add_argument("--value-target", default="blend")
     ap.add_argument("--lam", type=float, default=0.5)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--python", default=sys.executable,
+                    help="interpreter for eval_server.py / train.py")
+    ap.add_argument("--resume", action="store_true",
+                    help="continue iteration numbering after existing "
+                         "iter_*.pt checkpoints in the run dir")
     ap.add_argument("--mate-nodes", type=int, default=5000,
                     help="root mate-probe budget per root (0=off)")
     ap.add_argument("--probe-depth", type=int, default=3,
@@ -66,7 +71,7 @@ def main():
 
     port = free_port()
     server = subprocess.Popen(
-        [PY, str(ROOT / "az/eval_server.py"), "--port", str(port),
+        [a.python, str(ROOT / "az/eval_server.py"), "--port", str(port),
          "--checkpoint", str(current), "--watch"],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     log = open(run / "loop.log", "a")
@@ -84,8 +89,15 @@ def main():
                 break
         say(f"[loop] eval server on :{port}")
 
+        it0 = 0
+        if a.resume:
+            existing = sorted(ckpt_dir.glob("iter_*.pt"))
+            if existing:
+                it0 = int(existing[-1].stem.split("_")[1]) + 1
+            say(f"[loop] resuming {current} at iter {it0}")
+
         step0 = 0
-        for it in range(a.iterations):
+        for it in range(it0, it0 + a.iterations):
             t0 = time.time()
             procs = []
             for w in range(a.workers):
@@ -117,7 +129,7 @@ def main():
                 f"self-play {time.time() - t0:.0f}s")
 
             t0 = time.time()
-            cmd = [PY, str(ROOT / "az/train.py"), "--games-dirs",
+            cmd = [a.python, str(ROOT / "az/train.py"), "--games-dirs",
                    str(games_dir), "--out", str(current),
                    "--steps", str(a.train_steps), "--batch",
                    str(a.train_batch), "--step0", str(step0),

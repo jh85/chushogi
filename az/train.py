@@ -144,6 +144,7 @@ def main():
         vmi = torch.from_numpy(np.concatenate(vi)).to(device)
         vmp = torch.from_numpy(np.concatenate(vp)).to(device)
         lp = lv = 0.0
+        pred_w = tgt_w = 0.0
         with torch.no_grad():
             for s in range(0, len(vidx), 512):
                 r = slice(s, min(s + 512, len(vidx)))
@@ -153,9 +154,14 @@ def main():
                 lp += -(vmp[sel] * logp[vbi[sel] - s, vmi[sel]]).sum().item()
                 lv += -(vt[r] *
                         F.log_softmax(wdl.float(), dim=1)).sum().item()
+                wp = F.softmax(wdl.float(), dim=1)
+                pred_w += (wp[:, 0] + 0.5 * wp[:, 1]).sum().item()
+                tgt_w += (vt[r][:, 0] + 0.5 * vt[r][:, 1]).sum().item()
         lp /= len(vidx)
         lv /= len(vidx)
         print(f"[train] val loss {lp + lv:.4f} (p {lp:.4f} v {lv:.4f}) "
+              f"winp pred {pred_w / len(vidx):.3f} vs tgt "
+              f"{tgt_w / len(vidx):.3f} "
               f"on {len(vidx)} held-out positions", flush=True)
     print("[train] done", flush=True)
     return 0

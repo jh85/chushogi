@@ -44,7 +44,9 @@ def main():
     ap.add_argument("--d-model", type=int, default=256)
     ap.add_argument("--blocks", type=int, default=6)
     ap.add_argument("--heads", type=int, default=8)
-    ap.add_argument("--step0", type=int, default=0, help="starting step count")
+    ap.add_argument("--step0", type=int, default=-1,
+                    help="starting step count; -1 = continue from the "
+                         "--init-from checkpoint's saved step")
     ap.add_argument("--val-games-dir", default="",
                     help="held-out games for a fixed val-loss print "
                          "(default: sibling 'val' dir of --games-dirs[0])")
@@ -54,11 +56,16 @@ def main():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     net = M.ChuNet(a.d_model, a.blocks, a.heads).to(device)
+    loaded_step = 0
     if a.init_from and os.path.exists(a.init_from):
         state = torch.load(a.init_from, map_location="cpu",
                            weights_only=True)
         net.load_state_dict(state["model"] if "model" in state else state)
+        loaded_step = int(state.get("step", 0)) if "model" in state else 0
         print(f"[train] init from {a.init_from}", flush=True)
+    if a.step0 < 0:
+        a.step0 = loaded_step
+    print(f"[train] start at step {a.step0}", flush=True)
 
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=a.wd)
 

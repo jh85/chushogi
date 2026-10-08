@@ -56,6 +56,8 @@ def main():
     ap.add_argument("--lr-decay-steps", type=int, default=0,
                     help="passthrough to train.py: cosine horizon in total "
                          "steps (0 = constant 1e-4 after warmup)")
+    ap.add_argument("--lr", type=float, default=0,
+                    help="passthrough to train.py peak LR (0 = its default)")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--python", default=sys.executable,
                     help="interpreter for eval_server.py / train.py")
@@ -119,7 +121,6 @@ def main():
                 it0 = int(existing[-1].stem.split("_")[1]) + 1
             say(f"[loop] resuming {current} at iter {it0}")
 
-        step0 = 0
         for it in range(it0, it0 + a.iterations):
             t0 = time.time()
             procs = []
@@ -156,10 +157,12 @@ def main():
             cmd = [a.python, str(ROOT / "az/train.py"), "--games-dirs",
                    str(games_dir), "--out", str(current),
                    "--steps", str(a.train_steps), "--batch",
-                   str(a.train_batch), "--step0", str(step0),
+                   str(a.train_batch),
                    "--value-target", a.value_target, "--lam", str(a.lam)]
             if a.lr_decay_steps:
                 cmd += ["--lr-decay-steps", str(a.lr_decay_steps)]
+            if a.lr:
+                cmd += ["--lr", str(a.lr)]
             if current.exists():
                 cmd += ["--init-from", str(current)]
             t = subprocess.run(cmd, capture_output=True, text=True)
@@ -167,7 +170,6 @@ def main():
                 say("[loop] trainer failed:\n" + t.stdout[-1500:] +
                     t.stderr[-1500:])
                 return 1
-            step0 += a.train_steps
             last = [x for x in t.stdout.splitlines() if " loss " in x]
             say(f"[loop] iter {it}: trained {a.train_steps} steps in "
                 f"{time.time() - t0:.0f}s; {last[-1] if last else 'no log'}")

@@ -53,6 +53,9 @@ def main():
     ap.add_argument("--iterations", type=int, default=100)
     ap.add_argument("--value-target", default="blend")
     ap.add_argument("--lam", type=float, default=0.5)
+    ap.add_argument("--lr-decay-steps", type=int, default=0,
+                    help="passthrough to train.py: cosine horizon in total "
+                         "steps (0 = constant 1e-4 after warmup)")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--python", default=sys.executable,
                     help="interpreter for eval_server.py / train.py")
@@ -155,6 +158,8 @@ def main():
                    "--steps", str(a.train_steps), "--batch",
                    str(a.train_batch), "--step0", str(step0),
                    "--value-target", a.value_target, "--lam", str(a.lam)]
+            if a.lr_decay_steps:
+                cmd += ["--lr-decay-steps", str(a.lr_decay_steps)]
             if current.exists():
                 cmd += ["--init-from", str(current)]
             t = subprocess.run(cmd, capture_output=True, text=True)

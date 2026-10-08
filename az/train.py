@@ -31,6 +31,10 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--wd", type=float, default=0.01)
     ap.add_argument("--warmup-steps", type=int, default=1000)
+    ap.add_argument("--lr-decay-steps", type=int, default=0,
+                    help="total-step horizon for the cosine decay to the "
+                         "1e-4 floor; 0 = decay over this run's --steps "
+                         "(degenerates to constant 1e-4 once step0 > warmup)")
     ap.add_argument("--value-target",
                     choices=["z", "softz", "a0gb", "blend"], default="blend")
     ap.add_argument("--lam", type=float, default=0.5,
@@ -58,10 +62,12 @@ def main():
 
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=a.wd)
 
+    decay = a.lr_decay_steps or a.steps
+
     def lr_at(step):
         if step < a.warmup_steps:
             return a.lr * step / max(a.warmup_steps, 1)
-        t = (step - a.warmup_steps) / max(a.steps - a.warmup_steps, 1)
+        t = (step - a.warmup_steps) / max(decay - a.warmup_steps, 1)
         return 1e-4 + 0.5 * (a.lr - 1e-4) * (1 + np.cos(np.pi * min(t, 1)))
 
     buf = B.Buffer(a.games_dirs, a.max_positions)

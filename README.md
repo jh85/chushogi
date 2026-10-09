@@ -125,7 +125,10 @@ A from-scratch AlphaZero loop lives in `az/` (Python) + `src/az/` (C++):
 Tests: `make az-test` runs az_encode_test (C++/Python encoding agreement +
 move round-trip over real data), az_selfplay_test (record validity), az_mcts_test
 (mate-in-1 must be found — guards the backup-perspective convention), and
-az_pipe_test (untrained net end-to-end).
+az_probe_test (mate probes: the root override plays a mate-in-1 without
+search, and an in-tree probe makes MCTS avoid a move that loses the king).
+az_pipe_test (untrained net end-to-end through az/eval_server.py) is not
+part of it and is run separately.
 
 ``` 
 make chushogi-az
@@ -331,7 +334,10 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   and no-mate positions, a mate-in-3 from a real game, mate-in-1 from the
   penultimate position of every royalsLost game, multi-royal-defender
   handling (unknown), BNS vs df-pn verdict agreement, and PV legality
-  validation.
+  validation. Most of its 482 cases (456) come from the tsume problems in
+  `tests/tsume/` (all but the retro-analysis one): the 187 the solver
+  proved must stay provable, and every published solution line and
+  variation must replay legally.
 - `tests/jcsa_test.py` — the 29 spec cases of `docs/jcsa/cases.tsv` (read
   directly) plus 22 cases for readings they do not exercise, each checked
   under both rule sets against its lishogi and JCSA verdict.

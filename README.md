@@ -337,6 +337,10 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   directly) plus 22 cases for readings they do not exercise, each checked
   under both rule sets against its lishogi and JCSA verdict.
 
+`tools/perft.cpp` (not built by the Makefile) counts perft nodes and speed;
+it uses only the v0.1.0 API, so the same file builds against older versions
+for regression comparisons.
+
 All suites pass: 49/49 games replayed, 44/44 rule cases, 102/102 JCSA
 cases, 289/289 perft counts, 34/34 status cases, 26/26 mate cases,
 8688/8688 test cases.

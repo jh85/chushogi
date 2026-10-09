@@ -36,6 +36,7 @@ struct MateAnswer {
   std::vector<Move> pv;  // mating line in internal move form, when kMate
   uint64_t nodes = 0;
   int matePly = 0;
+  int proofDepth = 0;  // deepest ply the search reached (line-length proxy)
 };
 
 class MateSolver {
@@ -54,6 +55,9 @@ class MateSolver {
   // the search internals handle multi-royal defenders (mate = all royals
   // captured; the sacrifice corner taints to unknown as before).
   MateAnswer solveInternal(const Position& root, size_t nodeLimit);
+  // AND-rooted variant: the root is a defender-to-move position; kMate
+  // means the (non-moving) attacker's mate still holds. For the PV walk.
+  MateAnswer solveAndInternal(const Position& root, size_t nodeLimit);
 
  private:
   bool pndn_ = false;
@@ -69,6 +73,10 @@ class MateSolver {
   size_t nodes_ = 0, nodeLimit_ = 0;
   int maxPlySeen_ = 0;
   std::vector<uint64_t> path_;  // hashes along the current route
+
+  // kOrRoot: the root is the attacker to move; otherwise the defender.
+  template <bool kOrRoot>
+  MateAnswer solveRooted(const Position& root, size_t nodeLimit);
 
   TTEntry* probe(uint64_t hash, int ply);
   TTEntry* store(uint64_t hash, int ply);

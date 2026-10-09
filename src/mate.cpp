@@ -423,31 +423,20 @@ bool MateSolver::pvValidates(const Position& root, const MateAnswer& out)
 void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
                                     size_t budget) {
   // Greedy re-solve walk, replicating the search's AND/OR alternation.
-  // Attacker nodes: the fastest-proving checking child (fewest nodes).
-  // Defender nodes: any evasion whose child is still a proven mate.
-  // The mate ends with the royal captured or the defender out of evasions.
-  // Transpositions are allowed (tsume lines can drive a king around); the
-  // walk stalls only if a position occurs for the third time.
+  // Each child is re-solved with a ply cap equal to the remaining line
+  // budget, and the walk takes the child whose proof is shallowest
+  // (shortest remaining mate). The budget then shrinks to that proof's
+  // depth, so the provable line length strictly decreases with every walk
+  // step and the walk cannot circle. Attacker nodes take a checking child;
+  // defender nodes take any evasion still proving mate. The mate ends with
+  // the royal captured or the defender out of evasions. Positions may
+  // repeat along the way (tsume lines can drive a king around); a move
+  // leading to a third occurrence is skipped.
   const Color attacker = root.sideToMove;
   const Color defender = !attacker;
   const size_t perChild = budget;
+  const int savedMaxPly = maxPly_;
   extractPvEnabled_ = false;
-
-  // Does this defender-to-move position still lose on every line?
-  // (AND node: all evasions must fail.)
-  auto allEvasionsLose = [&](const Position& dpos) {
-    for (const Move& e : generateLegal(dpos)) {
-      Position c2 = dpos;
-      c2.apply(e);
-      if (royalCount(dpos, attacker) > 0 && royalCount(c2, attacker) == 0)
-        return false;  // attacker captured out: refutation
-      if (royalAttacked(c2, defender))
-        continue;  // not an evasion
-      if (solveInternal(c2, perChild).result != MateResult::kMate)
-        return false;
-    }
-    return true;  // no evasion saves the royal: mated
-  };
 
   Position pos = root;
   std::vector<Move> pv;
@@ -455,10 +444,12 @@ void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
   auto repeats = [&](uint64_t h) {
     return std::count(seen.begin(), seen.end(), h) >= 2;
   };
-  for (int ply = 0; ply < 2 * maxPly_; ++ply) {
+  int lineBudget = 2 * maxPly_;  // the rest of the line must fit in this
+  for (int ply = 0; ply < 2 * savedMaxPly; ++ply) {
     const bool attackerTurn = pos.sideToMove == attacker;
+    maxPly_ = lineBudget - 1 > 0 ? lineBudget - 1 : 1;  // child proof cap
     Move best;
-    size_t bestNodes = 0;
+    int bestDepth = 0;
     bool found = false, done = false;
     if (!attackerTurn) {
       bool anyEvasion = false;
@@ -472,10 +463,14 @@ void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
         anyEvasion = true;
         const uint64_t h = hashPosition(c);
         if (repeats(h)) continue;
-        if (solveInternal(c, perChild).result != MateResult::kMate) continue;
-        best = m;
-        found = true;
-        break;
+        // The child is the attacker to move again: an OR-rooted sub-solve.
+        MateAnswer sub = solveInternal(c, perChild);
+        if (sub.result != MateResult::kMate) continue;
+        if (!found || sub.proofDepth < bestDepth) {
+          best = m;
+          bestDepth = sub.proofDepth;
+          found = true;
+        }
       }
       if (!anyEvasion) break;  // mate complete: defender has no evasion
     } else {
@@ -490,21 +485,14 @@ void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
         if (!royalAttacked(c, defender)) continue;  // must give check
         const uint64_t h = hashPosition(c);
         if (repeats(h)) continue;
-        if (!allEvasionsLose(c)) continue;
-        // prefer the fastest-proving line (fewest nodes): the remaining mate
-        // distance shrinks, so the walk cannot circle indefinitely
-        size_t n = 0;
-        {  // one more sub-solve for the node count of this accepted child
-          Position c2 = pos;
-          c2.apply(m);
-          // allEvasionsLose already re-solved the grandchildren; for the
-          // child itself, its own verdict is mate by construction here
-          MateAnswer sub = solveInternal(c2, perChild);
-          n = sub.nodes;
-        }
-        if (!found || n < bestNodes) {
+        // The child is the defender to move: an AND-rooted sub-solve asking
+        // whether the mate still holds (a plain solveInternal would treat
+        // the defender as the attacker and answer the wrong question).
+        MateAnswer sub = solveAndInternal(c, perChild);
+        if (sub.result != MateResult::kMate) continue;
+        if (!found || sub.proofDepth < bestDepth) {
           best = m;
-          bestNodes = n;
+          bestDepth = sub.proofDepth;
           found = true;
         }
       }
@@ -515,14 +503,13 @@ void MateSolver::extractPvByResolve(const Position& root, MateAnswer& out,
     }
     pv.push_back(best);
     pos.apply(best);
-    const uint64_t h = hashPosition(pos);
-    if (repeats(h)) {  // third occurrence: not a clean PV
-      pv.clear();
-      break;
-    }
-    seen.push_back(h);
+    seen.push_back(hashPosition(pos));
+    // The chosen proof fits in bestDepth plies: the rest of the line is at
+    // most that long, strictly less than the budget this step had.
+    lineBudget = bestDepth + 1 < lineBudget ? bestDepth + 1 : lineBudget - 1;
     if (done) break;
   }
+  maxPly_ = savedMaxPly;
   extractPvEnabled_ = true;
   out.pv = std::move(pv);
   out.matePly = static_cast<int>(out.pv.size());
@@ -577,6 +564,16 @@ MateAnswer MateSolver::solve(const Position& root, size_t nodeLimit) {
 }
 
 MateAnswer MateSolver::solveInternal(const Position& root, size_t nodeLimit) {
+  return solveRooted<true>(root, nodeLimit);
+}
+
+MateAnswer MateSolver::solveAndInternal(const Position& root,
+                                        size_t nodeLimit) {
+  return solveRooted<false>(root, nodeLimit);
+}
+
+template <bool kOrRoot>
+MateAnswer MateSolver::solveRooted(const Position& root, size_t nodeLimit) {
   std::fill(tt_.begin(), tt_.end(), TTEntry{});
   path_.clear();
   nodes_ = 0;
@@ -584,8 +581,6 @@ MateAnswer MateSolver::solveInternal(const Position& root, size_t nodeLimit) {
   maxPlySeen_ = 0;
 
   MateAnswer out;
-  const Color attacker = root.sideToMove;
-  const Color defender = !attacker;
   // The attacker may be kingless: tsume problems conventionally omit the
   // attacking king, and such an attacker can never be captured out.
 
@@ -595,14 +590,16 @@ MateAnswer MateSolver::solveInternal(const Position& root, size_t nodeLimit) {
   uint32_t ra, rb;
   bool rt;
   if (pndn_)
-    searchImpl<true, true>(pos, h, 0, bns::kInf, bns::kInf, ra, rb, rt);
+    searchImpl<kOrRoot, true>(pos, h, 0, bns::kInf, bns::kInf, ra, rb, rt);
   else
-    searchImpl<true, false>(pos, h, 0, bns::kInf, bns::kInf, ra, rb, rt);
+    searchImpl<kOrRoot, false>(pos, h, 0, bns::kInf, bns::kInf, ra, rb, rt);
 
   out.nodes = nodes_;
+  out.proofDepth = maxPlySeen_;
   if (ra == 0) {
     out.result = MateResult::kMate;
-    if (extractPvEnabled_) {
+    // PV extraction only makes sense from an attacker (OR) root.
+    if (kOrRoot && extractPvEnabled_) {
       extractPv(root, out);
       if (!pvValidates(root, out)) {
         // The TT-based walk can stall (the search resolves some children

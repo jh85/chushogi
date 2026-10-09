@@ -27,11 +27,12 @@ az-test: $(BIN) $(AZBIN)
 	$(PY) tests/az_probe_test.py
 
 
-# Regenerate the test-case file from the downloaded game records.
-tests/chushogi_cases.tsv: tests/make_cases.py
-	python3 tests/make_cases.py $@ $(GAMES1) $(GAMES2)
+# Regenerate the tracked test-case file from the downloaded game records.
+# Explicit only: make test never rewrites it.
+cases:
+	python3 tests/make_cases.py tests/chushogi_cases.tsv $(GAMES1) $(GAMES2)
 
-test: $(BIN) tests/chushogi_cases.tsv
+test: $(BIN)
 	python3 tests/rule_test.py --binary ./$(BIN)
 	python3 tests/jcsa_test.py --binary ./$(BIN)
 	python3 tests/perft_test.py tests/perft_cases.tsv --binary ./$(BIN)
@@ -51,4 +52,4 @@ random-games: $(BIN)
 clean:
 	rm -f $(BIN)
 
-.PHONY: test clean random-games
+.PHONY: test clean random-games cases

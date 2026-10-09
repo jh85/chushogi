@@ -284,8 +284,7 @@ test only (see `tests/status_test.py`):
 
 `tests/chushogi_cases.tsv` holds every (input, output) test case extractable
 from the downloaded game records: **8688 cases from 49 games** (every ply of
-every game). Regenerate with `make tests/chushogi_cases.tsv` (or delete and
-run `make test`).
+every game). Regenerate with `make cases`; `make test` never rewrites it.
 
 Lishogi publishes the ingredients (a USI move list and one SFEN per ply per
 game) but no ready-made input/output test-case format, so we adopt the

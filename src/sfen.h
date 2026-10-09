@@ -22,7 +22,8 @@
 namespace chu {
 
 // Parses a full SFEN ("board turn field3 movenum"). Missing trailing fields
-// default to Sente to move, no lion capture, move number 1.
+// default to Sente to move, no lion capture, move number 1. The rule set is
+// not part of the SFEN: out.rules is left as it was.
 bool parseSfen(const std::string& sfen, Position& out);
 
 std::string toSfen(const Position& pos);

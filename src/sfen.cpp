@@ -179,6 +179,7 @@ bool parseSfen(const std::string& sfen, Position& out) {
     return false;
   }
 
+  pos.rules = out.rules;  // not part of the SFEN
   out = pos;
   return true;
 }

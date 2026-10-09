@@ -19,6 +19,9 @@
 //   status  -> prints "status <playing|royalslost|bareking|stalemate|draw>
 //              [sente|gote]" (game-end evaluation of the current position)
 //   seed <n>           -> seeds the random generator (for `go random`)
+//   rules <lishogi|jcsa> -> sets the rule set for the current position and
+//                         later position commands (default lishogi; see
+//                         docs/jcsa/)
 //   go random          -> prints "bestmove <usi>" with a uniformly random
 //                         legal move ("bestmove resign" if there are none)
 //   quit
@@ -90,6 +93,13 @@ class Session {
     moves_.push_back(token);
   }
 
+  // The rule set survives parseSfen; forgetting how the position was reached
+  // makes the next position command replay (and re-validate) all its moves.
+  void setRules(chu::RuleSet rules) {
+    pos_.rules = rules;
+    initial_.clear();
+  }
+
   const chu::Position& pos() const { return pos_; }
 
  private:
@@ -138,6 +148,12 @@ int main(int argc, char** argv) {
     } else if (tok[0] == "seed") {
       if (tok.size() != 2) fatal("expected: seed <n>");
       rng.seed(std::stoull(tok[1]));
+      std::cout << "ok\n" << std::flush;
+    } else if (tok[0] == "rules") {
+      if (tok.size() != 2 || (tok[1] != "lishogi" && tok[1] != "jcsa"))
+        fatal("expected: rules <lishogi|jcsa>");
+      session.setRules(tok[1] == "jcsa" ? chu::RuleSet::JCSA
+                                        : chu::RuleSet::Lishogi);
       std::cout << "ok\n" << std::flush;
     } else if (tok[0] == "go") {
       if (tok.size() != 2 || tok[1] != "random") fatal("expected: go random");

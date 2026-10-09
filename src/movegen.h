@@ -17,6 +17,12 @@
 //         even if the lion move captures that defender on the way;
 //       * after a non-lion piece captured an enemy lion, a non-lion piece may
 //         not capture a lion on a different square on the following move.
+//
+// Under RuleSet::JCSA (Position::rules) three of these rules differ
+// (docs/jcsa/jcsa-delta.md, rows 1-3): the counter-strike ban applies only to
+// a lion that has a foot (a protecting piece), it also covers the mid square
+// of a horned falcon's or soaring eagle's double move, and a lance gets no
+// last-rank promotion.
 
 #pragma once
 
@@ -26,7 +32,7 @@
 
 namespace chu {
 
-// All legal moves for the side to move.
+// All legal moves for the side to move, under pos.rules.
 std::vector<Move> generateLegal(const Position& pos);
 
 // True if `m` is among the legal moves (used when replaying ordered USI move

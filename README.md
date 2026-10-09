@@ -45,6 +45,9 @@ Batch protocol on stdin (one command per line):
              -> "mate <yes|no|unknown>", "nodes <n>", and on yes
                 "pv <usi moves...>" (a validated forced mate line)
     move <usi>
+    rules <lishogi|jcsa>
+             -> "ok"; rule set for the current position and the following
+                commands (default lishogi; see "JCSA rules" below)
     quit
 
 Every move fed through `position ... moves` / `move` is validated against the
@@ -218,6 +221,29 @@ tracing refutations (e.g. tsukuri08's escape 2d1d!).
     wording suggests it should be banned. We mirror lishogi either way.
 - No check-evasion restriction: chu shogi is played until a royal (king or
   prince) is actually captured.
+
+## JCSA rules (`rules jcsa`)
+
+The rule set is a runtime option of the position (`Position::rules`, default
+`RuleSet::Lishogi`; not part of the SFEN), followed by `generateLegal` and
+`evaluateStatus`. `RuleSet::JCSA` is the Japan Chu Shogi Association's
+over-the-board rules as specified in `docs/jcsa/`, whose clause IDs the code
+cites. Only these rules differ from lishogi's:
+
+- counter-strike ban (R-L4, H-3⑥): a non-lion may not take a lion on another
+  square only if that lion has a foot, i.e. one of its own pieces protects it
+  (judged with the capturing piece lifted, so X-rays count; each lion
+  separately);
+- the ban also covers the mid square of a horned falcon's or soaring eagle's
+  double move (lishogi tests only the destination);
+- lance (R-P3, R-P4): no last-rank promotion; it promotes only by entering
+  the zone or capturing in it, and one that reaches the last rank unpromoted
+  is a dead piece;
+- bare king (R-E4, R-E6a): only a royal plus one counting piece against a
+  lone royal wins; against more pieces play continues.
+
+Stalemate (a loss), the game ending by royal capture, and the two-royals draw
+are the same under both (`docs/jcsa/interpretation.md`).
 
 ## Game-end outcomes (reference; not part of move generation)
 

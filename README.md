@@ -333,6 +333,10 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   penultimate position of every royalsLost game, multi-royal-defender
   handling (unknown), BNS vs df-pn verdict agreement, and PV legality
   validation.
+- `tests/jcsa_test.py` — the 29 spec cases of `docs/jcsa/cases.tsv` (read
+  directly) plus 22 cases for readings they do not exercise, each checked
+  under both rule sets against its lishogi and JCSA verdict.
 
-All suites pass: 49/49 games replayed, 44/44 rule cases, 289/289 perft
-counts, 34/34 status cases, 26/26 mate cases, 8688/8688 test cases.
+All suites pass: 49/49 games replayed, 44/44 rule cases, 102/102 JCSA
+cases, 289/289 perft counts, 34/34 status cases, 26/26 mate cases,
+8688/8688 test cases.

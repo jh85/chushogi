@@ -33,6 +33,7 @@ tests/chushogi_cases.tsv: tests/make_cases.py
 
 test: $(BIN) tests/chushogi_cases.tsv
 	python3 tests/rule_test.py --binary ./$(BIN)
+	python3 tests/jcsa_test.py --binary ./$(BIN)
 	python3 tests/perft_test.py tests/perft_cases.tsv --binary ./$(BIN)
 	python3 tests/status_test.py $(GAMES1) $(GAMES2) --binary ./$(BIN)
 	python3 tests/mate_test.py $(GAMES1) $(GAMES2) --binary ./$(BIN)

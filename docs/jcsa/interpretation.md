@@ -59,10 +59,12 @@ zone instead), and no proof game in our runs used a lance last-rank promotion
 JCSA regulates only the ending "two kings and one piece other than a pawn or go-between"
 (R-E4, R-E5), with the example of 九 excluding a piece the lone royal can recapture at
 once (R-E6a); lishogi ends the game whenever a lone royal faces two or more counting
-pieces, with adjacency and check conditions. **We keep lishogi's rule in the engine and
-bound the difference.** Effect: terminal states and reachable boards, but only on boards
-where one side is a lone royal: 1.9 × 10^-70 of the candidate set (exact count), so the
-relative effect on the position count is below 10^-69.
+pieces, with adjacency and check conditions. **The engine's JCSA mode implements JCSA's
+bare-king threshold (R-E4; test case C15). Our counting pipeline keeps lishogi's game-end
+evaluation for those positions and bounds the difference:** it affects terminal states and
+reachable boards only on boards where one side is a lone royal, 1.9 × 10^-70 of the
+candidate set (exact count), so the relative effect on the position count is below
+10^-69.
 
 ## Stalemate (row 5) — resolved
 

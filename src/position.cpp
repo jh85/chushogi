@@ -42,6 +42,7 @@ Position Position::flipped() const {
   out.lastLionCapture =
       lastLionCapture == kNoSquare ? kNoSquare : flipSquare(lastLionCapture);
   out.moveNumber = moveNumber;
+  out.rules = rules;
   return out;
 }
 

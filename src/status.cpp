@@ -13,7 +13,21 @@ bool isDead(Role r, int sq, Color c) {
   return (r == Pawn || r == Lance) && sqY(sq) == backrankY(c);
 }
 
+// R-E4 (delta row 4): how many counting pieces, royal included, bare a lone
+// royal. lishogi: two or more. JCSA regulates only "two kings and one piece"
+// (R-E4, R-E5): exactly two, and against more pieces play continues. With
+// two pieces the adjacency exception in bareKing is R-E6a: a piece the lone
+// royal can recapture at once does not win.
+template <RuleSet R>
+bool baresLoneRoyal(int theirPieces) {
+  if constexpr (R == RuleSet::JCSA)
+    return theirPieces == 2;
+  else
+    return theirPieces > 1;
+}
+
 // Chushogi.bareKing: was `color`'s king bared?
+template <RuleSet R>
 bool bareKing(const Position& pos, Color color) {
   int ourPieces = 0, ourRoyals = 0, ourRoyalSq = kNoSquare;
   int theirPieces = 0, theirRoyals = 0;
@@ -51,7 +65,7 @@ bool bareKing(const Position& pos, Color color) {
 
   return ourPieces == 1 &&    // we have only a single (non-dead) piece
          ourRoyals == 1 &&    // and that piece is royal
-         theirPieces > 1 &&   // opponent has more than just a single royal
+         baresLoneRoyal<R>(theirPieces) &&  // opponent has enough to bare it
          theirRoyals >= 1 &&  // but they have at least one royal
          !inCheck(pos, !color) &&  // no threat of immediate royal capture
          (theirPieces > 2 || !adjacentThreat);
@@ -83,20 +97,29 @@ int royalCount(const Position& pos, Color color) {
   return n;
 }
 
-}  // namespace
-
-StatusResult evaluateStatus(const Position& pos) {
-  // Same order as scalashogi Chushogi.status (minus repetition).
+template <RuleSet R>
+StatusResult evaluate(const Position& pos) {
+  // Same order as scalashogi Chushogi.status (minus repetition). Under JCSA
+  // only the baring rule differs: the game ends by royal capture (the capture
+  // reading of R-E1), a stalemated player loses and two lone royals draw
+  // (R-E6), as in lishogi (docs/jcsa/interpretation.md).
   if (royalCount(pos, pos.sideToMove) == 0)
     return {GameEnd::RoyalsLost, !pos.sideToMove};
-  const bool bareSente = bareKing(pos, Sente);
-  const bool bareGote = bareKing(pos, Gote);
+  const bool bareSente = bareKing<R>(pos, Sente);
+  const bool bareGote = bareKing<R>(pos, Gote);
   if (bareSente || bareGote)
     return {GameEnd::BareKing, bareSente ? Gote : Sente};
   if (generateLegal(pos).empty())
     return {GameEnd::Stalemate, !pos.sideToMove};
   if (insufficientMaterial(pos)) return {GameEnd::Draw, -1};
   return {GameEnd::Playing, -1};
+}
+
+}  // namespace
+
+StatusResult evaluateStatus(const Position& pos) {
+  return pos.rules == RuleSet::JCSA ? evaluate<RuleSet::JCSA>(pos)
+                                    : evaluate<RuleSet::Lishogi>(pos);
 }
 
 const char* gameEndName(GameEnd end) {

@@ -10,6 +10,10 @@
 
 namespace chu {
 
+// The rules a position is played under: lishogi's (the default) or the Japan
+// Chu Shogi Association's over-the-board rules, as specified in docs/jcsa/.
+enum class RuleSet : uint8_t { Lishogi, JCSA };
+
 struct Position {
   std::array<uint8_t, kSquares> board{};  // piece ids, 0 = empty
   Color sideToMove = Sente;
@@ -18,6 +22,9 @@ struct Position {
   // taken; otherwise kNoSquare. (Serialized in the third SFEN field.)
   int16_t lastLionCapture = kNoSquare;
   int moveNumber = 1;
+  // Rule set used by the move generator and the game-end status. Not part of
+  // the SFEN.
+  RuleSet rules = RuleSet::Lishogi;
 
   uint8_t at(int sq) const { return board[sq]; }
   bool empty(int sq) const { return board[sq] == 0; }
@@ -38,15 +45,22 @@ inline bool inPromotionZone(int sq, Color c) {
 }
 inline int backrankY(Color c) { return c == Sente ? 0 : kRanks - 1; }
 
-// Chushogi.canPromote: promotion is possible when entering the zone from
-// outside, or when making a capture while starting or landing in the zone,
-// or when a pawn/lance reaches the last rank (even inside the zone).
-inline bool canPromote(Role role, Color c, int from, int to, bool capture) {
-  if (promoteRole(role) < 0) return false;
+// Promotion by the zone, the same under every rule set (R-P1, R-P2): entering
+// the zone from outside, or making a capture while starting or landing in it.
+inline bool zonePromotion(Color c, int from, int to, bool capture) {
   bool destIn = inPromotionZone(to, c);
   bool origIn = inPromotionZone(from, c);
   if (destIn && !origIn) return true;
   if (capture && (destIn || origIn)) return true;
+  return false;
+}
+
+// Chushogi.canPromote (lishogi rules): zonePromotion, or a pawn/lance
+// reaching the last rank (even inside the zone). The move generator applies
+// Position::rules instead.
+inline bool canPromote(Role role, Color c, int from, int to, bool capture) {
+  if (promoteRole(role) < 0) return false;
+  if (zonePromotion(c, from, to, capture)) return true;
   if ((role == Pawn || role == Lance) && sqY(to) == backrankY(c)) return true;
   return false;
 }

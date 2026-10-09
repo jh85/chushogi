@@ -1,0 +1,22 @@
+# JCSA vs lishogi: differences that affect move generation or game end
+
+"lishogi" = the rules implemented by `chushogi` (and lishogi.org). "JCSA" = our paraphrase
+of the cited clause. Rows marked **generator** change which moves are legal; rows marked
+**game end** change when a game is over. Test ids refer to `cases.tsv`.
+
+| # | kind | topic | lishogi | JCSA (source) | tests |
+|---|---|---|---|---|---|
+| 1 | generator | counter-strike ban ("sakishishi"): when it exists | after any non-lion captures a lion, the capture square is remembered and, on the next move, a non-lion may not capture a lion on any other square, whether or not that lion is protected | R-L4 (七.四): a non-lion may always capture a lion; **if the capturing side's own lion has a "foot" (a protecting piece)**, the opponent may not take that lion back on the immediately following move. A kirin that captures a lion and promotes triggers it too. H-3③ / H-2.1: a lion capturing a lion never triggers it. H-3⑥: it applies only when the capturing side's lion has a foot. H-3④ / H-2.3: tsukegui (a lion taking the in-between piece and the lion together) is allowed even during the ban | C04, C04a, C04b (difference), C04c, C03b, C09b, C11, C11b, C11c |
+| 2 | generator | hit-and-run captures by soaring eagle / horned falcon during the ban | only the final destination is tested: a lion captured on the mid square of a double move is never banned | R-L4 names no square ("may not take the lion back"); read as every capture of the protected lion, including on the mid square | C05, C05b (differences), C05c |
+| 3 | generator | lance promotion on the last rank | an unpromoted pawn **or lance** may promote on reaching the last rank | R-P3 (四.3): the pawn's second chance (capture or last rank) is for the pawn only. R-P4 (四.4): a pawn or lance that reaches the last rank unpromoted becomes a dead piece. R-P5 (四.5): lance treated like the pawn **in networked games only** (not applied; see `interpretation.md`, "Lance last-rank promotion"). H-1: the 2004 revision kept the pawn relief, put the go-between under the general rule, and left the lance's relief to networked play | C06 (difference), C06b, C07, C08 |
+| 4 | game end | bare king | a lone royal against two or more counting pieces (opponent has a royal, is not in check; with exactly two pieces, none adjacent to the lone royal) loses at once | R-E4 (二.4): when pieces have run out and only the two kings and **one** piece other than a pawn or go-between remain, the side with two pieces wins (a pawn / go-between counts only once promoted). R-E5 (二.5): dead pieces do not count. R-E6a (九, jishogi example): a piece the lone royal can recapture at once does not win. Nothing is said about a lone king against three or more pieces: play continues | C14, C14b (same), C15 (difference) |
+| 5 | game end | stalemate | the side to move with no legal move loses | not stated explicitly (R-E1–E7 list no stalemate clause); the accepted chu shogi convention is that the stalemated player loses, which we follow (`interpretation.md`) | C16 (same) |
+| 6 | game end | checkmate | no check concept; the game ends when a side's last royal is captured | R-E1 (二.1): a player wins by checkmating the enemy king **or** by capturing it ("tsukiotoshi"); announcing check is not required. R-E2: with a crown prince on the board both royals must be captured. B-2.一 defines checkmate as the king being in check with nowhere to go. See `interpretation.md` for the two readings and their size | — |
+| 7 | game end | draw for lack of material | two royals only, neither attacked: draw | R-E6 (二.6): when neither side can mate for lack of pieces, draw by agreement ("jishogi"); the examples of 九 show king vs king and king + lion vs king + two immobile pieces | C14b |
+
+Identical under both (not exported as differences): lion vs lion at distance (R-L2),
+ura-ashi / X-ray protection (R-L3), tsukegui and the pawn / go-between exceptions (R-L5,
+H-2.2, H-2.4, H-3①②⑤), jitto conditions (R-J1, H-4), promotion on entering the zone
+and by capture inside or when leaving it (R-P1, R-P2), promotion after declining (R-P2,
+H-1 for the go-between), no check announcement (R-E1, H-5). History rules (R-R1
+repetition, no move cap) are outside the position.

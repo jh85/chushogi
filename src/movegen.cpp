@@ -4,11 +4,75 @@
 
 namespace chu {
 
-std::vector<Move> generateLegal(const Position& pos) {
+namespace {
+
+// ---- Rule differences between lishogi and JCSA (docs/jcsa/jcsa-delta.md,
+// rows 1-3). The generator calls them with its RuleSet parameter.
+
+// R-P3, R-P4: who may promote on reaching the last rank without entering the
+// zone or capturing. lishogi: the pawn and the lance. JCSA: the pawn only; a
+// lance that reaches the last rank unpromoted becomes a dead piece (the lance
+// relief of R-P5 is for correspondence games only and is not applied).
+template <RuleSet R>
+bool lastRankPromotion(Role role) {
+  if constexpr (R == RuleSet::JCSA)
+    return role == Pawn;
+  else
+    return role == Pawn || role == Lance;
+}
+
+// canPromote() under rule set R.
+template <RuleSet R>
+bool mayPromote(Role role, Color c, int from, int to, bool capture) {
+  if (promoteRole(role) < 0) return false;
+  if (zonePromotion(c, from, to, capture)) return true;
+  return lastRankPromotion<R>(role) && sqY(to) == backrankY(c);
+}
+
+// U2, U3: the lion on `sq` has a foot if a piece of its own side protects
+// that square. Judged at the attempted capture, with the capturing piece
+// lifted from `from` (X-rays through it count), for each lion separately.
+bool lionHasFoot(const Position& pos, int sq, int from) {
+  return threatened(pos, colorOf(pos.board[sq]), sq, /*pawnsOnly=*/false,
+                    from, kNoSquare);
+}
+
+// R-L4, H-3⑥: the counter-strike ban (sakishishi). After a non-lion captured
+// a lion on pos.lastLionCapture, a non-lion moving from `from` may not take
+// an enemy lion on `sq` != that square (U4). lishogi bans every such capture;
+// JCSA only that of a lion with a foot. Lions never consult this: JCSA's ban
+// binds them too (U1), but its exceptions (an adjacent lion, tsukegui) leave
+// only captures that the lion-trading rules (R-L2, R-L3) already forbid.
+template <RuleSet R>
+bool counterStrikeBanned(const Position& pos, int from, int sq) {
+  const int llc = pos.lastLionCapture;
+  if (llc == kNoSquare || sq == llc) return false;
+  const uint8_t occ = pos.board[sq];
+  if (!occ || colorOf(occ) == pos.sideToMove || !isLion(roleOf(occ)))
+    return false;
+  if constexpr (R == RuleSet::JCSA)
+    return lionHasFoot(pos, sq, from);
+  else
+    return true;
+}
+
+// R-L4 (delta row 2): hit-and-run captures during the ban. lishogi tests only
+// the destination of a double move, so a horned falcon or soaring eagle may
+// take a lion on the mid square; JCSA bans every capture of the protected
+// lion, the mid square included.
+template <RuleSet R>
+bool midStepCaptureBanned(const Position& pos, int from, int mid) {
+  if constexpr (R == RuleSet::JCSA)
+    return counterStrikeBanned<R>(pos, from, mid);
+  else
+    return false;
+}
+
+template <RuleSet R>
+std::vector<Move> generate(const Position& pos) {
   std::vector<Move> out;
   const Color us = pos.sideToMove;
   const Color them = !us;
-  const int llc = pos.lastLionCapture;
 
   for (int s = 0; s < kSquares; ++s) {
     const uint8_t pc = pos.board[s];
@@ -58,12 +122,7 @@ std::vector<Move> generateLegal(const Position& pos) {
           return false;
         return true;
       }
-      if (llc != kNoSquare) {
-        uint8_t occ = pos.board[d];
-        if (d != llc && occ && colorOf(occ) == them && isLion(roleOf(occ)))
-          return false;
-      }
-      return true;
+      return !counterStrikeBanned<R>(pos, s, d);
     };
     for (int d : shortDests)
       if (keepSingle(d)) dests.push_back(d);
@@ -74,7 +133,7 @@ std::vector<Move> generateLegal(const Position& pos) {
     for (int d : dests) {
       out.push_back({static_cast<int16_t>(s), kNoSquare,
                      static_cast<int16_t>(d), false});
-      if (canPromote(role, us, s, d, pos.board[d] != 0))
+      if (mayPromote<R>(role, us, s, d, pos.board[d] != 0))
         out.push_back({static_cast<int16_t>(s), kNoSquare,
                        static_cast<int16_t>(d), true});
     }
@@ -83,6 +142,9 @@ std::vector<Move> generateLegal(const Position& pos) {
     if (!hasLionPower(role)) continue;
     for (int ms : shortDests) {
       if (dist(s, ms) != 1) continue;  // first step must be adjacent
+      // A falcon or eagle that may not take the lion on the mid square has
+      // no move through it (a lion may always take an adjacent lion).
+      if (!lion && midStepCaptureBanned<R>(pos, s, ms)) continue;
       // Returning to the origin (igui after a capture, or jitto pass) is
       // always included once the mid step itself is playable.
       out.push_back({static_cast<int16_t>(s), static_cast<int16_t>(ms),
@@ -114,9 +176,7 @@ std::vector<Move> generateLegal(const Position& pos) {
         } else {
           // Horned falcon / soaring eagle: second-step destinations are only
           // restricted by the lion-recapture ban.
-          if (llc != kNoSquare && d != llc && occ && colorOf(occ) == them &&
-              isLion(roleOf(occ)))
-            continue;
+          if (counterStrikeBanned<R>(pos, s, d)) continue;
           out.push_back({static_cast<int16_t>(s), static_cast<int16_t>(ms),
                          static_cast<int16_t>(d), false});
         }
@@ -124,6 +184,13 @@ std::vector<Move> generateLegal(const Position& pos) {
     }
   }
   return out;
+}
+
+}  // namespace
+
+std::vector<Move> generateLegal(const Position& pos) {
+  return pos.rules == RuleSet::JCSA ? generate<RuleSet::JCSA>(pos)
+                                    : generate<RuleSet::Lishogi>(pos);
 }
 
 bool isLegal(const Position& pos, const Move& m) {

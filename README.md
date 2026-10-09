@@ -45,6 +45,9 @@ Batch protocol on stdin (one command per line):
              -> "mate <yes|no|unknown>", "nodes <n>", and on yes
                 "pv <usi moves...>" (a validated forced mate line)
     move <usi>
+    rules <lishogi|jcsa>
+             -> "ok"; rule set for the current position and the following
+                commands (default lishogi; see "JCSA rules" below)
     quit
 
 Every move fed through `position ... moves` / `move` is validated against the
@@ -219,6 +222,29 @@ tracing refutations (e.g. tsukuri08's escape 2d1d!).
 - No check-evasion restriction: chu shogi is played until a royal (king or
   prince) is actually captured.
 
+## JCSA rules (`rules jcsa`)
+
+The rule set is a runtime option of the position (`Position::rules`, default
+`RuleSet::Lishogi`; not part of the SFEN), followed by `generateLegal` and
+`evaluateStatus`. `RuleSet::JCSA` is the Japan Chu Shogi Association's
+over-the-board rules as specified in `docs/jcsa/`, whose clause IDs the code
+cites. Only these rules differ from lishogi's:
+
+- counter-strike ban (R-L4, H-3⑥): a non-lion may not take a lion on another
+  square only if that lion has a foot, i.e. one of its own pieces protects it
+  (judged with the capturing piece lifted, so X-rays count; each lion
+  separately);
+- the ban also covers the mid square of a horned falcon's or soaring eagle's
+  double move (lishogi tests only the destination);
+- lance (R-P3, R-P4): no last-rank promotion; it promotes only by entering
+  the zone or capturing in it, and one that reaches the last rank unpromoted
+  is a dead piece;
+- bare king (R-E4, R-E6a): only a royal plus one counting piece against a
+  lone royal wins; against more pieces play continues.
+
+Stalemate (a loss), the game ending by royal capture, and the two-royals draw
+are the same under both (`docs/jcsa/interpretation.md`).
+
 ## Game-end outcomes (reference; not part of move generation)
 
 These are lishogi server/rules-engine behaviors beyond the move generator's
@@ -258,8 +284,7 @@ test only (see `tests/status_test.py`):
 
 `tests/chushogi_cases.tsv` holds every (input, output) test case extractable
 from the downloaded game records: **8688 cases from 49 games** (every ply of
-every game). Regenerate with `make tests/chushogi_cases.tsv` (or delete and
-run `make test`).
+every game). Regenerate with `make cases`; `make test` never rewrites it.
 
 Lishogi publishes the ingredients (a USI move list and one SFEN per ply per
 game) but no ready-made input/output test-case format, so we adopt the
@@ -307,6 +332,14 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   penultimate position of every royalsLost game, multi-royal-defender
   handling (unknown), BNS vs df-pn verdict agreement, and PV legality
   validation.
+- `tests/jcsa_test.py` — the 29 spec cases of `docs/jcsa/cases.tsv` (read
+  directly) plus 22 cases for readings they do not exercise, each checked
+  under both rule sets against its lishogi and JCSA verdict.
 
-All suites pass: 49/49 games replayed, 44/44 rule cases, 289/289 perft
-counts, 34/34 status cases, 26/26 mate cases, 8688/8688 test cases.
+`tools/perft.cpp` (not built by the Makefile) counts perft nodes and speed;
+it uses only the v0.1.0 API, so the same file builds against older versions
+for regression comparisons.
+
+All suites pass: 49/49 games replayed, 44/44 rule cases, 102/102 JCSA
+cases, 289/289 perft counts, 34/34 status cases, 26/26 mate cases,
+8688/8688 test cases.

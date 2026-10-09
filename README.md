@@ -78,13 +78,13 @@ are outside the model and report "unknown". The attacker may be kingless
 capture-the-attacker escape then never applies. Every returned PV is
 self-validated move by move inside the engine.
 
-BNS vs df-pn on the tsume collection (tools/mate_compare.py, 207 provable
-problems, identical node caps): verdicts never contradict; on the 174
-positions both prove, df-pn spends 1.13x BNS's nodes; on the 21 disproofs
-df-pn is faster (0.76x). But df-pn fails to prove 12 positions within 2x
-the node count BNS needs (they come back "unknown") — BNS's branch-number
-thresholds are markedly better at driving deep proofs to completion, which
-is why it is the default.
+BNS vs df-pn on the tsume collection (tools/mate_compare.py, 209 provable
+problems, identical node caps): verdicts never contradict; on the 178
+positions both prove, df-pn spends 1.16x BNS's nodes; on the 21 disproofs
+df-pn is faster (0.76x). But df-pn fails to prove 9 mates and 1 disproof
+within 2x the node count BNS needs (they come back "unknown") — BNS's
+branch-number thresholds are markedly better at driving deep proofs to
+completion, which is why it is the default.
 
 
 The branch-number core is the reference's verbatim arithmetic:
@@ -341,5 +341,5 @@ it uses only the v0.1.0 API, so the same file builds against older versions
 for regression comparisons.
 
 All suites pass: 49/49 games replayed, 44/44 rule cases, 102/102 JCSA
-cases, 289/289 perft counts, 34/34 status cases, 26/26 mate cases,
+cases, 289/289 perft counts, 38/38 status cases, 482/482 mate cases,
 8688/8688 test cases.

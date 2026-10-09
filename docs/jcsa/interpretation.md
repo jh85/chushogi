@@ -64,11 +64,13 @@ bound the difference.** Effect: terminal states and reachable boards, but only o
 where one side is a lone royal: 1.9 × 10^-70 of the candidate set (exact count), so the
 relative effect on the position count is below 10^-69.
 
-## Stalemate (row 5)
+## Stalemate (row 5) — resolved
 
-lishogi: the stalemated side loses. JCSA: not regulated. **We keep lishogi's rule and bound
-the difference.** Effect: terminal states and reachable boards; 0 stalemates among 98 998
-sampled non-terminal candidate boards, i.e. a share below 3 × 10^-5 at the 3σ level.
+lishogi: the stalemated side loses. **Not stated explicitly in the JCSA texts; we follow the
+accepted chu shogi convention that a stalemated player loses.** This is an interpretation,
+not an unregulated case. It changes no count: a stalemated position is terminal under any
+reading. (For the record, 0 stalemates occurred among 98 998 sampled non-terminal
+candidate boards, a share below 3 × 10^-5 at the 3σ level.)
 
 ## Leaving a royal capturable, and checkmate as the end of the game (row 6)
 

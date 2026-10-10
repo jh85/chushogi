@@ -15,10 +15,10 @@ Files:
 - `interpretation.md`: the decided readings of the clauses the texts leave open (U1–U4,
   resolved 2026-10-08) and of the game-end items, one paragraph each, with the share of
   the position count that each reading affects.
-- `cases.tsv`: 29 test positions built from the JCSA diagrams (piece patterns embedded in
+- `cases.tsv`: 31 test positions built from the JCSA diagrams (29) and two played-through constructions (C17 / C17b, promoted kirin on the capture square) (piece patterns embedded in
   full legal positions with both royals and no stray attacks), each with its SFEN, side
   to move, counter-strike square, tested move and the expected verdict under lishogi and
-  under JCSA. 6 rows are genuine differences; the rest are conformance checks. All
+  under JCSA. 7 rows are genuine differences; the rest are conformance checks. All
   lishogi verdicts were checked against `chushogi-gen` at commit 1b20c35.
 
 SFEN conventions are lishogi's (`chushogi` engine): the third field is the counter-strike

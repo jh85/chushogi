@@ -34,9 +34,15 @@ foot.** Effect: flag states on boards with two lions on one side (small).
 ## U4. Does the ban cover every capture of the lion, or only taking back on the capture square? — resolved
 
 JCSA says "take back"; lishogi bans captures on every square other than the one where the
-lion was just captured and allows capturing the capturer there. **Decision: lishogi's
-square semantics (ban on every square of the protected lion; the capturer may be taken on
-the capture square), plus the hit-and-run coverage of row 2.** Effect: flag states only.
+lion was just captured and allows capturing the capturer there. **Decision (amended 2026-10-10): the ban covers every capture of a protected lion,
+including a promoted kirin standing on the capture square** (the clause's last sentence
+says a kirin capturing a lion and promoting establishes sakishishi, so the new lion is
+covered like any lion, subject to the foot condition and the U1 exemptions); a non-lion
+capturer on the capture square may of course be taken; hit-and-run captures of row 2 are
+covered. lishogi exempts the capture square outright, following the historical "another square"
+stipulation just as it keeps the strict Edo-era counter-strike rule without the Okazaki
+amendment; that is lishogi's rule, not a defect. This is the second genuine sakishishi
+difference (delta row 1b, cases C17 / C17b). Effect: flag states only.
 
 ## Lance last-rank promotion (row 3, R-P4)
 
@@ -52,7 +58,7 @@ software, i.e. computer-mediated play. The 2019 regulations codify the same rest
 rules: no lance relief.** lishogi's rule coincides with the relief measure. Effect on the
 count: none (it only changes which moves are legal; a lance may promote on entering the
 zone instead), and no proof game in our runs used a lance last-rank promotion
-(0 of 2 000 + 41 444 replayed certificates).
+(0 of 2 000 + 42 444 replayed certificates).
 
 ## Bare king (row 4)
 

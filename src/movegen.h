@@ -20,9 +20,10 @@
 //
 // Under RuleSet::JCSA (Position::rules) three of these rules differ
 // (docs/jcsa/jcsa-delta.md, rows 1-3): the counter-strike ban applies only to
-// a lion that has a foot (a protecting piece), it also covers the mid square
-// of a horned falcon's or soaring eagle's double move, and a lance gets no
-// last-rank promotion.
+// a lion that has a foot (a protecting piece), including a promoted kirin on
+// the capture square (lishogi exempts that square), it also covers the mid
+// square of a horned falcon's or soaring eagle's double move, and a lance
+// gets no last-rank promotion.
 
 #pragma once
 

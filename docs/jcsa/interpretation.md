@@ -42,7 +42,11 @@ capturer on the capture square may of course be taken; hit-and-run captures of r
 covered. lishogi exempts the capture square outright, following the historical "another square"
 stipulation just as it keeps the strict Edo-era counter-strike rule without the Okazaki
 amendment; that is lishogi's rule, not a defect. This is the second genuine sakishishi
-difference (delta row 1b, cases C17 / C17b). Effect: flag states only.
+difference (delta row 1b, cases C17 / C17b). A consequence worth noting for an
+implementation: under JCSA the set of banned moves no longer depends on the capture
+square (it is "every capture of one of the capturing side's protected lions"), so a
+position carries at most one distinct JCSA ban state, whereas lishogi's square-bound ban
+can give up to three. Effect: flag states only.
 
 ## Lance last-rank promotion (row 3, R-P4)
 

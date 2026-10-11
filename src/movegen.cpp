@@ -39,14 +39,17 @@ bool lionHasFoot(const Position& pos, int sq, int from) {
 
 // R-L4, H-3⑥: the counter-strike ban (sakishishi). After a non-lion captured
 // a lion on pos.lastLionCapture, a non-lion moving from `from` may not take
-// an enemy lion on `sq` != that square (U4). lishogi bans every such capture;
-// JCSA only that of a lion with a foot. Lions never consult this: JCSA's ban
+// an enemy lion on `sq`. lishogi exempts the capture square itself (a kirin
+// that took the lion there and promoted) and bans every other such capture;
+// JCSA (delta row 1b, U4) has no capture-square exemption and bans the
+// capture of every lion with a foot. Lions never consult this: JCSA's ban
 // binds them too (U1), but its exceptions (an adjacent lion, tsukegui) leave
 // only captures that the lion-trading rules (R-L2, R-L3) already forbid.
 template <RuleSet R>
 bool counterStrikeBanned(const Position& pos, int from, int sq) {
   const int llc = pos.lastLionCapture;
-  if (llc == kNoSquare || sq == llc) return false;
+  if (llc == kNoSquare) return false;
+  if (R == RuleSet::Lishogi && sq == llc) return false;
   const uint8_t occ = pos.board[sq];
   if (!occ || colorOf(occ) == pos.sideToMove || !isLion(roleOf(occ)))
     return false;

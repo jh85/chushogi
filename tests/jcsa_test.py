@@ -72,13 +72,17 @@ EXTRA = [
     ("row2.falcon-through",
      "k11/12/12/12/6P5/12/12/5+h6/5N6/5G6/12/11K w 6e 2",
      "7h7i7j", "legal", "illegal"),
-    # U4: the lion on the capture square itself (a kirin took a lion there
-    # and promoted) may be taken back, on the mid square too.
+    # U4, row 1b: the lion on the capture square itself (a kirin took a lion
+    # there and promoted). lishogi exempts that square; under JCSA the gold
+    # 7j gives it a foot, so it may not be taken, on the mid square either.
     ("U4.capture-square-step",
      "k11/12/12/12/12/12/12/5+h6/5+O6/5G6/12/11K w 7i 2",
-     "7h7i", "legal", "legal"),
+     "7h7i", "legal", "illegal"),
     ("U4.capture-square-igui",
      "k11/12/12/12/12/12/12/5+h6/5+O6/5G6/12/11K w 7i 2",
+     "7h7i7h", "legal", "illegal"),
+    ("U4.capture-square-no-foot",
+     "k11/12/12/12/12/12/12/5+h6/5+O6/12/12/11K w 7i 2",
      "7h7i7h", "legal", "legal"),
     # R-P4 removes only the lance's quiet promotion inside the zone: entering
     # the zone (R-P1) or capturing in it (R-P2) still promotes on the last

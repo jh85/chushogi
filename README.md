@@ -233,10 +233,11 @@ The rule set is a runtime option of the position (`Position::rules`, default
 over-the-board rules as specified in `docs/jcsa/`, whose clause IDs the code
 cites. Only these rules differ from lishogi's:
 
-- counter-strike ban (R-L4, H-3⑥): a non-lion may not take a lion on another
-  square only if that lion has a foot, i.e. one of its own pieces protects it
-  (judged with the capturing piece lifted, so X-rays count; each lion
-  separately);
+- counter-strike ban (R-L4, H-3⑥): a non-lion may not take a lion only if
+  that lion has a foot, i.e. one of its own pieces protects it (judged with
+  the capturing piece lifted, so X-rays count; each lion separately);
+- the ban also covers a kirin that took the lion and promoted on the capture
+  square (lishogi exempts that square);
 - the ban also covers the mid square of a horned falcon's or soaring eagle's
   double move (lishogi tests only the destination);
 - lance (R-P3, R-P4): no last-rank promotion; it promotes only by entering
@@ -338,14 +339,14 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   `tests/tsume/` (all but the retro-analysis one): the 187 the solver
   proved must stay provable, and every published solution line and
   variation must replay legally.
-- `tests/jcsa_test.py` — the 29 spec cases of `docs/jcsa/cases.tsv` (read
-  directly) plus 22 cases for readings they do not exercise, each checked
+- `tests/jcsa_test.py` — the 31 spec cases of `docs/jcsa/cases.tsv` (read
+  directly) plus 23 cases for readings they do not exercise, each checked
   under both rule sets against its lishogi and JCSA verdict.
 
 `tools/perft.cpp` (not built by the Makefile) counts perft nodes and speed;
 it uses only the v0.1.0 API, so the same file builds against older versions
 for regression comparisons.
 
-All suites pass: 49/49 games replayed, 44/44 rule cases, 102/102 JCSA
+All suites pass: 49/49 games replayed, 44/44 rule cases, 108/108 JCSA
 cases, 289/289 perft counts, 38/38 status cases, 482/482 mate cases,
 8688/8688 test cases.

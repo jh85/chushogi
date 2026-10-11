@@ -52,12 +52,17 @@ class Player:
         self.proc.wait(timeout=10)
 
 
-def play_game(az, opp, ref, az_color, seed_base):
+def play_game(az, opp, ref, az_color, seed_base, opening_plies=0, div=None):
     """az_color: 0 = az plays sente. Returns 1/0.5/0 from AZ's perspective."""
     players = [az, opp] if az_color == 0 else [opp, az]
     ref.cmd(f"position sfen {INITIAL}", "ok")
     moves = []
     seen = {}
+    # Optional opening diversification: `div` plays random moves first, so
+    # deterministic AZ-vs-AZ pairings don't replay one line every game.
+    for _ in range(opening_plies):
+        moves.append(div.move(INITIAL, moves))
+        ref.cmd(f"move {moves[-1]}", "ok")
     while True:
         side = len(moves) % 2
         best = players[side].move(INITIAL, moves)
@@ -92,6 +97,9 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--mate-nodes", type=int, default=0)
     ap.add_argument("--probe-depth", type=int, default=0)
+    ap.add_argument("--opening-plies", type=int, default=0,
+                    help="random opening plies before the engines take over "
+                         "(diversify deterministic AZ-vs-AZ matchups)")
     a = ap.parse_args()
 
     extra = ""
@@ -108,19 +116,23 @@ def main():
         opp = Player(a.gen, "go random", seed=a.seed)
         opp_name = "random"
     ref = Player(a.gen, "go random")  # referee; never asked for moves
+    div = (Player(a.gen, "go random", seed=a.seed * 1000003 + 7)
+           if a.opening_plies else None)
+    players = [p for p in (az, opp, ref, div) if p is not None]
 
     score = 0.0
     counts = {}
     try:
         for g in range(a.games):
             az_color = g % 2
-            pts, reason = play_game(az, opp, ref, az_color, a.seed + g)
+            pts, reason = play_game(az, opp, ref, az_color, a.seed + g,
+                                    a.opening_plies, div)
             score += pts
             counts[reason] = counts.get(reason, 0) + 1
             print(f"game {g}: {'win' if pts == 1 else 'draw' if pts else 'loss'}"
                   f" ({reason})", flush=True)
     finally:
-        for p in (az, opp, ref):
+        for p in players:
             p.close()
     n = a.games
     print(f"AZ vs {opp_name}: {score}/{n} = {100 * score / n:.1f}%  {counts}")

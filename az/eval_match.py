@@ -27,6 +27,7 @@ class Player:
         self.proc = subprocess.Popen([binary], stdin=subprocess.PIPE,
                                      stdout=subprocess.PIPE, text=True)
         self.go = go
+        self.port = port  # set only for net-backed players (chushogi-az)
         if seed is not None:
             self.cmd(f"seed {seed}", "ok")
         if port is not None:
@@ -55,6 +56,10 @@ class Player:
 def play_game(az, opp, ref, az_color, seed_base, opening_plies=0, div=None):
     """az_color: 0 = az plays sente. Returns 1/0.5/0 from AZ's perspective."""
     players = [az, opp] if az_color == 0 else [opp, az]
+    # Reseed the net players per game so temperature sampling differs.
+    for i, p in enumerate(dict.fromkeys(players)):
+        if p.port is not None:
+            p.cmd(f"seed {seed_base * 1009 + i}", "ok")
     ref.cmd(f"position sfen {INITIAL}", "ok")
     moves = []
     seen = {}
@@ -100,6 +105,9 @@ def main():
     ap.add_argument("--opening-plies", type=int, default=0,
                     help="random opening plies before the engines take over "
                          "(diversify deterministic AZ-vs-AZ matchups)")
+    ap.add_argument("--temp-plies", type=int, default=0,
+                    help="sample AZ moves from the visit distribution for "
+                         "this many opening plies (noisy match play)")
     a = ap.parse_args()
 
     extra = ""
@@ -107,6 +115,8 @@ def main():
         extra += f" --mate-nodes {a.mate_nodes}"
     if a.probe_depth:
         extra += f" --probe-depth {a.probe_depth}"
+    if a.temp_plies:
+        extra += f" --temp-plies {a.temp_plies}"
 
     az = Player(a.az, f"go az --sims {a.sims}{extra}", port=a.port)
     if a.port2 is not None:

@@ -115,6 +115,10 @@ int main() {
         }
       }
       std::cout << "ok\n" << std::flush;
+    } else if (tok[0] == "seed") {  // seed <n>: reseed the RNG (match play)
+      if (tok.size() != 2) fatal("expected: seed <n>");
+      rng.seed(std::stoull(tok[1]));
+      std::cout << "ok\n" << std::flush;
     } else if (tok[0] == "eval-server") {  // eval-server --port N
       int port = 51589;
       for (size_t i = 1; i + 1 < tok.size(); i += 2)
@@ -127,12 +131,14 @@ int main() {
       int sims = 200;
       size_t mateNodes = 0;
       int probeDepth = 0;
+      int tempPlies = 0;  // sample from the visit distribution this many plies
       std::string evalKind = "pipe";
       for (size_t i = 2; i + 1 < tok.size(); i += 2) {
         if (tok[i] == "--sims") sims = std::stoi(tok[i + 1]);
         else if (tok[i] == "--eval") evalKind = tok[i + 1];
         else if (tok[i] == "--mate-nodes") mateNodes = std::stoull(tok[i + 1]);
         else if (tok[i] == "--probe-depth") probeDepth = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--temp-plies") tempPlies = std::stoi(tok[i + 1]);
       }
       if (evalKind != "random" && !pipeEval)
         fatal("go az needs eval-server first");
@@ -159,6 +165,20 @@ int main() {
       chu::Move best = res.bestMove;
       if (best.from == chu::kNoSquare) {  // search found nothing: fall back
         best = legal[0];
+      }
+      if (plies < tempPlies && !res.policy.empty()) {
+        // Match-play temperature: sample from the visit distribution (in the
+        // canonical frame, like bestMove) so games between nets diversify.
+        std::uniform_real_distribution<float> uni(0.f, 1.f);
+        const float pick = uni(rng);
+        float acc = 0.f;
+        for (const auto& kv : res.policy) {
+          acc += kv.second;
+          if (pick <= acc + 1e-9f) {
+            best = az::indexToMove(kv.first);
+            break;
+          }
+        }
       }
       if (flip) best = chu::flipMove(best);
       std::cout << "bestmove " << chu::moveToUsi(best) << "\n" << std::flush;

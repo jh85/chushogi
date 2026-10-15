@@ -84,6 +84,16 @@ EXTRA = [
     ("U4.capture-square-no-foot",
      "k11/12/12/12/12/12/12/5+h6/5+O6/12/12/11K w 7i 2",
      "7h7i7h", "legal", "legal"),
+    # Row 1b played through (C17 / C17b from before the capture): the White
+    # kirin 8g takes the Black lion 8i and promotes, so the flag comes from
+    # the engine; the Black rook 8d then takes the new lion, protected by the
+    # gold 8j or unprotected.
+    ("row1b.kirin-promotes-protected",
+     "k11/12/12/4R7/12/12/4o7/12/4N7/4g7/12/K11 w - 1 moves 8g8i+",
+     "8d8i", "legal", "illegal"),
+    ("row1b.kirin-promotes-unprotected",
+     "k11/12/12/4R7/12/12/4o7/12/4N7/12/12/K11 w - 1 moves 8g8i+",
+     "8d8i", "legal", "legal"),
     # R-P4 removes only the lance's quiet promotion inside the zone: entering
     # the zone (R-P1) or capturing in it (R-P2) still promotes on the last
     # rank. Gote mirror of C06.

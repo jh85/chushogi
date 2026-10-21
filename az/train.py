@@ -57,6 +57,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     net = M.ChuNet(a.d_model, a.blocks, a.heads).to(device)
     loaded_step = 0
+    state = {}
     if a.init_from and os.path.exists(a.init_from):
         state = torch.load(a.init_from, map_location="cpu",
                            weights_only=True)
@@ -68,6 +69,12 @@ def main():
     print(f"[train] start at step {a.step0}", flush=True)
 
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=a.wd)
+    if "optimizer" in state:
+        opt.load_state_dict(state["optimizer"])
+        # Honor explicitly configured weight decay on resume.
+        for g in opt.param_groups:
+            g["weight_decay"] = a.wd
+        print("[train] restored optimizer state", flush=True)
 
     decay = a.lr_decay_steps or a.steps
 
@@ -84,11 +91,11 @@ def main():
         return 1
     wdl_targets = buf.value_targets(a.value_target, a.lam)
 
-    rng = np.random.default_rng(0)
+    rng = np.random.default_rng(a.step0)
     t0 = time.time()
     for step in range(a.step0, a.step0 + a.steps):
         for g in opt.param_groups:
-            g["lr"] = lr_at(step)
+            g["lr"] = float(lr_at(step))
         idx = rng.choice(len(buf), size=a.batch, replace=len(buf) < a.batch)
         packed, prog, (pol_idx, pol_p) = buf.batch(idx)
         planes = M.unpack_batch(packed.tobytes(), prog).to(device)
@@ -118,7 +125,8 @@ def main():
                     flush=True)
         if (step + 1) % a.save_every == 0 or step + 1 == a.step0 + a.steps:
             tmp = a.out + ".tmp"
-            torch.save({"model": net.state_dict(), "step": step + 1,
+            torch.save({"model": net.state_dict(), "optimizer": opt.state_dict(),
+                        "step": step + 1,
                         "config": vars(a)}, tmp)
             os.rename(tmp, a.out)  # atomic publish for the eval server
 

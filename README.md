@@ -135,6 +135,47 @@ make chushogi-az
 python3 az/run_loop.py --workers 8 --games 2 --sims 64 --iterations 300
 ```
 
+Replay uses the newest positions by file modification time, independent of
+PID-based filenames. New runs store games in iteration/worker directories.
+Checkpoints include AdamW state so training resumes with its moments intact;
+legacy model-only checkpoints still load. Full training logs are retained per
+iteration.
+
+For a clean baseline after the search/replay fixes, start a separate run with
+random weights and fresh self-play data:
+
+```sh
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python3 az/run_loop.py \
+  --run-dir az/data/run3 \
+  --workers 44 --games 2 --eval-servers 4 --sims 256 --batch 16 \
+  --train-steps 200 --train-batch 256 --max-positions 1000000 \
+  --lr 1e-3 --lr-decay-steps 200000 --value-target z --iterations 1000 \
+  --strength-every 10 --strength-pairs 20 --strength-sims 256
+```
+
+These are starting settings, not a proven optimum: fewer updates per new
+position, with the trainer's default warmup and a cosine learning-rate decay.
+An optional warm-start experiment can use `--init-from CHECKPOINT` in a new
+run directory; choose its seed with matches rather than loss alone.
+Keep old runs separate because their search targets were generated
+before neural leaf backup and deeper node expansion were fixed. Periodic
+strength matches compare the candidate against the initial anchor and an older
+checkpoint, with identical random openings played from both colors. Results
+and move traces go under `RUN/strength/`; scores include half a point per draw.
+Use sufficiently many opening pairs before concluding that strength improved.
+
+Standalone checkpoint evaluation (all pairs, no self-play noise or mate probes):
+
+```sh
+python3 az/checkpoint_tournament.py \
+  --checkpoints az/data/run2/ckpt/iter_0100.pt az/data/run2/ckpt/iter_0522.pt \
+  --pairs 20 --sims 256 --workers 4 --out az/data/checkpoint_comparison
+```
+
+The output directory must be new. Each checkpoint has a fixed eval server;
+the referee validates moves and adjudicates terminal positions, repetition,
+and the 1000-ply limit. The same search binary is used for both sides.
+
 ## Random players and matches
 
 `go random` turns the engine into a random player speaking the USI idiom:

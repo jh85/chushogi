@@ -61,6 +61,7 @@ int Mcts::newNode() {
 void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
                     const float* policy, const float* wdl) {
   Node& node = arena_[nodeIdx];
+  if (node.evaluated) return;  // duplicate leaves can occur within a batch
   {  // wdl arrives as raw logits: softmax -> [win, draw, loss]
     const float mx = std::max(wdl[0], std::max(wdl[1], wdl[2]));
     const float e0 = std::exp(wdl[0] - mx), e1 = std::exp(wdl[1] - mx),
@@ -73,7 +74,8 @@ void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
   logits.reserve(legal.size());
   float maxLogit = -1e30f;
   for (const chu::Move& m : legal) {
-    const float l = policy[moveToIndex(m)];
+    const float l = policy[moveToIndex(
+        pos.sideToMove == chu::Gote ? chu::flipMove(m) : m)];
     logits.push_back(l);
     maxLogit = std::max(maxLogit, l);
   }
@@ -87,6 +89,7 @@ void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
     e.prior = logits[i] / sum;
     node.edges.push_back(e);
   }
+  node.evaluated = true;
 }
 
 int Mcts::pickChild(int nodeIdx, bool isRoot) const {
@@ -150,14 +153,15 @@ Mcts::Descent Mcts::descend() {
     node.visits++;
     d.path.emplace_back(nodeIdx, ei);
     d.pos.apply(e.move);
-    const uint64_t h = positionKey(d.pos);
+    const uint64_t h = positionKey(d.pos.sideToMove == chu::Gote
+                                      ? d.pos.flipped() : d.pos);
     if (e.child < 0) {
       e.child = newNode();
       Node& child = arena_[e.child];
       // repetition: against game history and earlier in-tree positions
       // (hashPath does not yet contain h)
       const int term = terminalOf(d.pos, h, gameHashes_, d.hashPath,
-                                  gamePly_ + (int)d.hashPath.size(),
+                                  gamePly_ + (int)d.hashPath.size() + 1,
                                   cfg_.maxPlyCap);
       d.hashPath.push_back(h);
       if (term >= 0) {
@@ -223,8 +227,9 @@ void Mcts::runBatch(Evaluator& eval) {
     for (const Descent& d : batch) {
       if (!d.needsEval) continue;
       const int repCount = static_cast<int>(std::count(
-          gameHashes_.begin(), gameHashes_.end(), positionKey(d.pos)));
-      encodePlanes(d.pos, repCount, gamePly_ + (int)d.hashPath.size(),
+          gameHashes_.begin(), gameHashes_.end(),
+          positionKey(d.pos.sideToMove == chu::Gote ? d.pos.flipped() : d.pos)));
+      encodePosition(d.pos, repCount, gamePly_ + (int)d.hashPath.size(),
                    planes.data() + size_t(j) * kNumPlanes * kBoard);
       ++j;
     }
@@ -237,7 +242,10 @@ void Mcts::runBatch(Evaluator& eval) {
       ++j;
     }
   }
-  for (const Descent& d : batch) backup(d);
+  for (Descent& d : batch) {
+    if (d.needsEval) d.value = arena_[d.leaf].leafValue;
+    backup(d);
+  }
 }
 
 SearchResult Mcts::search(const chu::Position& root,

@@ -19,6 +19,8 @@ import model as M
 
 class Buffer:
     def __init__(self, games_dirs, max_positions=1_000_000, skip_plies=4):
+        if max_positions <= 0:
+            raise ValueError("max_positions must be positive")
         self.packed = []      # (1458,) uint8
         self.progress = []    # float16
         self.pol_idx = []     # list of int32 arrays
@@ -29,12 +31,16 @@ class Buffer:
         files = []
         for d in games_dirs:
             files.extend(sorted(Path(d).rglob("game_*.json")))
+        # Filenames contain process IDs, not chronological iteration numbers.
+        # Read newest first and stop at the window rather than decoding the
+        # entire history only to throw most of it away.
+        files.sort(key=lambda p: (p.stat().st_mtime_ns, str(p)), reverse=True)
         for f in files:
             try:
                 rec = json.loads(f.read_text())
             except (json.JSONDecodeError, OSError):
                 continue  # a game being written right now
-            for smp in rec["samples"]:
+            for smp in reversed(rec["samples"]):
                 if smp["ply"] < skip_plies:
                     continue
                 self.packed.append(
@@ -50,11 +56,13 @@ class Buffer:
                 self.z.append(smp["z"])
                 self.rootq.append(smp["rootq"])
                 self.a0gb.append(smp["a0gb"])
-        if len(self.packed) > max_positions:
-            keep = slice(len(self.packed) - max_positions, len(self.packed))
-            for lst in (self.packed, self.progress, self.pol_idx, self.pol_p,
-                        self.z, self.rootq, self.a0gb):
-                del lst[: len(lst) - max_positions]
+                if len(self.packed) >= max_positions:
+                    break
+            if len(self.packed) >= max_positions:
+                break
+        for lst in (self.packed, self.progress, self.pol_idx, self.pol_p,
+                    self.z, self.rootq, self.a0gb):
+            lst.reverse()
         self.progress = np.asarray(self.progress, dtype=np.float16)
         self.z = np.asarray(self.z, dtype=np.float32)
         self.rootq = np.asarray(self.rootq, dtype=np.float32)

@@ -53,6 +53,21 @@ def main():
               for x in t.stdout.splitlines() if " loss " in x]
     print(f"[test] trainer losses: {losses}")
 
+    # Resume must continue Adam's moments and update counter, not restart it.
+    t = subprocess.run(
+        [a.py, "az/train.py", "--games-dirs", str(games), "--out",
+         str(ckpt), "--init-from", str(ckpt), "--steps", "2", "--batch", "32"],
+        capture_output=True, text=True, timeout=600)
+    assert t.returncode == 0, t.stdout + t.stderr
+    assert "restored optimizer state" in t.stdout, t.stdout
+    check = subprocess.run(
+        [a.py, "-c", "import sys, torch; "
+         "s=torch.load(sys.argv[1],weights_only=True,map_location='cpu'); "
+         "assert s['step']==32; "
+         "assert all(int(v['step'])==32 for v in s['optimizer']['state'].values())",
+         str(ckpt)], capture_output=True, text=True)
+    assert check.returncode == 0, check.stderr
+
     # 3. trained checkpoint drives a pipe game
     port = free_port()
     server = subprocess.Popen(

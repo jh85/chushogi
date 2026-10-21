@@ -20,7 +20,12 @@ $(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h
 
 PY ?= /data2/cs/venv/bin/python
 
-az-test: $(BIN) $(AZBIN)
+az-search-value-test:
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-search-value-test tests/az_search_value_test.cpp $(filter-out src/az/main.cpp src/az/selfplay.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-search-value-test
+
+az-test: $(BIN) $(AZBIN) az-search-value-test
+	$(PY) tests/az_buffer_test.py
 	$(PY) tests/az_encode_test.py $(GAMES1) $(GAMES2) --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_selfplay_test.py --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_mcts_test.py
@@ -52,4 +57,4 @@ random-games: $(BIN)
 clean:
 	rm -f $(BIN)
 
-.PHONY: test clean random-games cases
+.PHONY: test clean random-games cases az-search-value-test

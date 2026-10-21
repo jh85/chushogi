@@ -14,8 +14,10 @@ Prints the score from the AZ player's perspective.
 """
 
 import argparse
+import json
 import subprocess
 import sys
+from pathlib import Path
 
 INITIAL = ("lfcsgekgscfl/a1b1txot1b1a/mvrhdqndhrvm/pppppppppppp/3i4i3/12/12/"
            "3I4I3/PPPPPPPPPPPP/MVRHDNQDHRVM/A1B1TOXT1B1A/LFCSGKEGSCFL b - 1")
@@ -53,7 +55,8 @@ class Player:
         self.proc.wait(timeout=10)
 
 
-def play_game(az, opp, ref, az_color, seed_base, opening_plies=0, div=None):
+def play_game(az, opp, ref, az_color, seed_base, opening_plies=0, div=None,
+              moves=None):
     """az_color: 0 = az plays sente. Returns 1/0.5/0 from AZ's perspective."""
     players = [az, opp] if az_color == 0 else [opp, az]
     # Reseed the net players per game so temperature sampling differs.
@@ -61,13 +64,16 @@ def play_game(az, opp, ref, az_color, seed_base, opening_plies=0, div=None):
         if p.port is not None:
             p.cmd(f"seed {seed_base * 1009 + i}", "ok")
     ref.cmd(f"position sfen {INITIAL}", "ok")
-    moves = []
-    seen = {}
+    moves = [] if moves is None else moves
+    seen = {" ".join(INITIAL.split()[:3]): 1}
     # Optional opening diversification: `div` plays random moves first, so
     # deterministic AZ-vs-AZ pairings don't replay one line every game.
     for _ in range(opening_plies):
         moves.append(div.move(INITIAL, moves))
         ref.cmd(f"move {moves[-1]}", "ok")
+        sfen = ref.cmd("sfen", "sfen")
+        key = " ".join(sfen.split()[:3])
+        seen[key] = seen.get(key, 0) + 1
     while True:
         side = len(moves) % 2
         best = players[side].move(INITIAL, moves)
@@ -100,6 +106,9 @@ def main():
     ap.add_argument("--games", type=int, default=20)
     ap.add_argument("--sims", type=int, default=200)
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--paired-openings", action="store_true",
+                    help="reseed random openings identically for each color pair")
+    ap.add_argument("--json-out", default="", help="save scores and full move traces")
     ap.add_argument("--mate-nodes", type=int, default=0)
     ap.add_argument("--probe-depth", type=int, default=0)
     ap.add_argument("--opening-plies", type=int, default=0,
@@ -109,6 +118,8 @@ def main():
                     help="sample AZ moves from the visit distribution for "
                          "this many opening plies (noisy match play)")
     a = ap.parse_args()
+    if a.games <= 0 or (a.paired_openings and a.games % 2):
+        ap.error("games must be positive and even for paired openings")
 
     extra = ""
     if a.mate_nodes:
@@ -132,11 +143,20 @@ def main():
 
     score = 0.0
     counts = {}
+    records = []
     try:
         for g in range(a.games):
             az_color = g % 2
+            if div and a.paired_openings:
+                div.cmd(f"seed {a.seed * 1000003 + g // 2}", "ok")
+            moves = []
             pts, reason = play_game(az, opp, ref, az_color, a.seed + g,
-                                    a.opening_plies, div)
+                                    a.opening_plies, div, moves)
+            records.append(dict(game=g, az_color=az_color, score=pts,
+                                reason=reason, moves=moves))
+            if a.json_out:
+                Path(a.json_out).write_text(json.dumps(
+                    dict(config=vars(a), games=records), indent=2) + "\n")
             score += pts
             counts[reason] = counts.get(reason, 0) + 1
             print(f"game {g}: {'win' if pts == 1 else 'draw' if pts else 'loss'}"

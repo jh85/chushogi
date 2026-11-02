@@ -8,6 +8,10 @@
 //   move-index <usi>...                        move -> index
 //   index-move <idx>...                        index -> move (USI)
 
+#include <algorithm>
+#include <cmath>
+#include <chrono>
+#include <ctime>
 #include <cstdio>
 #include <iostream>
 #include <sstream>
@@ -32,6 +36,31 @@ namespace {
   std::fprintf(stderr, "error: %s\n", msg.c_str());
   std::exit(1);
 }
+
+// Analyze-only instrumentation; normal play uses the original evaluator.
+struct TimedEval : az::Evaluator {
+  az::Evaluator& base;
+  double wallSeconds = 0, cpuSeconds = 0;
+  uint64_t calls = 0, positions = 0;
+  explicit TimedEval(az::Evaluator& evaluator) : base(evaluator) {}
+  void evaluate(int n, const float* x, float* p, float* v) override {
+    const auto start = std::chrono::steady_clock::now();
+    const auto cpu = std::clock();
+    base.evaluate(n,x,p,v);
+    wallSeconds += std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    cpuSeconds += double(std::clock()-cpu)/CLOCKS_PER_SEC;
+    ++calls; positions += n;
+  }
+  void evaluateLegal(int n, const float* x, const std::vector<std::vector<int>>& indices,
+                     float* p, float* v) override {
+    const auto start = std::chrono::steady_clock::now();
+    const auto cpu = std::clock();
+    base.evaluateLegal(n,x,indices,p,v);
+    wallSeconds += std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
+    cpuSeconds += double(std::clock()-cpu)/CLOCKS_PER_SEC;
+    ++calls; positions += n;
+  }
+};
 
 constexpr const char* kInitialSfen =
     "lfcsgekgscfl/a1b1txot1b1a/mvrhdqndhrvm/pppppppppppp/3i4i3/12/12/"
@@ -64,15 +93,18 @@ int main() {
         if (tok[i] == "--games") games = std::stoi(tok[i + 1]);
         else if (tok[i] == "--sims") cfg.sims = std::stoi(tok[i + 1]);
         else if (tok[i] == "--batch") cfg.batchSize = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--temp-plies") cfg.tempPlies = std::stoi(tok[i + 1]);
         else if (tok[i] == "--seed") cfg.seed = std::stoull(tok[i + 1]);
         else if (tok[i] == "--out") out = tok[i + 1];
         else if (tok[i] == "--eval") evalKind = tok[i + 1];
         else if (tok[i] == "--port") port = std::stoi(tok[i + 1]);
         else if (tok[i] == "--mate-nodes") cfg.mcts.rootMateNodes = std::stoull(tok[i + 1]);
         else if (tok[i] == "--probe-depth") cfg.mcts.probeDepth = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--root-policy-temp") cfg.mcts.rootPolicyTemperature = std::stof(tok[i + 1]);
         else if (tok[i] == "--probe-nodes") cfg.mcts.probeNodes = std::stoull(tok[i + 1]);
         else fatal("unknown selfplay option: " + tok[i]);
       }
+      if (cfg.tempPlies < -1) fatal("--temp-plies must be -1 (all moves) or nonnegative");
       cfg.mcts.sims = cfg.sims;
       cfg.mcts.batchSize = cfg.batchSize;
       std::string mkdir = "mkdir -p " + out;
@@ -126,20 +158,36 @@ int main() {
       pipeEval = std::make_unique<az::PipeEval>("127.0.0.1",
                                                 static_cast<uint16_t>(port));
       std::cout << "ok\n" << std::flush;
-    } else if (tok[0] == "go") {  // go az --sims N [--eval random]
+    } else if (tok[0] == "go" || tok[0] == "analyze") {
+      const bool analyze = tok[0] == "analyze";
       if (tok.size() < 2 || tok[1] != "az") fatal("expected: go az --sims N");
       int sims = 200;
       size_t mateNodes = 0;
+      size_t probeNodes = 2000;
       int probeDepth = 0;
       int tempPlies = 0;  // sample from the visit distribution this many plies
+      int repetitionOccurrences = 2;
+      int batchSize = 16;
+      float rootPolicyTemperature = 1.f;
       std::string evalKind = "pipe";
       for (size_t i = 2; i + 1 < tok.size(); i += 2) {
         if (tok[i] == "--sims") sims = std::stoi(tok[i + 1]);
         else if (tok[i] == "--eval") evalKind = tok[i + 1];
         else if (tok[i] == "--mate-nodes") mateNodes = std::stoull(tok[i + 1]);
+        else if (tok[i] == "--probe-nodes") probeNodes = std::stoull(tok[i + 1]);
         else if (tok[i] == "--probe-depth") probeDepth = std::stoi(tok[i + 1]);
         else if (tok[i] == "--temp-plies") tempPlies = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--batch") batchSize = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--root-policy-temp") rootPolicyTemperature = std::stof(tok[i + 1]);
+        else if (tok[i] == "--repetition") {
+          if (tok[i + 1] == "early") repetitionOccurrences = 2;
+          else if (tok[i + 1] == "fourfold") repetitionOccurrences = 4;
+          else fatal("--repetition must be early or fourfold");
+        }
       }
+      if (sims <= 0 || batchSize <= 0) fatal("sims and batch must be positive");
+      if (!std::isfinite(rootPolicyTemperature) || rootPolicyTemperature <= 0.f)
+        fatal("root policy temperature must be finite and positive");
       if (evalKind != "random" && !pipeEval)
         fatal("go az needs eval-server first");
       az::RandomEval randomEval;
@@ -149,14 +197,63 @@ int main() {
               : static_cast<az::Evaluator*>(pipeEval.get());
       az::MctsConfig mc;
       mc.sims = sims;
+      mc.batchSize = batchSize;
+      mc.rootPolicyTemperature = rootPolicyTemperature;
+      mc.repetitionOccurrences = repetitionOccurrences;
+      mc.collectStats = analyze;
       mc.rootNoise = false;
       mc.rootMateNodes = mateNodes;
       mc.probeDepth = probeDepth;
+      mc.probeNodes = probeNodes;
       az::Mcts mcts(mc);
       const bool flip = pos.sideToMove == chu::Gote;
       const chu::Position canon = flip ? pos.flipped() : pos;
       const int plies = static_cast<int>(hashes.size());
-      az::SearchResult res = mcts.search(canon, hashes, plies, *evalp, rng);
+      TimedEval measured(*evalp);
+      const auto searchStart = std::chrono::steady_clock::now();
+      const auto searchCpu = std::clock();
+      az::SearchResult res = mcts.search(canon, hashes, plies,
+          analyze ? static_cast<az::Evaluator&>(measured) : *evalp, rng);
+      const double searchWall = std::chrono::duration<double>(std::chrono::steady_clock::now()-searchStart).count();
+      const double searchCpuSeconds = double(std::clock()-searchCpu)/CLOCKS_PER_SEC;
+      if (analyze) {
+        const int repetitions = static_cast<int>(std::count(
+            hashes.begin(), hashes.end(), az::positionKey(canon)));
+        std::cout << "analysis {\"root_score\":" << res.rootQ
+                  << ",\"search_wall_seconds\":" << searchWall
+                  << ",\"search_cpu_seconds\":" << searchCpuSeconds
+                  << ",\"evaluator_wall_seconds\":" << measured.wallSeconds
+                  << ",\"evaluator_cpu_seconds\":" << measured.cpuSeconds
+                  << ",\"evaluator_calls\":" << measured.calls
+                  << ",\"evaluator_positions\":" << measured.positions
+                  << ",\"root_policy_temperature\":" << mc.rootPolicyTemperature
+                  << ",\"mate_nodes\":" << mc.rootMateNodes
+                  << ",\"probe_depth\":" << mc.probeDepth
+                  << ",\"probe_nodes\":" << mc.probeNodes
+                  << ",\"proven_mate\":" << (res.provenMate ? "true" : "false")
+                  << ",\"root_value\":" << res.rootValue
+                  << ",\"root_wdl\":[" << res.rootWdl[0] << ","
+                  << res.rootWdl[1] << "," << res.rootWdl[2] << "]"
+                  << ",\"visits\":" << res.rootVisits
+                  << ",\"root_prior_occurrences\":" << repetitions
+                  << ",\"moves\":[";
+        for (size_t i = 0; i < res.rootMoves.size(); ++i) {
+          const auto& m = res.rootMoves[i];
+          std::cout << (i ? "," : "") << "{\"move\":\""
+                    << chu::moveToUsi(flip ? chu::flipMove(m.move) : m.move)
+                    << "\",\"visits\":" << m.visits
+                    << ",\"prior\":" << m.prior << ",\"q\":";
+          if (m.visits) std::cout << m.q;
+          else std::cout << "null";
+          std::cout << ",\"repetition_visits\":" << m.repetitionVisits
+                    << ",\"direct_repetition_draw\":"
+                    << (m.directRepetitionDraw ? "true" : "false")
+                    << ",\"child_prior_occurrences\":" << m.childPriorOccurrences
+                    << "}";
+        }
+        std::cout << "]}\n" << std::flush;
+        continue;
+      }
       const auto legal = chu::generateLegal(pos);
       if (legal.empty()) {
         std::cout << "bestmove resign\n" << std::flush;

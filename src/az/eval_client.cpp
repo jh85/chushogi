@@ -1,10 +1,12 @@
 #include "eval_client.h"
 
 #include <cstring>
+#include <cstdlib>
 #include <stdexcept>
 
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/tcp.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -77,6 +79,9 @@ void readAll(int fd, void* data, size_t n) {
 PipeEval::PipeEval(const std::string& host, uint16_t port) {
   fd_ = ::socket(AF_INET, SOCK_STREAM, 0);
   if (fd_ < 0) throw std::runtime_error("socket() failed");
+  const int noDelay = 1;
+  if (::setsockopt(fd_, IPPROTO_TCP, TCP_NODELAY, &noDelay, sizeof(noDelay)) != 0)
+    throw std::runtime_error("TCP_NODELAY failed");
   sockaddr_in addr{};
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
@@ -118,6 +123,55 @@ void PipeEval::evaluate(int n, const float* planesIn, float* policyOut,
   for (size_t i = 0; i < size_t(n) * kPolicySize; ++i)
     policyOut[i] = fp16ToFloat(pol[i]);
   for (size_t i = 0; i < size_t(n) * 3; ++i) wdlOut[i] = fp16ToFloat(wd[i]);
+}
+
+void PipeEval::evaluateLegal(int n, const float* x,
+    const std::vector<std::vector<int>>& indices, float* p, float* v) {
+  const char* mode = std::getenv("CHUSHOGI_EVAL_POLICY");
+  if (mode && std::string(mode) == "full") { evaluate(n,x,p,v); return; }
+  if (mode && std::string(mode) != "legal")
+    throw std::runtime_error("CHUSHOGI_EVAL_POLICY must be full or legal");
+  if (n < 1 || n > 1024 || indices.size() != size_t(n))
+    throw std::runtime_error("invalid legal evaluation batch");
+  size_t count = 0;
+  for (const auto& row : indices) {
+    if (row.size() > kPolicySize) throw std::runtime_error("too many policy indices");
+    for (int index : row)
+      if (index < 0 || index >= kPolicySize) throw std::runtime_error("invalid policy index");
+    count += row.size();
+  }
+  const size_t base = 4 + size_t(n)*(kPackedBytes+2);
+  buf_.resize(base + size_t(n)*2 + count*2);
+  const uint32_t header = uint32_t(n) | 0x80000000u;
+  std::memcpy(buf_.data(), &header, 4);
+  for (int i=0;i<n;++i) {
+    const float progress = packPlanes(x+size_t(i)*kNumPlanes*kBoard,
+                                     buf_.data()+4+size_t(i)*kPackedBytes);
+    const uint16_t half = fp16FromFloat(progress);
+    std::memcpy(buf_.data()+4+size_t(n)*kPackedBytes+size_t(i)*2,&half,2);
+    const uint16_t length = uint16_t(indices[i].size());
+    std::memcpy(buf_.data()+base+size_t(i)*2,&length,2);
+  }
+  size_t offset = base+size_t(n)*2;
+  for (const auto& row : indices) for (int index : row) {
+    const uint16_t value = uint16_t(index);
+    std::memcpy(buf_.data()+offset,&value,2); offset+=2;
+  }
+  writeAll(fd_,buf_.data(),buf_.size());
+  uint32_t response;
+  readAll(fd_,&response,4);
+  if (response != header) throw std::runtime_error("legal eval response count/version mismatch");
+  buf_.resize((count+size_t(n)*3)*2);
+  readAll(fd_,buf_.data(),buf_.size());
+  offset=0;
+  for (int i=0;i<n;++i) for (int index : indices[i]) {
+    uint16_t value; std::memcpy(&value,buf_.data()+offset,2); offset+=2;
+    p[size_t(i)*kPolicySize+index]=fp16ToFloat(value);
+  }
+  for (int i=0;i<n*3;++i) {
+    uint16_t value; std::memcpy(&value,buf_.data()+offset,2); offset+=2;
+    v[i]=fp16ToFloat(value);
+  }
 }
 
 }  // namespace az

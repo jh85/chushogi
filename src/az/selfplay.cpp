@@ -52,6 +52,19 @@ void RandomEval::evaluate(int n, const float*, float* policyOut,
   }
 }
 
+chu::Move selectSelfplayMove(const SearchResult& search, int samplingPlies, int ply,
+                            std::mt19937_64& rng) {
+  if (samplingPlies >= 0 && ply >= samplingPlies) return search.bestMove;
+  std::uniform_real_distribution<float> uni(0.f, 1.f);
+  const float pick = uni(rng);
+  float acc = 0.f;
+  for (const auto& kv : search.policy) {
+    acc += kv.second;
+    if (pick <= acc + 1e-9f) return indexToMove(kv.first);
+  }
+  return search.bestMove;
+}
+
 GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
                     Evaluator& eval) {
   chu::Position pos;
@@ -63,6 +76,8 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
 
   GameRecord rec;
   rec.initialSfen = initialSfen;
+  rec.samplingPlies = cfg.tempPlies;
+  rec.rootPolicyTemperature = cfg.mcts.rootPolicyTemperature;
 
   std::vector<uint64_t> hashes;  // canonical keys of positions BEFORE now
   auto canonOf = [](const chu::Position& p) {
@@ -113,19 +128,7 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
     rec.samples.push_back(std::move(smp));
 
     // Choose the move: temperature sampling early, argmax later.
-    chu::Move chosen = res.bestMove;
-    if (plies < cfg.tempPlies) {
-      std::uniform_real_distribution<float> uni(0.f, 1.f);
-      const float pick = uni(rng);
-      float acc = 0.f;
-      for (const auto& kv : res.policy) {
-        acc += kv.second;
-        if (pick <= acc + 1e-9f) {
-          chosen = indexToMove(kv.first);
-          break;
-        }
-      }
-    }
+    chu::Move chosen = selectSelfplayMove(res, cfg.tempPlies, plies, rng);
     rec.moves.push_back(chu::moveToUsi(
         pos.sideToMove == chu::Gote ? chu::flipMove(chosen) : chosen));
     hashes.push_back(curKey);
@@ -146,7 +149,9 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
 
 void writeGameRecord(const GameRecord& rec, const std::string& path) {
   std::ofstream f(path);
-  f << "{\"initial\": \"" << jsonEscape(rec.initialSfen) << "\",\n";
+  f << "{\"selfplay\":{\"sampling_plies\":" << rec.samplingPlies
+    << ",\"root_policy_temperature\":" << rec.rootPolicyTemperature << "},\n";
+  f << " \"initial\": \"" << jsonEscape(rec.initialSfen) << "\",\n";
   f << " \"result\": " << rec.result << ", \"reason\": \""
     << jsonEscape(rec.reason) << "\",\n \"moves\": [";
   for (size_t i = 0; i < rec.moves.size(); ++i)

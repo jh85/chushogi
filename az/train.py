@@ -26,6 +26,7 @@ def main():
     ap.add_argument("--games-dirs", nargs="+", required=True)
     ap.add_argument("--out", required=True, help="checkpoint path to publish")
     ap.add_argument("--init-from", default="")
+    ap.add_argument("--seed", type=int, default=1, help="PyTorch initialization/randomness seed")
     ap.add_argument("--steps", type=int, default=2000)
     ap.add_argument("--batch", type=int, default=256)
     ap.add_argument("--lr", type=float, default=1e-3)
@@ -54,6 +55,7 @@ def main():
     ap.add_argument("--save-every", type=int, default=500)
     a = ap.parse_args()
 
+    torch.manual_seed(a.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     net = M.ChuNet(a.d_model, a.blocks, a.heads).to(device)
     loaded_step = 0

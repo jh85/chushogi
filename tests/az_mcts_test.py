@@ -24,13 +24,14 @@ def main():
         return az.stdout.readline().strip()
 
     total = failures = 0
-    for sfen, want in ((SENTE_M1, "5l5c"), (GOTE_M1, "5a5j")):
-        cmd(f"position sfen {sfen}")
-        out = cmd("go az --sims 64 --batch 8 --eval random")
-        total += 1
-        if out != f"bestmove {want}":
-            failures += 1
-            print(f"FAIL: {sfen} -> {out}, want bestmove {want}")
+    for temperature in (1.0, 1.25):
+        for sfen, want in ((SENTE_M1, "5l5c"), (GOTE_M1, "5a5j")):
+            cmd(f"position sfen {sfen}")
+            out = cmd(f"go az --sims 64 --batch 8 --eval random --root-policy-temp {temperature}")
+            total += 1
+            if out != f"bestmove {want}":
+                failures += 1
+                print(f"FAIL: T={temperature}, {sfen} -> {out}, want bestmove {want}")
     az.stdin.write("quit\n")
     az.stdin.flush()
     print(f"{total - failures}/{total} az mcts checks passed")

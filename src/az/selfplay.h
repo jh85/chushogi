@@ -32,6 +32,8 @@ struct Sample {
 };
 
 struct GameRecord {
+  int samplingPlies = 20;
+  float rootPolicyTemperature = 1.f;
   std::string initialSfen;
   std::vector<std::string> moves;  // USI, original frame
   std::vector<Sample> samples;
@@ -42,10 +44,13 @@ struct GameRecord {
 struct SelfplayConfig {
   int sims = 200;
   int batchSize = 16;
-  int tempPlies = 20;  // sample with temperature for this many plies
+  int tempPlies = 20;  // -1 samples throughout; otherwise sample this many plies
   uint64_t seed = 1;
   MctsConfig mcts;
 };
+
+chu::Move selectSelfplayMove(const SearchResult& search, int samplingPlies, int ply,
+                            std::mt19937_64& rng);
 
 GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
                     Evaluator& eval);

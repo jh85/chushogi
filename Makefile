@@ -24,8 +24,22 @@ az-search-value-test:
 	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-search-value-test tests/az_search_value_test.cpp $(filter-out src/az/main.cpp src/az/selfplay.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-search-value-test
 
-az-test: $(BIN) $(AZBIN) az-search-value-test
+az-sampling-test:
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-sampling-test tests/az_sampling_test.cpp $(filter-out src/az/main.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-sampling-test
+
+az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test
 	$(PY) tests/az_buffer_test.py
+	$(PY) tests/az_tournament_test.py
+	$(PY) tests/az_fork_test.py
+	$(PY) tests/az_sampling_experiment_test.py
+	$(PY) tests/az_simulation_budget_test.py
+	$(PY) tests/az_inference_batcher_test.py
+	$(PY) tests/az_eval_output_test.py
+	$(PY) tests/az_legal_policy_test.py
+	$(PY) tests/az_selfplay_pool_test.py
+	$(PY) tests/az_server_tuning_test.py
+	$(PY) tests/az_boundary_resume_test.py
 	$(PY) tests/az_encode_test.py $(GAMES1) $(GAMES2) --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_selfplay_test.py --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_mcts_test.py
@@ -57,4 +71,4 @@ random-games: $(BIN)
 clean:
 	rm -f $(BIN)
 
-.PHONY: test clean random-games cases az-search-value-test
+.PHONY: test clean random-games cases az-search-value-test az-sampling-test

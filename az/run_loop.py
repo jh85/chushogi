@@ -15,6 +15,8 @@ Usage: run_loop.py [--run-dir az/data/run1] [--workers 4] [--games 8]
 """
 
 import argparse
+import fcntl
+import math
 import json
 import re
 import shutil
@@ -25,6 +27,7 @@ import time
 from pathlib import Path
 
 import socket
+from selfplay_pool import run_dynamic
 
 
 def free_port():
@@ -69,6 +72,14 @@ def main():
                          "steps (0 = constant 1e-4 after warmup)")
     ap.add_argument("--lr", type=float, default=0,
                     help="passthrough to train.py peak LR (0 = its default)")
+    ap.add_argument("--dynamic-games", action="store_true", help="assign individual games to free workers")
+    ap.add_argument("--eval-max-batch", type=int, default=0)
+    ap.add_argument("--eval-batch-wait-ms", type=float, default=1.0)
+    ap.add_argument("--eval-tcp-nodelay", action="store_true")
+    ap.add_argument("--temp-plies", type=int, default=20, help="sample first N plies; -1 samples throughout")
+    ap.add_argument("--root-policy-temp", type=float, default=1.0)
+    ap.add_argument("--train-lock", default="", help="shared file lock to serialize GPU training across branches")
+    ap.add_argument("--stop-file", default="", help="finish the current iteration and stop when this file exists")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--python", default=sys.executable,
                     help="interpreter for eval_server.py / train.py")
@@ -85,6 +96,12 @@ def main():
            a.train_batch, a.max_positions, a.strength_pairs,
            a.strength_sims, a.strength_workers) <= 0 or a.strength_every < 0:
         ap.error("counts must be positive; --strength-every may be zero")
+    if not math.isfinite(a.root_policy_temp) or a.root_policy_temp <= 0:
+        ap.error("root policy temperature must be finite and positive")
+    if a.eval_max_batch < 0 or not math.isfinite(a.eval_batch_wait_ms) or a.eval_batch_wait_ms < 0:
+        ap.error("inference batching settings must be finite and nonnegative")
+    if a.temp_plies < -1:
+        ap.error("--temp-plies must be -1 or nonnegative")
     a.az = str(Path(a.az).resolve())
 
     run = Path(a.run_dir).resolve()
@@ -110,9 +127,12 @@ def main():
         log.flush()
 
     def start_server(port):
+        extra = ["--max-batch", str(a.eval_max_batch), "--batch-wait-ms", str(a.eval_batch_wait_ms)]
+        if a.eval_tcp_nodelay:
+            extra.append("--tcp-nodelay")
         p = subprocess.Popen(
             [a.python, str(ROOT / "az/eval_server.py"), "--port", str(port),
-             "--checkpoint", str(current), "--watch"],
+             "--checkpoint", str(current), "--watch", *extra],
             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         ready = threading.Event()
 
@@ -146,36 +166,47 @@ def main():
             say(f"[loop] resuming {current} at iter {it0}")
 
         for it in range(it0, it0 + a.iterations):
+            if a.stop_file and Path(a.stop_file).exists():
+                say("[loop] stopped at completed iteration boundary")
+                break
             t0 = time.time()
-            procs = []
-            for w in range(a.workers):
-                # Isolate iterations and workers: PID-based record names can
-                # otherwise overwrite old games after PID reuse.
-                worker_dir = games_dir / f"iter_{it:06d}" / f"worker_{w:04d}"
-                port = servers[w % len(servers)][0]
-                p = subprocess.Popen([a.az], stdin=subprocess.PIPE,
-                                     stdout=subprocess.PIPE, text=True)
-                seed = a.seed + it * 100003 + w * 101
-                p.stdin.write(
-                    f"selfplay --games {a.games} --sims {a.sims} "
-                    f"--batch {a.batch} --seed {seed} --out {worker_dir} "
-                    f"--eval pipe --port {port} --mate-nodes {a.mate_nodes} "
-                    f"--probe-depth {a.probe_depth} --probe-nodes "
-                    f"{a.probe_nodes}\n")
-                p.stdin.flush()
-                procs.append(p)
-            total_plies = 0
-            total_games = 0
-            for p in procs:
-                for _ in range(a.games):
-                    line = p.stdout.readline()
-                    m = re.search(r"game \d+: (\d+) plies", line)
-                    if m:
-                        total_plies += int(m.group(1))
-                        total_games += 1
-                p.stdin.write("quit\n")
-                p.stdin.flush()
-                p.wait()
+            if a.dynamic_games:
+                options=(f"--temp-plies {a.temp_plies} --sims {a.sims} --batch {a.batch} --root-policy-temp {a.root_policy_temp} "
+                         f"--mate-nodes {a.mate_nodes} --probe-depth {a.probe_depth} --probe-nodes {a.probe_nodes}")
+                total_plies,total_games=run_dynamic(a.az,[s[0] for s in servers],a.workers,a.games,
+                    a.seed,it,games_dir/f"iter_{it:06d}",options)
+            else:
+                procs = []
+                for w in range(a.workers):
+                    # Isolate iterations and workers: PID-based record names can
+                    # otherwise overwrite old games after PID reuse.
+                    worker_dir = games_dir / f"iter_{it:06d}" / f"worker_{w:04d}"
+                    port = servers[w % len(servers)][0]
+                    p = subprocess.Popen([a.az], stdin=subprocess.PIPE,
+                                         stdout=subprocess.PIPE, text=True)
+                    seed = a.seed + it * 100003 + w * 101
+                    p.stdin.write(
+                        f"selfplay --games {a.games} --sims {a.sims} "
+                        f"--temp-plies {a.temp_plies} --root-policy-temp {a.root_policy_temp} --batch {a.batch} --seed {seed} --out {worker_dir} "
+                        f"--eval pipe --port {port} --mate-nodes {a.mate_nodes} "
+                        f"--probe-depth {a.probe_depth} --probe-nodes "
+                        f"{a.probe_nodes}\n")
+                    p.stdin.flush()
+                    procs.append(p)
+                total_plies = 0
+                total_games = 0
+                for p in procs:
+                    for _ in range(a.games):
+                        line = p.stdout.readline()
+                        m = re.search(r"game \d+: (\d+) plies", line)
+                        if m:
+                            total_plies += int(m.group(1))
+                            total_games += 1
+                    p.stdin.write("quit\n")
+                    p.stdin.flush()
+                    p.wait()
+            if total_games != a.workers*a.games:
+                raise RuntimeError(f"incomplete self-play iteration: {total_games} games")
             say(f"[loop] iter {it}: {total_games} games, "
                 f"avg plies {total_plies / max(total_games, 1):.0f}, "
                 f"self-play {time.time() - t0:.0f}s")
@@ -184,7 +215,7 @@ def main():
             cmd = [a.python, str(ROOT / "az/train.py"), "--games-dirs",
                    str(games_dir), "--out", str(current),
                    "--steps", str(a.train_steps), "--batch",
-                   str(a.train_batch),
+                   str(a.train_batch), "--seed", str(a.seed + it * 100003),
                    "--max-positions", str(a.max_positions),
                    "--value-target", a.value_target, "--lam", str(a.lam)]
             if a.lr_decay_steps:
@@ -193,7 +224,13 @@ def main():
                 cmd += ["--lr", str(a.lr)]
             if current.exists():
                 cmd += ["--init-from", str(current)]
-            t = subprocess.run(cmd, capture_output=True, text=True)
+            if a.train_lock:
+                with open(a.train_lock, "a") as lock:
+                    say("[loop] waiting for GPU training lock")
+                    fcntl.flock(lock, fcntl.LOCK_EX)
+                    t = subprocess.run(cmd, capture_output=True, text=True)
+            else:
+                t = subprocess.run(cmd, capture_output=True, text=True)
             (run / f"train_{it:06d}.log").write_text(t.stdout + t.stderr)
             if t.returncode != 0:
                 say("[loop] trainer failed:\n" + t.stdout[-1500:] +
@@ -221,6 +258,11 @@ def main():
                          "--checkpoints", *candidates, "--pairs", str(a.strength_pairs),
                          "--sims", str(a.strength_sims), "--workers",
                          str(a.strength_workers), "--az", a.az,
+                         "--mate-nodes", str(a.mate_nodes), "--probe-depth", str(a.probe_depth),
+                         "--probe-nodes", str(a.probe_nodes),
+                         "--eval-max-batch", str(a.eval_max_batch),
+                         "--eval-batch-wait-ms", str(a.eval_batch_wait_ms),
+                         *(["--eval-tcp-nodelay"] if a.eval_tcp_nodelay else []),
                          "--out", str(result_dir)],
                         stdout=strength_log, stderr=subprocess.STDOUT, cwd=ROOT)
                 if result.returncode:

@@ -16,6 +16,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 #include <deque>
 #include <memory>
 #include <random>
@@ -34,6 +35,12 @@ struct Evaluator {
   // policyOut: n * kPolicySize logits; wdlOut: n * 3 floats.
   virtual void evaluate(int n, const float* planesIn, float* policyOut,
                         float* wdlOut) = 0;
+  // Only the requested canonical policy entries need to be populated.
+  virtual void evaluateLegal(int n, const float* x,
+      const std::vector<std::vector<int>>& indices, float* p, float* v) {
+    (void)indices;
+    evaluate(n, x, p, v);
+  }
 };
 
 struct MctsConfig {
@@ -47,8 +54,11 @@ struct MctsConfig {
   float fpuReductionRoot = 0.0f;
   float dirichletEps = 0.25f;
   float dirichletAlpha = 0.15f;
+  float rootPolicyTemperature = 1.f;  // softmax(logits / T), root only, before noise
   bool rootNoise = true;  // self-play on; eval matches off
   int maxPlyCap = 1000;   // game draw cap (plies from game start)
+  int repetitionOccurrences = 2;  // 2 = legacy early cutoff; 4 = actual fourfold
+  bool collectStats = false;      // diagnostic root move statistics
   // Mate probes (the tsume-restricted model: attacker checks every move;
   // "no"/"unknown" never override anything, only proven mates do).
   size_t rootMateNodes = 0;  // BNS budget at the root; 0 disables the override
@@ -64,6 +74,7 @@ struct Edge {
   int32_t n = 0;
   float w = 0.f;      // backed-up value sum, parent (mover) perspective
   int32_t inflight = 0;
+  int32_t repetitionVisits = 0;
 };
 
 struct Node {
@@ -71,7 +82,20 @@ struct Node {
   int8_t terminal = -1;    // -1 none; 0 stm loses; 1 stm wins; 2 draw
   bool evaluated = false;  // leafValue/edges filled
   float leafValue = 0.5f;  // net eval (or terminal value), stm perspective
+  std::array<float, 3> wdl{{0.f, 1.f, 0.f}};
   int32_t visits = 0;      // descents through this node
+  bool repetitionDraw = false;
+  int priorOccurrences = 0;
+};
+
+struct RootMoveStats {
+  chu::Move move;
+  int visits = 0;
+  float prior = 0.f;
+  float q = 0.5f;
+  int repetitionVisits = 0;
+  bool directRepetitionDraw = false;
+  int childPriorOccurrences = 0;
 };
 
 struct SearchResult {
@@ -81,6 +105,9 @@ struct SearchResult {
   float a0gb = 0.5f;
   int32_t rootVisits = 0;
   bool provenMate = false;  // root probe found a forced mate; bestMove = pv[0]
+  float rootValue = 0.5f;
+  std::array<float, 3> rootWdl{{0.f, 1.f, 0.f}};
+  std::vector<RootMoveStats> rootMoves;
 };
 
 class Mcts {
@@ -105,7 +132,8 @@ class Mcts {
   };
 
   int newNode();
-  void fillNode(int nodeIdx, const chu::Position& pos, const float* policy,
+  void fillNode(int nodeIdx, const chu::Position& pos,
+                const std::vector<chu::Move>& legal, const float* policy,
                 const float* wdl);
   Descent descend();
   void backup(const Descent& d);

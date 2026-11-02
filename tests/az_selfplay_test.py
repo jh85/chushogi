@@ -51,13 +51,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--az", default="./chushogi-az")
     ap.add_argument("--gen", default="./chushogi-gen")
+    ap.add_argument("--temp-plies", type=int, default=20)
+    ap.add_argument("--root-policy-temp", type=float, default=1.0)
     a = ap.parse_args()
 
     az, gen = Cli(a.az), Cli(a.gen)
     tmp = Path(tempfile.mkdtemp(prefix="azsp_"))
     games = 2
     first = az.cmd(f"selfplay --games {games} --sims 16 --batch 4 --seed 7 "
-                   f"--out {tmp}")
+                   f"--temp-plies {a.temp_plies} --root-policy-temp {a.root_policy_temp} --out {tmp}")
     assert first.startswith("game 0"), first
     for _ in range(games - 1):  # drain the remaining per-game lines
         az.proc.stdout.readline()
@@ -65,6 +67,8 @@ def main():
     total = failures = 0
     for path in sorted(tmp.glob("game_*.json")):
         rec = json.loads(path.read_text())
+        assert rec["selfplay"]["sampling_plies"] == a.temp_plies
+        assert rec["selfplay"]["root_policy_temperature"] == a.root_policy_temp
         moves = rec["moves"]
         initial = rec["initial"]
 

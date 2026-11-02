@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 #include "../mate.h"
 #include "../movegen.h"
@@ -24,29 +25,41 @@ uint64_t positionKey(const chu::Position& pos) {
 
 namespace {
 
-// Terminal value from the side-to-move perspective, or -1 if not terminal.
-// The early in-tree repetition cutoff (any earlier occurrence = draw) follows
-// JHBR3's convention.
+int priorOccurrences(uint64_t hash, const std::vector<uint64_t>& gameHashes,
+                     const std::vector<uint64_t>& hashPath,
+                     uint64_t rootHash, bool includeRoot) {
+  return static_cast<int>(std::count(gameHashes.begin(), gameHashes.end(), hash) +
+                          std::count(hashPath.begin(), hashPath.end(), hash)) +
+         (includeRoot && hash == rootHash ? 1 : 0);
+}
+
+// Preserve the legacy first-recurrence shortcut by default. Fourfold mode
+// counts real game history, the current root, and earlier search-path nodes.
 int terminalOf(const chu::Position& pos, uint64_t hash,
                const std::vector<uint64_t>& gameHashes,
                const std::vector<uint64_t>& hashPath, int totalPly,
-               int maxPlyCap) {
+               int maxPlyCap, int repetitionOccurrences, uint64_t rootHash,
+               bool& repetitionDraw) {
   chu::StatusResult st = chu::evaluateStatus(pos);
   if (st.end != chu::GameEnd::Playing) {
     if (st.winner < 0) return 2;  // draw
     return st.winner == pos.sideToMove ? 1 : 0;
   }
   if (totalPly >= maxPlyCap) return 2;  // ply cap
-  for (uint64_t h : gameHashes)
-    if (h == hash) return 2;
-  for (uint64_t h : hashPath)
-    if (h == hash) return 2;
+  if (priorOccurrences(hash, gameHashes, hashPath, rootHash,
+                       repetitionOccurrences == 4) >= repetitionOccurrences - 1) {
+    repetitionDraw = true;
+    return 2;
+  }
   return -1;
 }
 
 }  // namespace
 
-Mcts::Mcts(MctsConfig cfg) : cfg_(cfg) {}
+Mcts::Mcts(MctsConfig cfg) : cfg_(cfg) {
+  if (!std::isfinite(cfg_.rootPolicyTemperature) || cfg_.rootPolicyTemperature <= 0.f)
+    throw std::invalid_argument("root policy temperature must be finite and positive");
+}
 
 chu::MateSolver& Mcts::mateSolver() {
   if (!mate_) mate_ = std::make_unique<chu::MateSolver>(1);
@@ -59,6 +72,7 @@ int Mcts::newNode() {
 }
 
 void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
+                    const std::vector<chu::Move>& legal,
                     const float* policy, const float* wdl) {
   Node& node = arena_[nodeIdx];
   if (node.evaluated) return;  // duplicate leaves can occur within a batch
@@ -67,15 +81,16 @@ void Mcts::fillNode(int nodeIdx, const chu::Position& pos,
     const float e0 = std::exp(wdl[0] - mx), e1 = std::exp(wdl[1] - mx),
                 e2 = std::exp(wdl[2] - mx);
     const float s = e0 + e1 + e2;
+    node.wdl = {{e0 / s, e1 / s, e2 / s}};
     node.leafValue = e0 / s + 0.5f * e1 / s;  // win + draw/2, stm perspective
   }
-  const std::vector<chu::Move> legal = chu::generateLegal(pos);
   std::vector<float> logits;
   logits.reserve(legal.size());
   float maxLogit = -1e30f;
   for (const chu::Move& m : legal) {
-    const float l = policy[moveToIndex(
+    float l = policy[moveToIndex(
         pos.sideToMove == chu::Gote ? chu::flipMove(m) : m)];
+    if (nodeIdx == root_) l /= cfg_.rootPolicyTemperature;
     logits.push_back(l);
     maxLogit = std::max(maxLogit, l);
   }
@@ -158,11 +173,15 @@ Mcts::Descent Mcts::descend() {
     if (e.child < 0) {
       e.child = newNode();
       Node& child = arena_[e.child];
+      child.priorOccurrences = priorOccurrences(
+          h, gameHashes_, d.hashPath, positionKey(rootPos_),
+          cfg_.repetitionOccurrences == 4);
       // repetition: against game history and earlier in-tree positions
       // (hashPath does not yet contain h)
       const int term = terminalOf(d.pos, h, gameHashes_, d.hashPath,
                                   gamePly_ + (int)d.hashPath.size() + 1,
-                                  cfg_.maxPlyCap);
+                                  cfg_.maxPlyCap, cfg_.repetitionOccurrences,
+                                  positionKey(rootPos_), child.repetitionDraw);
       d.hashPath.push_back(h);
       if (term >= 0) {
         child.terminal = term;
@@ -206,6 +225,7 @@ void Mcts::backup(const Descent& d) {
     Edge& e = arena_[it->first].edges[it->second];
     e.inflight--;  // the virtual visit becomes the real one
     e.w += v;
+    if (cfg_.collectStats && arena_[d.leaf].repetitionDraw) ++e.repetitionVisits;
     v = 1.f - v;
   }
 }
@@ -223,21 +243,31 @@ void Mcts::runBatch(Evaluator& eval) {
     std::vector<float> planes(size_t(n) * kNumPlanes * kBoard);
     std::vector<float> policy(size_t(n) * kPolicySize);
     std::vector<float> wdl(size_t(n) * 3);
+    std::vector<std::vector<int>> indices(n);
+    std::vector<std::vector<chu::Move>> legalMoves(n);
     int j = 0;
     for (const Descent& d : batch) {
       if (!d.needsEval) continue;
-      const int repCount = static_cast<int>(std::count(
-          gameHashes_.begin(), gameHashes_.end(),
-          positionKey(d.pos.sideToMove == chu::Gote ? d.pos.flipped() : d.pos)));
+      const uint64_t key = positionKey(
+          d.pos.sideToMove == chu::Gote ? d.pos.flipped() : d.pos);
+      // hashPath includes the current leaf: exclude it when counting prior
+      // occurrences. Legacy mode keeps its original input semantics.
+      const int repCount = cfg_.repetitionOccurrences == 4
+          ? priorOccurrences(key, gameHashes_, d.hashPath,
+                             positionKey(rootPos_), true) - 1
+          : static_cast<int>(std::count(gameHashes_.begin(), gameHashes_.end(), key));
       encodePosition(d.pos, repCount, gamePly_ + (int)d.hashPath.size(),
                    planes.data() + size_t(j) * kNumPlanes * kBoard);
+      legalMoves[j] = chu::generateLegal(d.pos);
+      for (const auto& move : legalMoves[j])
+        indices[j].push_back(moveToIndex(d.pos.sideToMove == chu::Gote ? flipMove(move) : move));
       ++j;
     }
-    eval.evaluate(n, planes.data(), policy.data(), wdl.data());
+    eval.evaluateLegal(n, planes.data(), indices, policy.data(), wdl.data());
     j = 0;
     for (const Descent& d : batch) {
       if (!d.needsEval) continue;
-      fillNode(d.leaf, d.pos, policy.data() + size_t(j) * kPolicySize,
+      fillNode(d.leaf, d.pos, legalMoves[j], policy.data() + size_t(j) * kPolicySize,
                wdl.data() + size_t(j) * 3);
       ++j;
     }
@@ -285,6 +315,8 @@ SearchResult Mcts::search(const chu::Position& root,
     if (ma.result == chu::MateResult::kMate && !ma.pv.empty()) {
       res.bestMove = ma.pv[0];
       res.provenMate = true;
+      res.rootValue = 1.0f;
+      res.rootWdl = {{1.f, 0.f, 0.f}};
       res.rootQ = 1.0f;
       res.a0gb = 1.0f;
       res.rootVisits = 0;
@@ -300,8 +332,12 @@ SearchResult Mcts::search(const chu::Position& root,
     const int repCount = static_cast<int>(std::count(
         gameHashes_.begin(), gameHashes_.end(), positionKey(rootPos_)));
     encodePlanes(rootPos_, repCount, gamePly_, planes.data());
-    eval.evaluate(1, planes.data(), policy.data(), wdl.data());
-    fillNode(root_, rootPos_, policy.data(), wdl.data());
+    std::vector<std::vector<int>> indices(1);
+    const auto legalMoves = chu::generateLegal(rootPos_);
+    for (const auto& move : legalMoves)
+      indices[0].push_back(moveToIndex(move));
+    eval.evaluateLegal(1, planes.data(), indices, policy.data(), wdl.data());
+    fillNode(root_, rootPos_, legalMoves, policy.data(), wdl.data());
   }
   rootNode.evaluated = true;
   if (rootNode.edges.empty()) return res;
@@ -326,10 +362,19 @@ SearchResult Mcts::search(const chu::Position& root,
     sumN += e.n;
   }
   res.rootVisits = sumN;
+  res.rootValue = rootNode.leafValue;
+  res.rootWdl = rootNode.wdl;
   res.rootQ = sumN > 0 ? sumW / sumN : rootNode.leafValue;
   res.policy.reserve(rootNode.edges.size());
   const Edge* best = nullptr;
   for (const Edge& e : rootNode.edges) {
+    if (cfg_.collectStats) {
+      const Node* child = e.child >= 0 ? &arena_[e.child] : nullptr;
+      res.rootMoves.push_back({e.move, e.n, e.prior,
+          e.n ? e.w / e.n : 0.5f, e.repetitionVisits,
+          child && child->repetitionDraw,
+          child ? child->priorOccurrences : 0});
+    }
     res.policy.emplace_back(e.policyIndex, sumN ? float(e.n) / sumN : 0.f);
     if (!best || e.n > best->n) best = &e;
   }

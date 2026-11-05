@@ -397,8 +397,6 @@ SearchResult Mcts::search(const chu::Position& root,
       for (const Edge& e : n.edges)
         if (e.child >= 0 && (!be || e.n > be->n)) be = &e;
       if (!be) break;                     // this node was never descended into
-      if (arena_[be->child].visits <= 1)  // freshly evaluated leaf: stop
-        break;
       nodeIdx = be->child;
       v = arena_[nodeIdx].leafValue;
       ++depth;

@@ -72,6 +72,9 @@ def main():
                          "steps (0 = constant 1e-4 after warmup)")
     ap.add_argument("--lr", type=float, default=0,
                     help="passthrough to train.py peak LR (0 = its default)")
+    ap.add_argument("--optimizer", choices=["adamw", "muon_adamw"], default="adamw")
+    ap.add_argument("--muon-lr-scale", type=float, default=1.)
+    ap.add_argument("--muon-warmup-steps", type=int, default=50)
     ap.add_argument("--dynamic-games", action="store_true", help="assign individual games to free workers")
     ap.add_argument("--eval-max-batch", type=int, default=0)
     ap.add_argument("--eval-batch-wait-ms", type=float, default=1.0)
@@ -102,6 +105,8 @@ def main():
         ap.error("inference batching settings must be finite and nonnegative")
     if a.temp_plies < -1:
         ap.error("--temp-plies must be -1 or nonnegative")
+    if not math.isfinite(a.muon_lr_scale) or a.muon_lr_scale <= 0 or a.muon_warmup_steps < 0:
+        ap.error("invalid Muon scale/warmup")
     a.az = str(Path(a.az).resolve())
 
     run = Path(a.run_dir).resolve()
@@ -217,7 +222,9 @@ def main():
                    "--steps", str(a.train_steps), "--batch",
                    str(a.train_batch), "--seed", str(a.seed + it * 100003),
                    "--max-positions", str(a.max_positions),
-                   "--value-target", a.value_target, "--lam", str(a.lam)]
+                   "--value-target", a.value_target, "--lam", str(a.lam),
+                   "--optimizer", a.optimizer, "--muon-lr-scale", str(a.muon_lr_scale),
+                   "--muon-warmup-steps", str(a.muon_warmup_steps)]
             if a.lr_decay_steps:
                 cmd += ["--lr-decay-steps", str(a.lr_decay_steps)]
             if a.lr:

@@ -22,6 +22,16 @@ struct Eval : az::Evaluator {
     }
   }
 };
+struct CaptureEval : az::Evaluator {
+  void evaluate(int n, const float*, float* p, float* v) override {
+    chu::Move capture; chu::parseUsiMove("5l5c",capture);
+    for(int i=0;i<n;++i) {
+      std::fill(p+i*az::kPolicySize,p+(i+1)*az::kPolicySize,-1000.f);
+      p[i*az::kPolicySize+az::moveToIndex(capture)]=1000.f;
+      v[3*i]=0;v[3*i+1]=-100.f;v[3*i+2]=0;
+    }
+  }
+};
 struct CycleEval : az::Evaluator {
   std::vector<std::vector<float>> inputs;
   void evaluate(int n, const float* x, float* p, float* v) override {
@@ -62,6 +72,12 @@ int main() {
   auto one=az::Mcts(cfg).search(root,{},0,eval,rng);
   check(std::abs(one.rootQ-.2f)<1e-5, "neural leaf value must be inverted and backed up");
   check(std::abs(one.rootWdl[0]-.8f)<1e-5,"root diagnostic WDL");
+  check(std::abs(one.a0gb-.2f)<1e-5,"A0GB must enter the fresh one-ply leaf and flip its value");
+  chu::Position captureRoot;
+  check(chu::parseSfen("12/6g5/7k4/12/12/12/12/12/12/12/12/7R3K b - 1",captureRoot),"capture sfen");
+  CaptureEval captureEval;
+  auto captured=az::Mcts(cfg).search(captureRoot,{},0,captureEval,rng);
+  check(std::abs(captured.a0gb-1.f)<1e-5,"A0GB must enter a terminal child and return the proven win");
   cfg.sims=2; Eval deeper;
   auto two=az::Mcts(cfg).search(root,{},0,deeper,rng);
   check(deeper.inputs.size()==3, "root plus two evaluated leaves expected");
@@ -74,6 +90,7 @@ int main() {
     if (i<2) expected.apply(move);
   }
   check(std::abs(two.rootQ-.5f)<1e-5, "two-ply value perspective");
+  check(std::abs(two.a0gb-.8f)<1e-5,"A0GB two-ply leaf perspective");
   cfg.sims=32; cfg.batchSize=8; Eval batched;
   auto many=az::Mcts(cfg).search(root,{},0,batched,rng);
   bool deep=false;
@@ -94,6 +111,8 @@ int main() {
     check(std::abs(early.rootQ-.5f)<1e-5,"legacy repetition shortcut");
     cfg.repetitionOccurrences=4; Eval exact;
     auto four=az::Mcts(cfg).search(root,history,0,exact,rng);
+    check(std::abs(four.a0gb-(prior==3 ? .5f : .2f))<1e-5,
+          "A0GB must use terminal draw or nonterminal leaf value");
     check(std::abs(four.rootQ-(prior==3 ? .5f : .2f))<1e-5,
           "fourfold requires three prior occurrences");
     if (prior<3) {

@@ -34,6 +34,9 @@ az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test
 	$(PY) tests/az_fork_test.py
 	$(PY) tests/az_sampling_experiment_test.py
 	$(PY) tests/az_simulation_budget_test.py
+	$(PY) tests/az_value_target_experiment_test.py
+	$(PY) tests/az_optimizers_test.py
+	$(PY) tests/az_optimizer_experiment_test.py
 	$(PY) tests/az_inference_batcher_test.py
 	$(PY) tests/az_eval_output_test.py
 	$(PY) tests/az_legal_policy_test.py

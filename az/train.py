@@ -19,6 +19,7 @@ import torch.nn.functional as F
 
 import buffer as B
 import model as M
+from optimizers import Optimizers
 
 
 def main():
@@ -30,6 +31,9 @@ def main():
     ap.add_argument("--steps", type=int, default=2000)
     ap.add_argument("--batch", type=int, default=256)
     ap.add_argument("--lr", type=float, default=1e-3)
+    ap.add_argument("--optimizer", choices=["adamw", "muon_adamw"], default="adamw")
+    ap.add_argument("--muon-lr-scale", type=float, default=1.)
+    ap.add_argument("--muon-warmup-steps", type=int, default=50)
     ap.add_argument("--wd", type=float, default=0.01)
     ap.add_argument("--warmup-steps", type=int, default=1000)
     ap.add_argument("--lr-decay-steps", type=int, default=0,
@@ -70,13 +74,10 @@ def main():
         a.step0 = loaded_step
     print(f"[train] start at step {a.step0}", flush=True)
 
-    opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=a.wd)
-    if "optimizer" in state:
-        opt.load_state_dict(state["optimizer"])
-        # Honor explicitly configured weight decay on resume.
-        for g in opt.param_groups:
-            g["weight_decay"] = a.wd
-        print("[train] restored optimizer state", flush=True)
+    opt = Optimizers(net, a.optimizer, a.lr, a.wd, a.muon_lr_scale, a.muon_warmup_steps)
+    opt.load_checkpoint(state)
+    print(f"[train] optimizer {a.optimizer}: {opt.migration}; "
+          f"Muon tensors {len(opt.muon_names)}, AdamW tensors {len(opt.adamw_names)}", flush=True)
 
     decay = a.lr_decay_steps or a.steps
 
@@ -96,8 +97,7 @@ def main():
     rng = np.random.default_rng(a.step0)
     t0 = time.time()
     for step in range(a.step0, a.step0 + a.steps):
-        for g in opt.param_groups:
-            g["lr"] = float(lr_at(step))
+        opt.set_lr(float(lr_at(step)))
         idx = rng.choice(len(buf), size=a.batch, replace=len(buf) < a.batch)
         packed, prog, (pol_idx, pol_p) = buf.batch(idx)
         planes = M.unpack_batch(packed.tobytes(), prog).to(device)
@@ -114,9 +114,11 @@ def main():
         loss_v = -(target_v * F.log_softmax(wdl.float(), dim=1)).sum() / a.batch
         loss = loss_p + a.value_weight * loss_v
 
+        if not torch.isfinite(loss):
+            raise RuntimeError(f"nonfinite loss at step {step}")
         opt.zero_grad(set_to_none=True)
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0)
+        torch.nn.utils.clip_grad_norm_(net.parameters(), 1.0, error_if_nonfinite=True)
         opt.step()
 
         if step % a.log_every == 0:
@@ -128,6 +130,7 @@ def main():
         if (step + 1) % a.save_every == 0 or step + 1 == a.step0 + a.steps:
             tmp = a.out + ".tmp"
             torch.save({"model": net.state_dict(), "optimizer": opt.state_dict(),
+                        "optimizer_param_names": opt.names,
                         "step": step + 1,
                         "config": vars(a)}, tmp)
             os.rename(tmp, a.out)  # atomic publish for the eval server

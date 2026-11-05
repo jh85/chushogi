@@ -720,3 +720,97 @@ tournament at 1024 simulations, with mate search enabled, comparing steps
 34,600, 36,600 and 38,600. Tournament outputs are in the parent `final_strength/`
 directory; `pilot_status.json` records the watcher status. The training estimate
 is about 6.5–7 hours, plus additional time for the tournament.
+
+### Compare game-outcome, soft-Z and A0GB value targets
+
+`./compare_value_targets.sh` launches a sequential continuation pilot from
+`training_1024_34600_to38600/main/ckpt/iter_0182.pt` (step 36,600). All three
+branches retain the source network and AdamW state. The experiment first
+collects 88 common self-play games without training, then gives each branch
+identical copies of that fresh replay. Historical replay is excluded because
+older A0GB extraction stopped before entering the final searched leaf; the
+experiment binary fixes this and tests one/two-ply and terminal perspectives.
+Original training data and checkpoints are preserved.
+
+Each branch runs 20 iterations, 88 games and 200 updates per iteration, ending
+at step 40,600. Only `--value-target z|softz|a0gb` differs: 1024 simulations,
+44 workers, four servers, root policy temperature 1.25, full-game sampling,
+mate searches and the original learning-rate schedule are shared. Each branch
+uses the full machine sequentially in a fixed shuffled order. Python code and
+the engine are frozen with hashes before launch. Allow roughly 21–24 hours for
+training and common replay collection, plus the final tournament.
+
+Here `z` uses final-game WDL; `softz` uses root mean search score Q;
+`a0gb` follows maximum-visit edges to the searched endpoint and uses its neural
+or terminal score, converted to root perspective. The two scalar targets are
+encoded as `[v, 0, 1-v]`; they do not retain explicit draw probability. This
+compares the repository's target implementations, from a network previously
+trained on z, using one training seed. The shared fresh replay start differs
+from ordinary continuation using the full historical buffer. Raw loss values
+across target types are not directly comparable measures of playing strength.
+
+Monitor `az/data/value_target_experiment/status.json` and `supervisor.log`.
+Branch logs and checkpoints appear under `branches/{z,softz,a0gb}/`. Each branch
+keeps its midpoint and final checkpoints. On successful completion, the
+supervisor runs 50 color-paired openings per matchup between the anchor and
+three final checkpoints (600 games total), with fresh seed 20261105, 1024
+simulations and mate search enabled. Results go to `branches/final_strength/`.
+Existing output directories are rejected to prevent duplicate launches.
+
+### Compare AdamW with hybrid Muon/AdamW
+
+`./compare_optimizers.sh` launches a frozen, sequential continuation experiment
+from the A0GB step-40,600 checkpoint (`value_target_experiment/branches/a0gb`,
+iteration 202). A short pilot trains AdamW and hybrid candidates for 100 updates
+each on a fixed replay subset. Muon LR multipliers are 0.3, 1 and 3; the pilot
+uses the same minibatch sequence, game-disjoint train/validation splits, native
+`torch.optim.Muon(adjust_lr_fn="match_rms_adamw")`, weight decay 0.01, and a
+50-update Muon-only warmup. These validation games are existing replay data,
+not independent unseen games. Choose the lowest finite validation loss, prefer
+scale 1 within 1% of the best, and abort if all stable Muon candidates degrade
+more than 20% relative to the baseline. Pilot checkpoints are never used as
+starting weights for the full experiment.
+
+After the pilot, both branches start from byte-identical original checkpoints
+and replay, retain A0GB targets and the existing learning-rate schedule, and run
+20 iterations each (40,600 to 44,600 updates) with 1024 simulations, 44 workers,
+four eval servers, 88 games and 200 optimizer steps per iteration. AdamW retains
+all moments; the hybrid retains AdamW moments for auxiliary parameters and
+starts fresh Muon momentum for the transformer matrices. This tests switching
+an AdamW-trained network to Muon, not training with Muon from scratch.
+
+The hybrid assigns only 2D parameters inside `trunk` to Muon; all biases,
+normalization, positional parameters and input/policy/value heads stay on
+AdamW. Both optimizers step after one backward pass and a shared gradient clip.
+Hybrid checkpoints save both states, parameter names, update counts and the
+Muon LR/warmup settings; resume validates these. Legacy AdamW checkpoints
+remain compatible. Nonfinite losses or gradient norms abort training.
+
+Monitor `az/data/optimizer_experiment/status.json`, `pilot/results.json`, and
+`branches/{adamw,muon_adamw}/console.log`. On successful completion, a fresh-seed
+300-game tournament compares the anchor and both final checkpoints, with mate
+search enabled at 1024 simulations. Outputs are under `branches/final_strength/`.
+The source A0GB run is preserved. Frozen Python and engine hashes, all commands,
+pilot selection and branch order are recorded. Allow roughly 18–22 hours for
+training plus the pilot and final tournament; the selected optimizer may
+change subsequent game lengths. Equal update/game counts do not imply equal
+wall-clock budgets.
+
+The completed optimizer pilot selected Muon LR scale 1.0. At step 44,600, the
+hybrid scored 60% against AdamW over 100 games. A separate confirmation with
+200 fresh color-paired openings (400 games) scored 58.25% (222 wins, 22 draws,
+156 losses); its paired-bootstrap 95% interval was 53.75–62.75%. The hybrid is
+the leading evaluated checkpoint for this continuation; this does not establish
+an optimizer advantage across training seeds. Both checkpoints use the same
+`ChuNet` architecture in `az/model.py`. The leading checkpoint is
+`az/data/optimizer_experiment/branches/muon_adamw/ckpt/iter_0222.pt`; generated
+checkpoints and game records are excluded from git.
+
+Use `./confirm_optimizers.sh` for the 400-game confirmation, or `--check` to
+inspect the command without launching it. The script preserves the original
+experiment's frozen engine and tournament code, uses opening seed 20261107,
+rejects existing output directories and competing workloads, saves each game,
+and writes `paired_analysis.json` with an opening-pair bootstrap interval.
+`./confirm_checkpoints.sh` similarly runs the earlier five-checkpoint
+confirmation (2,000 games). Both scripts run in the foreground and save console
+logs beside their output directories.

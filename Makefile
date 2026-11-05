@@ -10,6 +10,18 @@ GAMES2 ?= /data2/cs/chu_shogi_downloader/data2/games
 $(BIN): $(SRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h
 	$(CXX) $(CXXFLAGS) -o $@ $(SRC)
 
+# Static referee library with the C ABI (src/capi.h) for the chu-server.
+AR ?= ar
+LIBSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/capi.cpp
+LIBOBJ := $(LIBSRC:.cpp=.o)
+LIBHDR := src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/capi.h
+
+src/%.o: src/%.cpp $(LIBHDR)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+libchushogi.a: $(LIBOBJ)
+	$(AR) rcs $@ $^
+
 # AlphaZero side: encoding inspection / MCTS / self-play binary.
 AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
          src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/main.cpp
@@ -69,6 +81,6 @@ random-games: $(BIN)
 	python3 tools/random_match.py --games $(GAMES) --seed $(SEED) --binary ./$(BIN) --output random_games
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN) libchushogi.a $(LIBOBJ)
 
 .PHONY: test clean random-games cases az-search-value-test az-sampling-test

@@ -130,12 +130,16 @@ int runUsi(std::mt19937_64& rng) {
     say("id author jh85");
     say("option name Rules type combo default lishogi var lishogi var jcsa");
     say("option name Seed type spin default 0 min 0 max 2147483647");
+    say("option name MateNodes type spin default 0 min 0 max 100000000");
     say("usiok");
   };
   hello();
   chu::RuleSet rules = chu::RuleSet::Lishogi;
   chu::Position pos;
   bool havePos = false, afterGameover = false;
+  // MateNodes > 0: play the first move of a mate the solver proves within
+  // that many nodes (1 finds an immediate royal capture), else a random move.
+  size_t mateNodes = 0;
   std::string line;
   while (std::getline(std::cin, line)) {
     std::istringstream iss(line);
@@ -156,6 +160,8 @@ int runUsi(std::mt19937_64& rng) {
         rules = value == "jcsa" ? chu::RuleSet::JCSA : chu::RuleSet::Lishogi;
       else if (name == "Seed" && value != "0")
         rng.seed(std::strtoull(value.c_str(), nullptr, 10));
+      else if (name == "MateNodes")
+        mateNodes = std::strtoull(value.c_str(), nullptr, 10);
     } else if (c == "usinewgame") {
       afterGameover = false;
     } else if (c == "gameover") {
@@ -171,8 +177,21 @@ int runUsi(std::mt19937_64& rng) {
       const std::string idTail = id.empty() ? "" : " id " + id;
       const auto moves = havePos ? chu::generateLegal(pos) : std::vector<chu::Move>{};
       if (!havePos) say("info string error: go without a valid position");
+      std::string mating;
+      if (!moves.empty() && mateNodes > 0) {
+        chu::MateSolver solver(4);
+        const chu::MateAnswer a = solver.solve(pos, mateNodes);
+        if (a.result == chu::MateResult::kMate && !a.pv.empty()) {
+          const std::string m = chu::moveToUsi(a.pv[0]);
+          for (const chu::Move& lm : moves)
+            if (chu::moveToUsi(lm) == m) mating = m;
+          if (!mating.empty()) say("info score mate " + std::to_string(a.matePly) + " pv " + mating);
+        }
+      }
       if (moves.empty()) {
         say("bestmove resign" + idTail);
+      } else if (!mating.empty()) {
+        say("bestmove " + mating + idTail);
       } else {
         std::uniform_int_distribution<size_t> pick(0, moves.size() - 1);
         say("bestmove " + chu::moveToUsi(moves[pick(rng)]) + idTail);

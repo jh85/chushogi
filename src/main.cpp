@@ -25,6 +25,8 @@
 //   go random          -> prints "bestmove <usi>" with a uniformly random
 //                         legal move ("bestmove resign" if there are none)
 //   quit
+//   usi                -> switches to USI-Chu mode (USI-CHU.md) for good: a
+//                         random player behind the chu-server's chu-bridge
 
 #include <cstdlib>
 #include <iostream>
@@ -39,6 +41,7 @@
 #include "sfen.h"
 #include "status.h"
 #include "usi.h"
+#include "usi_engine.h"
 
 namespace {
 
@@ -117,6 +120,68 @@ void printLegal(const chu::Position& pos) {
   std::cout << line << "\n" << std::flush;
 }
 
+// USI-Chu mode, entered with `usi`. Every `go` plays a uniformly random
+// legal move at once, so `stop` has nothing to interrupt. Unknown commands
+// are ignored and nothing is fatal.
+int runUsi(std::mt19937_64& rng) {
+  auto say = [](const std::string& s) { std::cout << s << "\n" << std::flush; };
+  auto hello = [&] {
+    say("id name chushogi-gen random");
+    say("id author jh85");
+    say("option name Rules type combo default lishogi var lishogi var jcsa");
+    say("option name Seed type spin default 0 min 0 max 2147483647");
+    say("usiok");
+  };
+  hello();
+  chu::RuleSet rules = chu::RuleSet::Lishogi;
+  chu::Position pos;
+  bool havePos = false, afterGameover = false;
+  std::string line;
+  while (std::getline(std::cin, line)) {
+    std::istringstream iss(line);
+    std::vector<std::string> tok;
+    for (std::string t; iss >> t;) tok.push_back(t);
+    if (tok.empty()) continue;
+    const std::string& c = tok[0];
+    if (c == "quit") {
+      break;
+    } else if (c == "usi") {
+      hello();
+    } else if (c == "isready") {
+      say("readyok");
+    } else if (c == "setoption") {
+      std::string name, value;
+      if (!chu::parseSetOption(tok, name, value)) continue;
+      if (name == "Rules")
+        rules = value == "jcsa" ? chu::RuleSet::JCSA : chu::RuleSet::Lishogi;
+      else if (name == "Seed" && value != "0")
+        rng.seed(std::strtoull(value.c_str(), nullptr, 10));
+    } else if (c == "usinewgame") {
+      afterGameover = false;
+    } else if (c == "gameover") {
+      afterGameover = true;
+    } else if (c == "position") {
+      if (afterGameover)
+        say("info string error: position after gameover without usinewgame");
+      std::string err;
+      havePos = chu::parseUsiPosition(tok, rules, pos, err);
+      if (!havePos) say("info string error: " + err);
+    } else if (c == "go") {
+      const std::string id = chu::goId(tok);
+      const std::string idTail = id.empty() ? "" : " id " + id;
+      const auto moves = havePos ? chu::generateLegal(pos) : std::vector<chu::Move>{};
+      if (!havePos) say("info string error: go without a valid position");
+      if (moves.empty()) {
+        say("bestmove resign" + idTail);
+      } else {
+        std::uniform_int_distribution<size_t> pick(0, moves.size() - 1);
+        say("bestmove " + chu::moveToUsi(moves[pick(rng)]) + idTail);
+      }
+    }
+  }
+  return 0;
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -142,6 +207,7 @@ int main(int argc, char** argv) {
     for (std::string t; iss >> t;) tok.push_back(t);
     if (tok.empty()) continue;
     if (tok[0] == "quit") break;
+    if (tok[0] == "usi") return runUsi(rng);
     if (tok[0] == "position") {
       session.setPosition(tok);
       std::cout << "ok\n" << std::flush;

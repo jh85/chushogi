@@ -353,7 +353,10 @@ SearchResult Mcts::search(const chu::Position& root,
           cfg_.dirichletEps * noise[i] / sum;
   }
 
-  for (int done = 0; done < cfg_.sims; done += cfg_.batchSize) runBatch(eval);
+  for (int done = 0; done < cfg_.sims; done += cfg_.batchSize) {
+    if (done > 0 && cfg_.stop && cfg_.stop->load(std::memory_order_relaxed)) break;
+    runBatch(eval);
+  }
 
   float sumW = 0.f;
   int32_t sumN = 0;

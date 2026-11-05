@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <array>
 #include <deque>
@@ -64,6 +65,9 @@ struct MctsConfig {
   size_t rootMateNodes = 0;  // BNS budget at the root; 0 disables the override
   int probeDepth = 0;        // shallow forced-capture probe per new node (plies)
   size_t probeNodes = 2000;  // BNS budget per new node
+  // Ends the search early (USI `stop` or a time limit); checked between
+  // batches, after the first one.
+  const std::atomic<bool>* stop = nullptr;
 };
 
 struct Edge {

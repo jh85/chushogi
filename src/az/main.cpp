@@ -7,6 +7,9 @@
 //                                              (canonical flipped frame)
 //   move-index <usi>...                        move -> index
 //   index-move <idx>...                        index -> move (USI)
+//   usi                                        switch to USI-Chu engine mode
+//                                              (usi_mode.h); takes the
+//                                              --time-model <file> argument
 
 #include <algorithm>
 #include <cmath>
@@ -29,6 +32,7 @@
 #include "encode.h"
 #include "eval_client.h"
 #include "selfplay.h"
+#include "usi_mode.h"
 
 namespace {
 
@@ -68,7 +72,12 @@ constexpr const char* kInitialSfen =
 
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
+  std::string timeModel;
+  for (int i = 1; i < argc; ++i) {
+    if (std::string(argv[i]) == "--time-model" && i + 1 < argc) timeModel = argv[++i];
+    else fatal(std::string("unknown argument: ") + argv[i]);
+  }
   chu::Position pos;
   if (!chu::parseSfen(kInitialSfen, pos)) fatal("bad initial SFEN");
   std::vector<uint64_t> hashes;         // canonical keys before current pos
@@ -81,6 +90,7 @@ int main() {
     for (std::string t; iss >> t;) tok.push_back(t);
     if (tok.empty()) continue;
     if (tok[0] == "quit") break;
+    if (tok[0] == "usi") return az::runUsiMode(timeModel);
     if (tok[0] == "selfplay") {
       // selfplay --games N --sims S --batch B --seed K --out DIR
       //          [--eval random|pipe] [--port N]

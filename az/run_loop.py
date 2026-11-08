@@ -72,6 +72,8 @@ def main():
                          "steps (0 = constant 1e-4 after warmup)")
     ap.add_argument("--lr", type=float, default=0,
                     help="passthrough to train.py peak LR (0 = its default)")
+    ap.add_argument("--safe-sampling", action="store_true", help="experimental exclusion of proved-lost/hanging root moves")
+    ap.add_argument("--safe-policy", action="store_true", help="experimental zeroing of unsafe root policy targets")
     ap.add_argument("--dynamic-games", action="store_true", help="assign individual games to free workers")
     ap.add_argument("--eval-max-batch", type=int, default=0)
     ap.add_argument("--eval-batch-wait-ms", type=float, default=1.0)
@@ -170,9 +172,11 @@ def main():
                 say("[loop] stopped at completed iteration boundary")
                 break
             t0 = time.time()
+            safety_options = ((" --safe-sampling 1" if a.safe_sampling else "") +
+                              (" --safe-policy 1" if a.safe_policy else ""))
             if a.dynamic_games:
                 options=(f"--temp-plies {a.temp_plies} --sims {a.sims} --batch {a.batch} --root-policy-temp {a.root_policy_temp} "
-                         f"--mate-nodes {a.mate_nodes} --probe-depth {a.probe_depth} --probe-nodes {a.probe_nodes}")
+                         f"--mate-nodes {a.mate_nodes} --probe-depth {a.probe_depth} --probe-nodes {a.probe_nodes}{safety_options}")
                 total_plies,total_games=run_dynamic(a.az,[s[0] for s in servers],a.workers,a.games,
                     a.seed,it,games_dir/f"iter_{it:06d}",options)
             else:
@@ -190,7 +194,7 @@ def main():
                         f"--temp-plies {a.temp_plies} --root-policy-temp {a.root_policy_temp} --batch {a.batch} --seed {seed} --out {worker_dir} "
                         f"--eval pipe --port {port} --mate-nodes {a.mate_nodes} "
                         f"--probe-depth {a.probe_depth} --probe-nodes "
-                        f"{a.probe_nodes}\n")
+                        f"{a.probe_nodes}{safety_options}\n")
                     p.stdin.flush()
                     procs.append(p)
                 total_plies = 0

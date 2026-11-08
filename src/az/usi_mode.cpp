@@ -277,6 +277,18 @@ void Engine::search(Go g) {
     });
   }
 
+  {
+    std::ostringstream os;
+    os << "info string go sims " << sims << " (Sims " << opt_.sims
+       << ") batch " << opt_.batch << " mate-nodes " << opt_.mateNodes
+       << " probe-depth " << opt_.probeDepth << " probe-nodes "
+       << opt_.probeNodes << " time-model " << (tm_.ok ? "yes" : "no")
+       << " limit-ms ";
+    if (limitMs >= 0) os << std::llround(limitMs);
+    else os << "none";
+    say(os.str());
+  }
+
   connect();
   Evaluator* eval = opt_.randomEval ? static_cast<Evaluator*>(&randomEval_)
                                     : static_cast<Evaluator*>(pipe_.get());
@@ -293,6 +305,8 @@ void Engine::search(Go g) {
     mc.rootMateNodes = opt_.mateNodes;
     mc.probeDepth = opt_.probeDepth;
     mc.probeNodes = opt_.probeNodes;
+    mc.rootRoyalFilter = true;
+    mc.rootProofSelection = true;
     mc.stop = &stop_;
     Mcts mcts(mc);
     const bool flip = pos_.sideToMove == chu::Gote;
@@ -302,6 +316,20 @@ void Engine::search(Go g) {
       searched = true;
       if (res.bestMove.from != chu::kNoSquare)
         best = flip ? chu::flipMove(res.bestMove) : res.bestMove;
+      if (res.proofSelectionSkipped > 0)
+        say("info string proof selection: skipped " + std::to_string(res.proofSelectionSkipped) +
+            " proved-lost move(s)");
+      if (res.allRootMovesLost)
+        say("info string proof selection: all moves lost, selected proof-line length " +
+            std::to_string(res.selectedLossPlies));
+      if (res.royalFilterSkipped > 0)
+        say("info string royal filter: skipped " +
+            std::to_string(res.royalFilterSkipped) +
+            " move(s) that hang the last royal, most visited " +
+            chu::moveToUsi(flip ? chu::flipMove(res.mostVisited)
+                                : res.mostVisited));
+      else if (res.royalFilterAllHang)
+        say("info string royal filter: every move hangs the last royal");
     } catch (const std::exception& e) {
       say(std::string("info string error: ") + e.what() +
           "; playing a random move");

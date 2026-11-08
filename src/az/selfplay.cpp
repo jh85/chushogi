@@ -53,7 +53,34 @@ void RandomEval::evaluate(int n, const float*, float* policyOut,
 }
 
 chu::Move selectSelfplayMove(const SearchResult& search, int samplingPlies, int ply,
-                            std::mt19937_64& rng) {
+                            std::mt19937_64& rng, bool excludeUnsafe) {
+  if (excludeUnsafe && !search.unsafeRootMoves.empty()) {
+    std::vector<std::pair<int,float>> eligible;
+    float mass=0;
+    for (const auto& kv : search.policy) {
+      if (std::find(search.unsafeRootMoves.begin(),search.unsafeRootMoves.end(),kv.first)!=search.unsafeRootMoves.end()) continue;
+      eligible.push_back(kv);mass+=kv.second;
+    }
+    if (eligible.empty()) return search.bestMove;
+    if (samplingPlies >= 0 && ply >= samplingPlies) {
+      const auto best=std::max_element(eligible.begin(),eligible.end(),
+          [](const auto& a,const auto& b){return a.second<b.second;});
+      return indexToMove(best->first);
+    }
+    if (mass<=0) {
+      std::uniform_int_distribution<size_t> pick(0,eligible.size()-1);
+      return indexToMove(eligible[pick(rng)].first);
+    }
+    std::uniform_real_distribution<float> uni(0.f,mass);
+    const float pick=uni(rng);float acc=0;
+    for (const auto& kv:eligible) {
+      if (kv.second<=0) continue;
+      acc+=kv.second;
+      if (pick<acc) return indexToMove(kv.first);
+    }
+    for (auto it=eligible.rbegin();it!=eligible.rend();++it)
+      if (it->second>0) return indexToMove(it->first);
+  }
   if (samplingPlies >= 0 && ply >= samplingPlies) return search.bestMove;
   std::uniform_real_distribution<float> uni(0.f, 1.f);
   const float pick = uni(rng);
@@ -77,6 +104,8 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
   GameRecord rec;
   rec.initialSfen = initialSfen;
   rec.samplingPlies = cfg.tempPlies;
+  rec.safeSampling = cfg.mcts.safeSampling;
+  rec.safePolicy = cfg.mcts.safePolicy;
   rec.rootPolicyTemperature = cfg.mcts.rootPolicyTemperature;
 
   std::vector<uint64_t> hashes;  // canonical keys of positions BEFORE now
@@ -128,7 +157,7 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
     rec.samples.push_back(std::move(smp));
 
     // Choose the move: temperature sampling early, argmax later.
-    chu::Move chosen = selectSelfplayMove(res, cfg.tempPlies, plies, rng);
+    chu::Move chosen = selectSelfplayMove(res, cfg.tempPlies, plies, rng, cfg.mcts.safeSampling);
     rec.moves.push_back(chu::moveToUsi(
         pos.sideToMove == chu::Gote ? chu::flipMove(chosen) : chosen));
     hashes.push_back(curKey);
@@ -150,7 +179,9 @@ GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
 void writeGameRecord(const GameRecord& rec, const std::string& path) {
   std::ofstream f(path);
   f << "{\"selfplay\":{\"sampling_plies\":" << rec.samplingPlies
-    << ",\"root_policy_temperature\":" << rec.rootPolicyTemperature << "},\n";
+    << ",\"root_policy_temperature\":" << rec.rootPolicyTemperature
+    << ",\"safe_sampling\":" << (rec.safeSampling ? "true" : "false")
+    << ",\"safe_policy\":" << (rec.safePolicy ? "true" : "false") << "},\n";
   f << " \"initial\": \"" << jsonEscape(rec.initialSfen) << "\",\n";
   f << " \"result\": " << rec.result << ", \"reason\": \""
     << jsonEscape(rec.reason) << "\",\n \"moves\": [";

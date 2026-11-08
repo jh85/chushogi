@@ -32,6 +32,8 @@ struct Sample {
 };
 
 struct GameRecord {
+  bool safeSampling = false;
+  bool safePolicy = false;
   int samplingPlies = 20;
   float rootPolicyTemperature = 1.f;
   std::string initialSfen;
@@ -50,7 +52,7 @@ struct SelfplayConfig {
 };
 
 chu::Move selectSelfplayMove(const SearchResult& search, int samplingPlies, int ply,
-                            std::mt19937_64& rng);
+                            std::mt19937_64& rng, bool excludeUnsafe = false);
 
 GameRecord playGame(const std::string& initialSfen, const SelfplayConfig& cfg,
                     Evaluator& eval);

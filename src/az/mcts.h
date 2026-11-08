@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstdint>
 #include <array>
 #include <deque>
@@ -64,6 +65,16 @@ struct MctsConfig {
   size_t rootMateNodes = 0;  // BNS budget at the root; 0 disables the override
   int probeDepth = 0;        // shallow forced-capture probe per new node (plies)
   size_t probeNodes = 2000;  // BNS budget per new node
+  // bestMove skips a root move after which the opponent can capture the
+  // mover's last royal, unless every move allows that. Visits and the
+  // policy target are unchanged. USI play on; self-play off.
+  bool rootRoyalFilter = false;
+  bool safeSampling = false;  // only consumed by self-play move selection
+  bool safePolicy = false;    // zero unsafe root target entries; visits unchanged
+  bool rootProofSelection = false;  // USI on; legacy self-play/eval off
+  // Ends the search early (USI `stop` or a time limit); checked between
+  // batches, after the first one.
+  const std::atomic<bool>* stop = nullptr;
 };
 
 struct Edge {
@@ -80,6 +91,7 @@ struct Edge {
 struct Node {
   std::vector<Edge> edges;
   int8_t terminal = -1;    // -1 none; 0 stm loses; 1 stm wins; 2 draw
+  int proofMatePly = -1;   // returned proof-line length, child perspective
   bool evaluated = false;  // leafValue/edges filled
   float leafValue = 0.5f;  // net eval (or terminal value), stm perspective
   std::array<float, 3> wdl{{0.f, 1.f, 0.f}};
@@ -96,6 +108,9 @@ struct RootMoveStats {
   int repetitionVisits = 0;
   bool directRepetitionDraw = false;
   int childPriorOccurrences = 0;
+  bool provenLoss = false;
+  int lossPlies = -1;  // root move + returned mate line; not exact minimax DTM
+
 };
 
 struct SearchResult {
@@ -105,9 +120,18 @@ struct SearchResult {
   float a0gb = 0.5f;
   int32_t rootVisits = 0;
   bool provenMate = false;  // root probe found a forced mate; bestMove = pv[0]
+  // Root royal filter: moves with more visits than bestMove that it skipped
+  // (the first is mostVisited), and whether every move was hanging.
+  int proofSelectionSkipped = 0;
+  bool allRootMovesLost = false;
+  int selectedLossPlies = -1;
+  int royalFilterSkipped = 0;
+  bool royalFilterAllHang = false;
+  chu::Move mostVisited;
   float rootValue = 0.5f;
   std::array<float, 3> rootWdl{{0.f, 1.f, 0.f}};
   std::vector<RootMoveStats> rootMoves;
+  std::vector<int> unsafeRootMoves;  // canonical indices; empty if all moves lose
 };
 
 class Mcts {
@@ -153,5 +177,10 @@ class Mcts {
 // Stable 64-bit key of a position (board + side + lion history) for
 // repetition detection.
 uint64_t positionKey(const chu::Position& pos);
+
+// True if after `m` the opponent has a legal reply that captures the mover's
+// last royal. False if adjudication already ended the game, the mover has no royal
+// or `m` itself captures the opponent's last royal.
+bool hangsLastRoyal(const chu::Position& pos, const chu::Move& m);
 
 }  // namespace az

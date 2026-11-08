@@ -7,6 +7,9 @@
 //                                              (canonical flipped frame)
 //   move-index <usi>...                        move -> index
 //   index-move <idx>...                        index -> move (USI)
+//   usi                                        switch to USI-Chu engine mode
+//                                              (usi_mode.h); takes the
+//                                              --time-model <file> argument
 
 #include <algorithm>
 #include <cmath>
@@ -29,6 +32,8 @@
 #include "encode.h"
 #include "eval_client.h"
 #include "selfplay.h"
+#include "root_audit.h"
+#include "usi_mode.h"
 
 namespace {
 
@@ -68,7 +73,12 @@ constexpr const char* kInitialSfen =
 
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
+  std::string timeModel;
+  for (int i = 1; i < argc; ++i) {
+    if (std::string(argv[i]) == "--time-model" && i + 1 < argc) timeModel = argv[++i];
+    else fatal(std::string("unknown argument: ") + argv[i]);
+  }
   chu::Position pos;
   if (!chu::parseSfen(kInitialSfen, pos)) fatal("bad initial SFEN");
   std::vector<uint64_t> hashes;         // canonical keys before current pos
@@ -81,6 +91,7 @@ int main() {
     for (std::string t; iss >> t;) tok.push_back(t);
     if (tok.empty()) continue;
     if (tok[0] == "quit") break;
+    if (tok[0] == "usi") return az::runUsiMode(timeModel);
     if (tok[0] == "selfplay") {
       // selfplay --games N --sims S --batch B --seed K --out DIR
       //          [--eval random|pipe] [--port N]
@@ -102,6 +113,8 @@ int main() {
         else if (tok[i] == "--probe-depth") cfg.mcts.probeDepth = std::stoi(tok[i + 1]);
         else if (tok[i] == "--root-policy-temp") cfg.mcts.rootPolicyTemperature = std::stof(tok[i + 1]);
         else if (tok[i] == "--probe-nodes") cfg.mcts.probeNodes = std::stoull(tok[i + 1]);
+        else if (tok[i] == "--safe-sampling") cfg.mcts.safeSampling = tok[i+1] != "0";
+        else if (tok[i] == "--safe-policy") cfg.mcts.safePolicy = tok[i+1] != "0";
         else fatal("unknown selfplay option: " + tok[i]);
       }
       if (cfg.tempPlies < -1) fatal("--temp-plies must be -1 (all moves) or nonnegative");
@@ -168,6 +181,9 @@ int main() {
       int tempPlies = 0;  // sample from the visit distribution this many plies
       int repetitionOccurrences = 2;
       int batchSize = 16;
+      bool royalFilter = false;
+      bool proofSelection = false;
+      bool safeSampling = false, safePolicy = false;
       float rootPolicyTemperature = 1.f;
       std::string evalKind = "pipe";
       for (size_t i = 2; i + 1 < tok.size(); i += 2) {
@@ -178,6 +194,10 @@ int main() {
         else if (tok[i] == "--probe-depth") probeDepth = std::stoi(tok[i + 1]);
         else if (tok[i] == "--temp-plies") tempPlies = std::stoi(tok[i + 1]);
         else if (tok[i] == "--batch") batchSize = std::stoi(tok[i + 1]);
+        else if (tok[i] == "--safe-sampling") safeSampling = tok[i+1] != "0";
+        else if (tok[i] == "--safe-policy") safePolicy = tok[i+1] != "0";
+        else if (tok[i] == "--proof-aware") proofSelection = tok[i + 1] != "0";
+        else if (tok[i] == "--royal-filter") royalFilter = tok[i + 1] != "0";
         else if (tok[i] == "--root-policy-temp") rootPolicyTemperature = std::stof(tok[i + 1]);
         else if (tok[i] == "--repetition") {
           if (tok[i + 1] == "early") repetitionOccurrences = 2;
@@ -205,6 +225,9 @@ int main() {
       mc.rootMateNodes = mateNodes;
       mc.probeDepth = probeDepth;
       mc.probeNodes = probeNodes;
+      mc.rootRoyalFilter = royalFilter;
+      mc.rootProofSelection = proofSelection;
+      mc.safeSampling = safeSampling; mc.safePolicy = safePolicy;
       az::Mcts mcts(mc);
       const bool flip = pos.sideToMove == chu::Gote;
       const chu::Position canon = flip ? pos.flipped() : pos;
@@ -234,6 +257,14 @@ int main() {
                   << ",\"root_value\":" << res.rootValue
                   << ",\"root_wdl\":[" << res.rootWdl[0] << ","
                   << res.rootWdl[1] << "," << res.rootWdl[2] << "]"
+                  << ",\"best_move\":\""
+                  << (res.bestMove.from == chu::kNoSquare ? "none"
+                      : chu::moveToUsi(flip ? chu::flipMove(res.bestMove)
+                                            : res.bestMove))
+                  << "\",\"royal_filter_skipped\":" << res.royalFilterSkipped
+                  << ",\"proof_selection_skipped\":" << res.proofSelectionSkipped
+                  << ",\"all_root_moves_lost\":" << (res.allRootMovesLost ? "true" : "false")
+                  << ",\"selected_loss_plies\":" << res.selectedLossPlies
                   << ",\"visits\":" << res.rootVisits
                   << ",\"root_prior_occurrences\":" << repetitions
                   << ",\"moves\":[";
@@ -245,11 +276,15 @@ int main() {
                     << ",\"prior\":" << m.prior << ",\"q\":";
           if (m.visits) std::cout << m.q;
           else std::cout << "null";
+          float targetMass = 0;
+          for (const auto& kv:res.policy) if (kv.first==az::moveToIndex(m.move)) targetMass=kv.second;
+          std::cout << ",\"policy_target\":" << targetMass;
           std::cout << ",\"repetition_visits\":" << m.repetitionVisits
                     << ",\"direct_repetition_draw\":"
                     << (m.directRepetitionDraw ? "true" : "false")
                     << ",\"child_prior_occurrences\":" << m.childPriorOccurrences
-                    << "}";
+                    << ",\"proven_loss\":" << (m.provenLoss ? "true" : "false")
+                    << ",\"loss_plies\":" << m.lossPlies << "}";
         }
         std::cout << "]}\n" << std::flush;
         continue;
@@ -263,7 +298,8 @@ int main() {
       if (best.from == chu::kNoSquare) {  // search found nothing: fall back
         best = legal[0];
       }
-      if (plies < tempPlies && !res.policy.empty()) {
+      if (mc.safeSampling) best = az::selectSelfplayMove(res,tempPlies,plies,rng,true);
+      else if (plies < tempPlies && !res.policy.empty()) {
         // Match-play temperature: sample from the visit distribution (in the
         // canonical frame, like bestMove) so games between nets diversify.
         std::uniform_real_distribution<float> uni(0.f, 1.f);
@@ -279,6 +315,12 @@ int main() {
       }
       if (flip) best = chu::flipMove(best);
       std::cout << "bestmove " << chu::moveToUsi(best) << "\n" << std::flush;
+    } else if (tok[0] == "audit-root" || tok[0] == "audit-step") {
+      if (tok[0] == "audit-root") az::auditRoot(pos,tok);
+      chu::Move move;
+      if (tok.size()<2 || !chu::parseUsiMove(tok[1],move)) fatal("bad audit step");
+      pos.apply(move);
+      if (tok[0] == "audit-step") std::cout << "ok\n" << std::flush;
     } else if (tok[0] == "sfen") {
       std::cout << "sfen " << chu::toSfen(pos) << "\n" << std::flush;
     } else if (tok[0] == "encode") {      // moveNumber counts plies + 1

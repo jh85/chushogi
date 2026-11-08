@@ -25,6 +25,39 @@ uint64_t positionKey(const chu::Position& pos) {
 
 namespace {
 
+int royalCount(const chu::Position& pos, chu::Color c) {
+  int n = 0;
+  for (int s = 0; s < chu::kSquares; ++s) {
+    const uint8_t p = pos.board[s];
+    if (p && chu::colorOf(p) == c && chu::isRoyal(chu::roleOf(p))) ++n;
+  }
+  return n;
+}
+
+}  // namespace
+
+bool hangsLastRoyal(const chu::Position& pos, const chu::Move& m) {
+  const chu::Color us = pos.sideToMove;
+  chu::Position child = pos;
+  child.apply(m);
+  if (royalCount(child, us) == 0 || royalCount(child, !us) == 0) return false;
+  if (chu::evaluateStatus(child).end != chu::GameEnd::Playing) return false;
+  auto ours = [&](int16_t s) {
+    if (s == chu::kNoSquare) return false;
+    const uint8_t p = child.board[s];
+    return p && chu::colorOf(p) == us && chu::isRoyal(chu::roleOf(p));
+  };
+  for (const chu::Move& r : chu::generateLegal(child)) {
+    if (!ours(r.to) && !ours(r.mid)) continue;  // captures no royal of ours
+    chu::Position after = child;
+    after.apply(r);
+    if (royalCount(after, us) == 0) return true;
+  }
+  return false;
+}
+
+namespace {
+
 int priorOccurrences(uint64_t hash, const std::vector<uint64_t>& gameHashes,
                      const std::vector<uint64_t>& hashPath,
                      uint64_t rootHash, bool includeRoot) {
@@ -185,6 +218,7 @@ Mcts::Descent Mcts::descend() {
       d.hashPath.push_back(h);
       if (term >= 0) {
         child.terminal = term;
+        if (term != 2) child.proofMatePly = 0;
         child.leafValue = term == 2 ? 0.5f : (term == 1 ? 1.0f : 0.0f);
         child.evaluated = true;
         d.leaf = e.child;
@@ -200,6 +234,7 @@ Mcts::Descent Mcts::descend() {
         chu::MateAnswer ma = mateSolver().solve(d.pos, cfg_.probeNodes);
         if (ma.result == chu::MateResult::kMate) {
           child.terminal = 1;
+          child.proofMatePly = ma.matePly;
           child.leafValue = 1.0f;
           child.evaluated = true;
           d.leaf = e.child;
@@ -353,7 +388,10 @@ SearchResult Mcts::search(const chu::Position& root,
           cfg_.dirichletEps * noise[i] / sum;
   }
 
-  for (int done = 0; done < cfg_.sims; done += cfg_.batchSize) runBatch(eval);
+  for (int done = 0; done < cfg_.sims; done += cfg_.batchSize) {
+    if (done > 0 && cfg_.stop && cfg_.stop->load(std::memory_order_relaxed)) break;
+    runBatch(eval);
+  }
 
   float sumW = 0.f;
   int32_t sumN = 0;
@@ -367,18 +405,93 @@ SearchResult Mcts::search(const chu::Position& root,
   res.rootQ = sumN > 0 ? sumW / sumN : rootNode.leafValue;
   res.policy.reserve(rootNode.edges.size());
   const Edge* best = nullptr;
+  auto rootLoses = [&](const Node* child) {
+    if (!child || child->terminal != 1) return false;
+    // Adjudicated terminal loss is immediate. Tsume PVs can stop before
+    // royal capture; conservatively require the whole probe horizon + 2
+    // extra plies to fit before the game cap.
+    return child->proofMatePly == 0 ||
+           gamePly_ + 1 + cfg_.probeDepth + 2 <= cfg_.maxPlyCap;
+  };
   for (const Edge& e : rootNode.edges) {
     if (cfg_.collectStats) {
       const Node* child = e.child >= 0 ? &arena_[e.child] : nullptr;
       res.rootMoves.push_back({e.move, e.n, e.prior,
           e.n ? e.w / e.n : 0.5f, e.repetitionVisits,
           child && child->repetitionDraw,
-          child ? child->priorOccurrences : 0});
+          child ? child->priorOccurrences : 0,
+          rootLoses(child),
+          rootLoses(child) ? 1 + child->proofMatePly : -1});
     }
     res.policy.emplace_back(e.policyIndex, sumN ? float(e.n) / sumN : 0.f);
     if (!best || e.n > best->n) best = &e;
   }
   if (best) res.bestMove = best->move;
+  if (best && (cfg_.rootRoyalFilter || cfg_.rootProofSelection)) {
+    std::vector<const Edge*> order;
+    for (const Edge& e : rootNode.edges) order.push_back(&e);
+    std::stable_sort(order.begin(), order.end(),
+                    [](const Edge* a, const Edge* b) { return a->n > b->n; });
+    res.mostVisited = order.front()->move;
+    const Edge* selected = nullptr;
+    const Edge* slowest = nullptr;
+    int longest = -1;
+    for (const Edge* e : order) {
+      const Node* child = e->child >= 0 ? &arena_[e->child] : nullptr;
+      const bool provedLost = cfg_.rootProofSelection && rootLoses(child);
+      int lossPlies = provedLost ? 1 + child->proofMatePly : -1;
+      if (provedLost) {
+        ++res.proofSelectionSkipped;
+      } else if (cfg_.rootRoyalFilter && (!child || (child->terminal != 0 && child->terminal != 2)) &&
+                 gamePly_+1 < cfg_.maxPlyCap && hangsLastRoyal(rootPos_, e->move)) {
+        ++res.royalFilterSkipped;
+        lossPlies = 2;  // root move, then last-royal capture
+      } else {
+        selected = e;
+        break;
+      }
+      // When everything is lost, prefer the longest returned proof line.
+      // A solver PV is a length estimate, not necessarily minimax DTM.
+      if (!slowest || lossPlies > longest) {
+        slowest = e;
+        longest = lossPlies;
+      }
+    }
+    if (selected) {
+      res.bestMove = selected->move;
+    } else if (cfg_.rootProofSelection) {
+      res.allRootMovesLost = true;
+      res.bestMove = slowest->move;
+      res.selectedLossPlies = longest;
+    } else {
+      res.royalFilterAllHang = true;  // retain legacy all-hang max-visits fallback
+    }
+  }
+
+  if (cfg_.safeSampling || cfg_.safePolicy) {
+    std::vector<bool> unsafe;
+    size_t safeCount = 0;
+    for (const auto& e : rootNode.edges) {
+      const Node* child = e.child >= 0 ? &arena_[e.child] : nullptr;
+      const bool lost = rootLoses(child) ||
+          ((!child || (child->terminal != 0 && child->terminal != 2)) && gamePly_+1 < cfg_.maxPlyCap &&
+           hangsLastRoyal(rootPos_, e.move));
+      unsafe.push_back(lost);
+      if (!lost) ++safeCount;
+    }
+    // Preserve the original distribution if every move is known lost.
+    if (safeCount) {
+      float mass = 0;
+      for (size_t i=0;i<unsafe.size();++i) {
+        if (unsafe[i]) res.unsafeRootMoves.push_back(rootNode.edges[i].policyIndex);
+        else mass += res.policy[i].second;
+      }
+      if (cfg_.safePolicy) for (size_t i=0;i<unsafe.size();++i) {
+        res.policy[i].second = unsafe[i] ? 0.f :
+            (mass > 0 ? res.policy[i].second / mass : 1.f / safeCount);
+      }
+    }
+  }
 
   // A0GB target: greedy max-visit descent; the target is the terminal value
   // at a terminal node, else the leaf net eval, negated back to the root's

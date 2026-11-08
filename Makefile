@@ -7,28 +7,44 @@ BIN := chushogi-gen
 GAMES1 ?= /data2/cs/chu_shogi_downloader/data/games
 GAMES2 ?= /data2/cs/chu_shogi_downloader/data2/games
 
-$(BIN): $(SRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h
+$(BIN): $(SRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/usi_engine.h
 	$(CXX) $(CXXFLAGS) -o $@ $(SRC)
+
+# Static referee library with the C ABI (src/capi.h) for the chu-server.
+AR ?= ar
+LIBSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/capi.cpp
+LIBOBJ := $(LIBSRC:.cpp=.o)
+LIBHDR := src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/capi.h
+
+src/%.o: src/%.cpp $(LIBHDR)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+libchushogi.a: $(LIBOBJ)
+	$(AR) rcs $@ $^
 
 # AlphaZero side: encoding inspection / MCTS / self-play binary.
 AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
-         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/main.cpp
+         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/usi_mode.cpp src/az/root_audit.cpp src/az/main.cpp
 AZBIN := chushogi-az
 
-$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/selfplay.h src/az/eval_client.h
+$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/selfplay.h src/az/eval_client.h src/az/usi_mode.h src/az/root_audit.h src/usi_engine.h
 	$(CXX) $(CXXFLAGS) -o $@ $(AZSRC)
 
 PY ?= /data2/cs/venv/bin/python
 
 az-search-value-test:
-	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-search-value-test tests/az_search_value_test.cpp $(filter-out src/az/main.cpp src/az/selfplay.cpp src/az/eval_client.cpp,$(AZSRC))
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-search-value-test tests/az_search_value_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/selfplay.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-search-value-test
 
 az-sampling-test:
-	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-sampling-test tests/az_sampling_test.cpp $(filter-out src/az/main.cpp src/az/eval_client.cpp,$(AZSRC))
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-sampling-test tests/az_sampling_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-sampling-test
 
-az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test
+az-root-safety-test:
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-root-safety-test tests/az_root_safety_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-root-safety-test
+
+az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-root-safety-test
 	$(PY) tests/az_buffer_test.py
 	$(PY) tests/az_tournament_test.py
 	$(PY) tests/az_fork_test.py
@@ -47,6 +63,8 @@ az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test
 	$(PY) tests/az_selfplay_test.py --az ./$(AZBIN) --gen ./$(BIN)
 	$(PY) tests/az_mcts_test.py
 	$(PY) tests/az_probe_test.py
+	$(PY) tests/az_blunder_test.py
+	$(PY) tests/az_root_audit_test.py
 
 
 # Regenerate the tracked test-case file from the downloaded game records.
@@ -72,6 +90,6 @@ random-games: $(BIN)
 	python3 tools/random_match.py --games $(GAMES) --seed $(SEED) --binary ./$(BIN) --output random_games
 
 clean:
-	rm -f $(BIN)
+	rm -f $(BIN) libchushogi.a $(LIBOBJ)
 
-.PHONY: test clean random-games cases az-search-value-test az-sampling-test
+.PHONY: test clean random-games cases az-search-value-test az-sampling-test az-root-safety-test

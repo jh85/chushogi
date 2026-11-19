@@ -347,7 +347,10 @@ SearchResult Mcts::search(const chu::Position& root,
   if (cfg_.rootMateNodes > 0) {
     mateSolver().setMaxPly(200);
     chu::MateAnswer ma = mateSolver().solve(rootPos_, cfg_.rootMateNodes);
-    if (ma.result == chu::MateResult::kMate && !ma.pv.empty()) {
+    if (ma.result == chu::MateResult::kMate && !ma.pv.empty() &&
+        std::find(cfg_.excludedRootPolicyIndices.begin(),cfg_.excludedRootPolicyIndices.end(),
+                  moveToIndex(ma.pv[0]))==cfg_.excludedRootPolicyIndices.end() &&
+        (!cfg_.rootMateLineAllowed || cfg_.rootMateLineAllowed(ma.pv))) {
       res.bestMove = ma.pv[0];
       res.provenMate = true;
       res.rootValue = 1.0f;
@@ -368,7 +371,13 @@ SearchResult Mcts::search(const chu::Position& root,
         gameHashes_.begin(), gameHashes_.end(), positionKey(rootPos_)));
     encodePlanes(rootPos_, repCount, gamePly_, planes.data());
     std::vector<std::vector<int>> indices(1);
-    const auto legalMoves = chu::generateLegal(rootPos_);
+    auto legalMoves = chu::generateLegal(rootPos_);
+    if (!cfg_.excludedRootPolicyIndices.empty())
+      legalMoves.erase(std::remove_if(legalMoves.begin(),legalMoves.end(),[&](const chu::Move& move) {
+        return std::find(cfg_.excludedRootPolicyIndices.begin(),cfg_.excludedRootPolicyIndices.end(),
+                         moveToIndex(move))!=cfg_.excludedRootPolicyIndices.end();
+      }),legalMoves.end());
+    if (legalMoves.empty()) return res;
     for (const auto& move : legalMoves)
       indices[0].push_back(moveToIndex(move));
     eval.evaluateLegal(1, planes.data(), indices, policy.data(), wdl.data());

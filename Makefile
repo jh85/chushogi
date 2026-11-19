@@ -24,10 +24,10 @@ libchushogi.a: $(LIBOBJ)
 
 # AlphaZero side: encoding inspection / MCTS / self-play binary.
 AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
-         src/az/encode.cpp src/az/mcts.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/usi_mode.cpp src/az/root_audit.cpp src/az/main.cpp
+         src/az/encode.cpp src/az/mcts.cpp src/az/repetition_guard.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/usi_mode.cpp src/az/root_audit.cpp src/az/main.cpp
 AZBIN := chushogi-az
 
-$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/selfplay.h src/az/eval_client.h src/az/usi_mode.h src/az/root_audit.h src/usi_engine.h
+$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/repetition_guard.h src/az/selfplay.h src/az/eval_client.h src/az/usi_mode.h src/az/root_audit.h src/usi_engine.h
 	$(CXX) $(CXXFLAGS) -o $@ $(AZSRC)
 
 PY ?= /data2/cs/venv/bin/python
@@ -44,7 +44,11 @@ az-root-safety-test:
 	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-root-safety-test tests/az_root_safety_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-root-safety-test
 
-az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-root-safety-test
+az-repetition-guard-test:
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-repetition-guard-test tests/az_repetition_guard_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-repetition-guard-test
+
+az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-root-safety-test az-repetition-guard-test
 	$(PY) tests/az_buffer_test.py
 	$(PY) tests/az_tournament_test.py
 	$(PY) tests/az_fork_test.py
@@ -57,6 +61,7 @@ az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-root-safety-te
 	$(PY) tests/az_eval_output_test.py
 	$(PY) tests/az_legal_policy_test.py
 	$(PY) tests/az_selfplay_pool_test.py
+	$(PY) tests/az_usi_repetition_test.py
 	$(PY) tests/az_server_tuning_test.py
 	$(PY) tests/az_boundary_resume_test.py
 	$(PY) tests/az_encode_test.py $(GAMES1) $(GAMES2) --az ./$(AZBIN) --gen ./$(BIN)
@@ -92,4 +97,4 @@ random-games: $(BIN)
 clean:
 	rm -f $(BIN) libchushogi.a $(LIBOBJ)
 
-.PHONY: test clean random-games cases az-search-value-test az-sampling-test az-root-safety-test
+.PHONY: test clean random-games cases az-search-value-test az-sampling-test az-root-safety-test az-repetition-guard-test

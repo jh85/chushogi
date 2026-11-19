@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <array>
 #include <deque>
+#include <functional>
 #include <memory>
 #include <random>
 #include <vector>
@@ -72,6 +73,10 @@ struct MctsConfig {
   bool safeSampling = false;  // only consumed by self-play move selection
   bool safePolicy = false;    // zero unsafe root target entries; visits unchanged
   bool rootProofSelection = false;  // USI on; legacy self-play/eval off
+  // Actual-play rule guard. Empty defaults preserve self-play and historical
+  // evaluations. Indices and PV moves use the root's canonical board frame.
+  std::vector<int> excludedRootPolicyIndices;
+  std::function<bool(const std::vector<chu::Move>&)> rootMateLineAllowed;
   // Ends the search early (USI `stop` or a time limit); checked between
   // batches, after the first one.
   const std::atomic<bool>* stop = nullptr;

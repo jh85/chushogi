@@ -34,6 +34,7 @@
 #include "../usi_engine.h"
 #include "eval_client.h"
 #include "mcts.h"
+#include "repetition_guard.h"
 #include "selfplay.h"
 
 namespace az {
@@ -99,6 +100,7 @@ struct Options {
   int batch = 16;
   int port = 51589;
   bool randomEval = false;
+  bool perpetualGuard = true;
   size_t mateNodes = 5000;
   int probeDepth = 3;
   size_t probeNodes = 2000;
@@ -152,6 +154,7 @@ class Engine {
   Options opt_;
   chu::Position pos_;
   std::vector<uint64_t> hashes_;  // canonical keys of the earlier positions
+  RepetitionHistory repetition_;
   bool havePos_ = false;
   bool afterGameover_ = false;
   std::unique_ptr<PipeEval> pipe_;
@@ -169,6 +172,7 @@ void Engine::hello() const {
   say("option name Batch type spin default 16 min 1 max 256");
   say("option name EvalPort type spin default 51589 min 1 max 65535");
   say("option name Eval type combo default pipe var pipe var random");
+  say("option name PerpetualCheckGuard type check default true");
   say("option name MateNodes type spin default 5000 min 0 max 100000000");
   say("option name ProbeDepth type spin default 3 min 0 max 64");
   say("option name ProbeNodes type spin default 2000 min 0 max 100000000");
@@ -191,6 +195,8 @@ void Engine::setOption(const std::string& name, const std::string& value) {
     pipe_.reset();
   } else if (name == "Eval") {
     opt_.randomEval = value == "random";
+  } else if (name == "PerpetualCheckGuard") {
+    opt_.perpetualGuard = value != "false" && value != "0";
   } else if (name == "MateNodes") {
     opt_.mateNodes = static_cast<size_t>(std::max(0LL, v));
   } else if (name == "ProbeDepth") {
@@ -234,8 +240,24 @@ void Engine::search(Go g) {
     say("info string error: go without a valid position");
     return answer("resign");
   }
-  const auto legal = chu::generateLegal(pos_);
+  auto legal = chu::generateLegal(pos_);
   if (legal.empty()) return answer("resign");
+  std::vector<int> excluded;
+  if (opt_.perpetualGuard) {
+    const auto bad=perpetualLossMoves(pos_,repetition_);
+    for (const auto& move:bad) {
+      excluded.push_back(moveToIndex(pos_.sideToMove==chu::Gote ? chu::flipMove(move) : move));
+      say("info string perpetual-check guard: excluded " + chu::moveToUsi(move));
+    }
+    legal.erase(std::remove_if(legal.begin(),legal.end(),[&](const chu::Move& move) {
+      const auto canonical=pos_.sideToMove==chu::Gote ? chu::flipMove(move) : move;
+      return std::find(excluded.begin(),excluded.end(),moveToIndex(canonical))!=excluded.end();
+    }),legal.end());
+    if (legal.empty()) {
+      say("info string perpetual-check guard: every legal move permits a repetition loss");
+      return answer("resign");
+    }
+  }
 
   // Budget: simulations and a hard time limit (< 0: none).
   int sims = opt_.sims;
@@ -307,6 +329,18 @@ void Engine::search(Go g) {
     mc.probeNodes = opt_.probeNodes;
     mc.rootRoyalFilter = true;
     mc.rootProofSelection = true;
+    mc.excludedRootPolicyIndices = excluded;
+    if (opt_.perpetualGuard) {
+      mc.rootMateLineAllowed = [&](const std::vector<chu::Move>& pv) {
+        auto original=pv;
+        if (pos_.sideToMove==chu::Gote)
+          for (auto& move:original) move=chu::flipMove(move);
+        const bool safe=repetitionSafeMateLine(pos_,repetition_,original);
+        if (!safe)
+          say("info string perpetual-check guard: rejected history-unsafe mate PV");
+        return safe;
+      };
+    }
     mc.stop = &stop_;
     Mcts mcts(mc);
     const bool flip = pos_.sideToMove == chu::Gote;
@@ -398,18 +432,23 @@ int Engine::run() {
         afterGameover_ = false;
         havePos_ = false;
         hashes_.clear();
+        repetition_.clear();
       } else {
         if (afterGameover_)
           say("info string error: position after gameover without usinewgame");
         std::vector<uint64_t> keys;
+        RepetitionHistory history;
         std::string err;
         havePos_ = chu::parseUsiPosition(
             tok, opt_.rules, pos_, err,
-            [&](const chu::Position& before, const chu::Move&) {
+            [&](const chu::Position& before, const chu::Move& move) {
               keys.push_back(positionKey(
                   before.sideToMove == chu::Gote ? before.flipped() : before));
+              history.append(before,move);
             });
         hashes_ = std::move(keys);
+        if (havePos_ && history.empty()) history.start(pos_);
+        repetition_ = std::move(history);
         if (!havePos_) say("info string error: " + err);
       }
     }

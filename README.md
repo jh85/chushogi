@@ -814,3 +814,36 @@ and writes `paired_analysis.json` with an opening-pair bootstrap interval.
 `./confirm_checkpoints.sh` similarly runs the earlier five-checkpoint
 confirmation (2,000 games). Both scripts run in the foreground and save console
 logs beside their output directories.
+
+### Perpetual-check protection in USI play
+
+The USI engine now advertises `PerpetualCheckGuard` (default `true`). It rebuilds
+the actual position history, including each player's continuous checking and
+attacking runs. For Lishogi rules the attack test also includes perpetual chase,
+following scalashogi's `Chushogi.isAttacking` and `History.perpetualCheckAttacker`.
+Ordinary fourfold draws and repetitions caused by the opponent's continuous
+attack remain available. Under JCSA this guard covers continuous checks only;
+it does not implement the association's complete repetition rules.
+
+Before search, the guard excludes a move that loses by perpetual attack either
+immediately or after a legal opponent reply. The reply check matters: in the
+rated 0542/0442 game of November 19, Black's last check was ply 457 (`8c7d`),
+but White completed the fourth occurrence at ply 458 (`5b6a`). The exclusions
+apply before MCTS root priors, override the root mate pick, and also restrict the
+random fallback when inference fails. A nominal mate PV reaching a historical
+draw/loss or the move cap is rejected. If every move permits an immediate or
+one-reply repetition loss, the engine reports this and resigns.
+
+This is deterministic engine protection; checkpoints and network inputs do
+not change. It requires the full available USI `position ... moves ...` history:
+a bare SFEN cannot reveal repetitions from omitted moves. The guard looks one
+opponent reply ahead, not through arbitrary future play, so it does not prove
+that all longer forced repetition losses are avoidable. Existing self-play,
+native `go az` evaluations and frozen running experiments retain their original
+behavior. To reproduce the old USI behavior for diagnostics only, set
+`setoption name PerpetualCheckGuard value false`.
+
+Regression checks: `make az-repetition-guard-test` and
+`/venv/main/bin/python tests/az_usi_repetition_test.py` cover the rated-game cycle,
+both colors, interrupted attacks, ordinary draws, Lishogi nonroyal pursuit,
+mate-override precedence and missing-inference fallback.

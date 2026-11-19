@@ -10,7 +10,7 @@ CYCLE=['7d8c','6a5b','8c7d','5b6a']
 
 
 class UsiRepetitionTest(unittest.TestCase):
-    def run_search(self,guard=True,random=True,white=False):
+    def run_search(self,guard=True,random=True,white=False,sampling=16):
         process=subprocess.Popen([str(Path('chushogi-az').resolve())],
             stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
         output=queue.Queue()
@@ -42,6 +42,8 @@ class UsiRepetitionTest(unittest.TestCase):
                 initial='/'.join(ranks)+' w - 447'
                 moves=[flip_usi_move(m) for m in moves];bad=flip_usi_move(bad)
             commands=['usi','setoption name Sims value 16','setoption name Batch value 4',
+                f'setoption name OpeningSamplingPlies value {sampling}',
+                'setoption name Seed value 1',
                 'setoption name PerpetualCheckGuard value '+('true' if guard else 'false'),
                 'setoption name Eval value '+('random' if random else 'pipe'),
                 'setoption name EvalPort value 1','usinewgame',
@@ -75,6 +77,13 @@ class UsiRepetitionTest(unittest.TestCase):
         best,lines,bad=self.run_search(random=False)
         self.assertNotEqual(best,bad)
         self.assertTrue(any('no eval server' in line for line in lines))
+
+    def test_sampling_cannot_bypass_the_perpetual_guard(self):
+        for white in [False, True]:
+            best,lines,bad=self.run_search(white=white,sampling=1000)
+            self.assertNotEqual(best,bad)
+            self.assertTrue(any('perpetual-check guard: excluded '+bad in line for line in lines))
+            self.assertTrue(any('opening sampling:' in line for line in lines))
 
 
 if __name__=='__main__':unittest.main()

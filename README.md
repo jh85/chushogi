@@ -847,3 +847,56 @@ Regression checks: `make az-repetition-guard-test` and
 `/venv/main/bin/python tests/az_usi_repetition_test.py` cover the rated-game cycle,
 both colors, interrupted attacks, ordinary draws, Lishogi nonroyal pursuit,
 mate-override precedence and missing-inference fallback.
+
+### Opening-only sampling in USI play
+
+USI play samples from MCTS root visits during the first `OpeningSamplingPlies`
+plies (default **16**, eight moves per side). Afterwards it uses the existing
+proof-aware, royal-filtered greedy selection. Set the cutoff to **0** to disable
+sampling. The cutoff uses the SFEN move number plus the supplied moves, so
+loading a late position or reconnecting does not restart the opening window.
+
+```
+setoption name OpeningSamplingPlies value 16
+setoption name OpeningSamplingTemp value 0.5
+setoption name Seed value 0
+```
+
+`OpeningSamplingTemp` must be positive and finite (default **0.5**). Among safe
+visited moves the probability is proportional to `visits^(1 / temperature)`:
+1.0 samples proportionally to visits; 0.5 squares them and favors the most
+visited moves more strongly. This is separate from `RootPolicyTemp`, which
+changes the network priors before search. Root Dirichlet noise remains disabled.
+
+Root mate proofs take priority over sampling. Proved-lost moves and moves that
+hang the last royal are excluded whenever a safe alternative exists. If safe
+moves have no visits, keep the existing safe greedy pick. When every move is
+known lost, keep the existing longest-proof-line pick. The perpetual-check guard
+excludes its forbidden moves before search, including during opening sampling.
+This preserves the existing safeguards, whose proof and history horizons still
+limit what they can detect.
+
+`Seed=0` chooses a fresh seed on each `usinewgame` (or the first search when no
+`usinewgame` was sent). The engine logs `info string game seed N`. For
+reproduction, set `Seed` to that positive number before `usinewgame` and replay
+the same positions with identical search budgets/settings. A fixed positive
+seed resets the random sequence on every `usinewgame`; leave it at 0 for varied
+tournament games. Clock-limited searches can still vary their visit counts.
+
+The chu-server bridge can forward these settings to the updated engine using
+its existing options, appended to the usual launch command:
+
+```sh
+--usi-option OpeningSamplingPlies=16 \
+--usi-option OpeningSamplingTemp=0.5 \
+--usi-option Seed=0
+```
+
+Rebuild with `make chushogi-az` and restart the bridge/engine processes. The
+checkpoints do not need changes. These options apply to USI play only; native
+self-play and checkpoint evaluations retain their own sampling settings.
+
+Run `make az-usi-sampling-test PY=/venv/main/bin/python` for visit-temperature,
+cutoff, seed, both-color and safety checks, and
+`/venv/main/bin/python tests/az_usi_repetition_test.py` for perpetual-check
+protection with sampling enabled.

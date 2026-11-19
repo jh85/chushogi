@@ -20,6 +20,7 @@
 #include <climits>
 #include <cmath>
 #include <condition_variable>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -36,6 +37,7 @@
 #include "mcts.h"
 #include "repetition_guard.h"
 #include "selfplay.h"
+#include "usi_sampling.h"
 
 namespace az {
 namespace {
@@ -105,6 +107,9 @@ struct Options {
   int probeDepth = 3;
   size_t probeNodes = 2000;
   float rootTemp = 1.f;
+  int openingSamplingPlies = 16;
+  double openingSamplingTemp = 0.5;
+  int seed = 0;  // 0: fresh automatic seed on each usinewgame
   chu::RuleSet rules = chu::RuleSet::Lishogi;
 };
 
@@ -149,6 +154,7 @@ class Engine {
   void connect();
   void search(Go g);
   void finishSearch(bool stop);
+  void seedGame();
 
   TimeModel tm_;
   Options opt_;
@@ -160,6 +166,8 @@ class Engine {
   std::unique_ptr<PipeEval> pipe_;
   RandomEval randomEval_;
   std::mt19937_64 rng_{0xC0FFEE};
+  bool haveSeed_ = false;
+  int gameSeed_ = 0;
   std::thread worker_;
   std::atomic<bool> searching_{false};
   std::atomic<bool> stop_{false};
@@ -177,6 +185,9 @@ void Engine::hello() const {
   say("option name ProbeDepth type spin default 3 min 0 max 64");
   say("option name ProbeNodes type spin default 2000 min 0 max 100000000");
   say("option name RootPolicyTemp type string default 1.0");
+  say("option name OpeningSamplingPlies type spin default 16 min 0 max 1000");
+  say("option name OpeningSamplingTemp type string default 0.5");
+  say("option name Seed type spin default 0 min 0 max 2147483647");
   say("option name Rules type combo default lishogi var lishogi var jcsa");
   say("usiok");
 }
@@ -207,9 +218,32 @@ void Engine::setOption(const std::string& name, const std::string& value) {
     const float t = std::strtof(value.c_str(), nullptr);
     if (std::isfinite(t) && t > 0.f) opt_.rootTemp = t;
     else say("info string error: RootPolicyTemp must be positive");
+  } else if (name == "OpeningSamplingPlies") {
+    opt_.openingSamplingPlies = clampInt(0, 1000);
+  } else if (name == "OpeningSamplingTemp") {
+    char* end = nullptr;
+    const double t = std::strtod(value.c_str(), &end);
+    if (end != value.c_str() && *end == '\0' && std::isfinite(t) && t > 0)
+      opt_.openingSamplingTemp = t;
+    else
+      say("info string error: OpeningSamplingTemp must be a positive finite number");
+  } else if (name == "Seed") {
+    opt_.seed = clampInt(0, INT_MAX);
+    haveSeed_ = false;
   } else if (name == "Rules") {
     opt_.rules = value == "jcsa" ? chu::RuleSet::JCSA : chu::RuleSet::Lishogi;
   }
+}
+
+void Engine::seedGame() {
+  gameSeed_ = opt_.seed;
+  if (gameSeed_ == 0) {
+    std::random_device entropy;
+    gameSeed_ = std::uniform_int_distribution<int>(1, INT_MAX)(entropy);
+  }
+  rng_.seed(static_cast<uint64_t>(gameSeed_));
+  haveSeed_ = true;
+  say("info string game seed " + std::to_string(gameSeed_));
 }
 
 // Connects to the eval server unless connected or using the random eval.
@@ -230,6 +264,7 @@ void Engine::finishSearch(bool stop) {
 }
 
 void Engine::search(Go g) {
+  if (!haveSeed_) seedGame();  // also support analysis without usinewgame
   const auto t0 = Clock::now();
   const std::string idTail = g.id.empty() ? "" : " id " + g.id;
   auto answer = [&](const std::string& move) {
@@ -329,6 +364,7 @@ void Engine::search(Go g) {
     mc.probeNodes = opt_.probeNodes;
     mc.rootRoyalFilter = true;
     mc.rootProofSelection = true;
+    mc.safeSampling = pos_.moveNumber - 1 < opt_.openingSamplingPlies;
     mc.excludedRootPolicyIndices = excluded;
     if (opt_.perpetualGuard) {
       mc.rootMateLineAllowed = [&](const std::vector<chu::Move>& pv) {
@@ -348,8 +384,17 @@ void Engine::search(Go g) {
     try {
       res = mcts.search(canon, hashes_, pos_.moveNumber - 1, *eval, rng_);
       searched = true;
-      if (res.bestMove.from != chu::kNoSquare)
-        best = flip ? chu::flipMove(res.bestMove) : res.bestMove;
+      const chu::Move selected = selectUsiMove(res, opt_.openingSamplingPlies,
+          pos_.moveNumber - 1, opt_.openingSamplingTemp, rng_);
+      if (selected.from != chu::kNoSquare)
+        best = flip ? chu::flipMove(selected) : selected;
+      if (mc.safeSampling && !res.provenMate && !res.allRootMovesLost) {
+        std::ostringstream os;
+        os << "info string opening sampling: ply " << pos_.moveNumber - 1
+           << " of " << opt_.openingSamplingPlies << " temperature "
+           << opt_.openingSamplingTemp << " seed " << gameSeed_;
+        say(os.str());
+      }
       if (res.proofSelectionSkipped > 0)
         say("info string proof selection: skipped " + std::to_string(res.proofSelectionSkipped) +
             " proved-lost move(s)");
@@ -429,6 +474,7 @@ int Engine::run() {
         std::string name, value;
         if (chu::parseSetOption(tok, name, value)) setOption(name, value);
       } else if (c == "usinewgame") {
+        seedGame();
         afterGameover_ = false;
         havePos_ = false;
         hashes_.clear();

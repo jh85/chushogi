@@ -201,21 +201,35 @@ CASES = [
      ["7h7i", "7h7i7h"],
      ["7h7j",     # single jump capture of the lion: banned
       "7h7i7j"]), # second-step lion capture: banned
-    ("R2.igui-midstep-quirk-falcon",
+    # The ban covers the mid step too (lishogi since scalashogi fcf0664,
+    # whose test uses these positions; before it, igui and pass-through
+    # captures of the lion on the mid square were allowed).
+    ("R2.midstep-ban-falcon",
      "k11/12/12/12/6P5/12/12/5+h6/5N6/12/12/11K w 6e 2",
-     ["7h7i7h",   # igui capture of the adjacent lion at the MID step: ALLOWED
-      "7h7i7j"],  # capture lion at mid step and continue forward: ALLOWED
-     ["7h7i"]),   # ...while the plain single-step capture is banned!
+     [],
+     ["7h7i",     # single-step capture of the lion: banned
+      "7h7i7h",   # igui capture of the lion on the mid step: banned
+      "7h7i7j"]), # capture on the mid step, then continue: banned
     ("R2.hit-and-run-eagle",
      "k11/12/12/12/6P5/12/12/7+d4/12/5N6/12/11K w 6e 2",
      ["5h6i", "5h6i5h"],
      ["5h7j",     # forward-diagonal jump capture of the lion: banned
       "5h6i7j"]), # second-step lion capture: banned
-    ("R2.igui-midstep-quirk-eagle",
+    ("R2.midstep-ban-eagle",
      "k11/12/12/12/6P5/12/12/7+d4/6N5/12/12/11K w 6e 2",
-     ["5h6i5h",   # igui capture of the adjacent lion at the mid step: ALLOWED
-      "5h6i7j"],  # capture lion at mid step and continue: ALLOWED
-     ["5h6i"]),   # ...while the plain single-step capture is banned!
+     [],
+     ["5h6i",     # single-step capture of the lion: banned
+      "5h6i5h",   # igui capture of the lion on the mid step: banned
+      "5h6i7j"]), # capture on the mid step, then continue: banned
+    # Without the ban (same positions, flag cleared) all three are legal.
+    ("R2.midstep-no-ban-falcon",
+     "k11/12/12/12/6P5/12/12/5+h6/5N6/12/12/11K w - 2",
+     ["7h7i", "7h7i7h", "7h7i7j"],
+     []),
+    ("R2.midstep-no-ban-eagle",
+     "k11/12/12/12/6P5/12/12/7+d4/6N5/12/12/11K w - 2",
+     ["5h6i", "5h6i5h", "5h6i7j"],
+     []),
     ("R2.kirin-recapture-no-promo",
      "k11/12/12/12/12/12/12/7+d4/12/5O6/12/11K w 7j 2",
      ["5h7j",     # the kirin on 7j is not a lion: capturable (also same square)

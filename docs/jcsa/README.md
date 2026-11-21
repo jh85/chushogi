@@ -18,8 +18,9 @@ Files:
 - `cases.tsv`: 31 test positions built from the JCSA diagrams (29) and two played-through constructions (C17 / C17b, promoted kirin on the capture square) (piece patterns embedded in
   full legal positions with both royals and no stray attacks), each with its SFEN, side
   to move, counter-strike square, tested move and the expected verdict under lishogi and
-  under JCSA. 7 rows are genuine differences; the rest are conformance checks. All
-  lishogi verdicts were checked against `chushogi-gen` at commit 1b20c35.
+  under JCSA. 6 rows are genuine differences; the rest are conformance checks. All
+  lishogi verdicts were checked against `chushogi-gen` at commit 1b20c35; C05, C05b
+  and C05c were updated for the mid-step ban (lishogi fix fcf0664, delta row 2).
 
 SFEN conventions are lishogi's (`chushogi` engine): the third field is the counter-strike
 square or `-`; promoted kirin / phoenix / drunk elephant are written as lion `n`, free

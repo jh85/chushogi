@@ -63,15 +63,20 @@ EXTRA = [
      "k11/12/12/12/6P5/12/12/5+h6/12/5N6/12/11K w 6e 2",
      "7h7i7j", "illegal", "legal"),
     # Row 2 with a horned falcon: the gold 7j gives the Black lion 7i a foot.
+    # The ban covers the mid step under both rule sets (lishogi since
+    # scalashogi fcf0664); without a foot only lishogi bans it (row 1).
     ("row2.falcon-step",
      "k11/12/12/12/6P5/12/12/5+h6/5N6/5G6/12/11K w 6e 2",
      "7h7i", "illegal", "illegal"),
     ("row2.falcon-igui",
      "k11/12/12/12/6P5/12/12/5+h6/5N6/5G6/12/11K w 6e 2",
-     "7h7i7h", "legal", "illegal"),
+     "7h7i7h", "illegal", "illegal"),
     ("row2.falcon-through",
      "k11/12/12/12/6P5/12/12/5+h6/5N6/5G6/12/11K w 6e 2",
-     "7h7i7j", "legal", "illegal"),
+     "7h7i7j", "illegal", "illegal"),
+    ("row2.falcon-igui-no-foot",
+     "k11/12/12/12/6P5/12/12/5+h6/5N6/12/12/11K w 6e 2",
+     "7h7i7h", "illegal", "legal"),
     # U4, row 1b: the lion on the capture square itself (a kirin took a lion
     # there and promoted). lishogi exempts that square; under JCSA the gold
     # 7j gives it a foot, so it may not be taken, on the mid square either.

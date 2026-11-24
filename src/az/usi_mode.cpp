@@ -38,6 +38,7 @@
 #include "repetition_guard.h"
 #include "selfplay.h"
 #include "usi_sampling.h"
+#include "usi_mate_guard.h"
 
 namespace az {
 namespace {
@@ -104,8 +105,13 @@ struct Options {
   bool randomEval = false;
   bool perpetualGuard = true;
   size_t mateNodes = 5000;
-  int probeDepth = 3;
+  int probeDepth = 0;  // legacy BNS leaf backend; LeafMateDepth selects shallow
+  int leafMateDepth = 3;
+  size_t leafMateNodes = 20000;
   size_t probeNodes = 2000;
+  int rootMateDepth = 0;  // opt in after measuring the actual-play overhead
+  size_t rootMateNodes = 20000;
+  int rootMateTimeMs = 100;
   float rootTemp = 1.f;
   int openingSamplingPlies = 16;
   double openingSamplingTemp = 0.5;
@@ -171,6 +177,7 @@ class Engine {
   std::thread worker_;
   std::atomic<bool> searching_{false};
   std::atomic<bool> stop_{false};
+  std::atomic<bool> mctsStop_{false};
 };
 
 void Engine::hello() const {
@@ -182,8 +189,13 @@ void Engine::hello() const {
   say("option name Eval type combo default pipe var pipe var random");
   say("option name PerpetualCheckGuard type check default true");
   say("option name MateNodes type spin default 5000 min 0 max 100000000");
-  say("option name ProbeDepth type spin default 3 min 0 max 64");
+  say("option name ProbeDepth type spin default 0 min 0 max 64");
   say("option name ProbeNodes type spin default 2000 min 0 max 100000000");
+  say("option name LeafMateDepth type spin default 3 min 0 max 7");
+  say("option name LeafMateNodes type spin default 20000 min 0 max 100000000");
+  say("option name RootMateDepth type spin default 0 min 0 max 7");
+  say("option name RootMateNodes type spin default 20000 min 0 max 100000000");
+  say("option name RootMateTimeMs type spin default 100 min 1 max 60000");
   say("option name RootPolicyTemp type string default 1.0");
   say("option name OpeningSamplingPlies type spin default 16 min 0 max 1000");
   say("option name OpeningSamplingTemp type string default 0.5");
@@ -212,6 +224,18 @@ void Engine::setOption(const std::string& name, const std::string& value) {
     opt_.mateNodes = static_cast<size_t>(std::max(0LL, v));
   } else if (name == "ProbeDepth") {
     opt_.probeDepth = clampInt(0, 64);
+    opt_.leafMateDepth = 0;  // explicit legacy depth takes precedence
+  } else if (name == "LeafMateDepth") {
+    opt_.leafMateDepth = oddMateDepth(clampInt(0, 7));
+    opt_.probeDepth = 0;
+  } else if (name == "LeafMateNodes") {
+    opt_.leafMateNodes = static_cast<size_t>(clampInt(0, 100000000));
+  } else if (name == "RootMateDepth") {
+    opt_.rootMateDepth = oddMateDepth(clampInt(0, 7));
+  } else if (name == "RootMateNodes") {
+    opt_.rootMateNodes = static_cast<size_t>(clampInt(0, 100000000));
+  } else if (name == "RootMateTimeMs") {
+    opt_.rootMateTimeMs = clampInt(1, 60000);
   } else if (name == "ProbeNodes") {
     opt_.probeNodes = static_cast<size_t>(std::max(0LL, v));
   } else if (name == "RootPolicyTemp") {
@@ -259,7 +283,7 @@ void Engine::connect() {
 }
 
 void Engine::finishSearch(bool stop) {
-  if (stop) stop_ = true;
+  if (stop) { stop_ = true; mctsStop_ = true; }
   if (worker_.joinable()) worker_.join();
 }
 
@@ -324,13 +348,23 @@ void Engine::search(Go g) {
   std::condition_variable cv;
   bool finished = false;
   std::thread timer;
+  auto hardDeadline = Clock::time_point::max();
   if (limitMs >= 0) {
-    const auto deadline =
+    hardDeadline =
         t0 + std::chrono::microseconds(std::llround(limitMs * 1000));
-    timer = std::thread([&] {
+    // Leave time for the post-search guard rather than starting it after
+    // MCTS has already consumed the entire move allowance.
+    const double reserveMs = opt_.rootMateDepth > 0 && opt_.rootMateNodes > 0
+        ? std::min(double(opt_.rootMateTimeMs), limitMs * 0.2) : 0;
+    const auto searchDeadline = hardDeadline -
+        std::chrono::microseconds(std::llround(reserveMs * 1000));
+    timer = std::thread([&, searchDeadline] {
       std::unique_lock<std::mutex> lock(m);
-      if (!cv.wait_until(lock, deadline, [&] { return finished; }))
-        stop_ = true;
+      if (!cv.wait_until(lock, searchDeadline, [&] { return finished; })) {
+        mctsStop_ = true;
+        if (!cv.wait_until(lock, hardDeadline, [&] { return finished; }))
+          stop_ = true;
+      }
     });
   }
 
@@ -340,6 +374,11 @@ void Engine::search(Go g) {
        << ") batch " << opt_.batch << " mate-nodes " << opt_.mateNodes
        << " probe-depth " << opt_.probeDepth << " probe-nodes "
        << opt_.probeNodes << " time-model " << (tm_.ok ? "yes" : "no")
+       << " leaf-mate-depth " << opt_.leafMateDepth
+       << " leaf-mate-nodes " << opt_.leafMateNodes
+       << " leaf-backend " << (opt_.leafMateDepth > 0 ? "shallow" :
+                              opt_.probeDepth > 0 ? "bns" : "off")
+       << " root-mate-depth " << opt_.rootMateDepth
        << " limit-ms ";
     if (limitMs >= 0) os << std::llround(limitMs);
     else os << "none";
@@ -361,10 +400,14 @@ void Engine::search(Go g) {
     mc.rootNoise = false;
     mc.rootMateNodes = opt_.mateNodes;
     mc.probeDepth = opt_.probeDepth;
+    mc.shallowMateDepth = opt_.leafMateDepth;
+    mc.shallowMateNodes = opt_.leafMateNodes;
     mc.probeNodes = opt_.probeNodes;
     mc.rootRoyalFilter = true;
     mc.rootProofSelection = true;
-    mc.safeSampling = pos_.moveNumber - 1 < opt_.openingSamplingPlies;
+    const bool openingSampling = pos_.moveNumber - 1 < opt_.openingSamplingPlies;
+    mc.safeSampling = openingSampling || opt_.rootMateDepth > 0;
+    mc.collectStats = opt_.rootMateDepth > 0;
     mc.excludedRootPolicyIndices = excluded;
     if (opt_.perpetualGuard) {
       mc.rootMateLineAllowed = [&](const std::vector<chu::Move>& pv) {
@@ -377,7 +420,7 @@ void Engine::search(Go g) {
         return safe;
       };
     }
-    mc.stop = &stop_;
+    mc.stop = &mctsStop_;
     Mcts mcts(mc);
     const bool flip = pos_.sideToMove == chu::Gote;
     const chu::Position canon = flip ? pos_.flipped() : pos_;
@@ -388,7 +431,7 @@ void Engine::search(Go g) {
           pos_.moveNumber - 1, opt_.openingSamplingTemp, rng_);
       if (selected.from != chu::kNoSquare)
         best = flip ? chu::flipMove(selected) : selected;
-      if (mc.safeSampling && !res.provenMate && !res.allRootMovesLost) {
+      if (openingSampling && !res.provenMate && !res.allRootMovesLost) {
         std::ostringstream os;
         os << "info string opening sampling: ply " << pos_.moveNumber - 1
            << " of " << opt_.openingSamplingPlies << " temperature "
@@ -416,6 +459,35 @@ void Engine::search(Go g) {
     }
   } else if (!eval) {
     say("info string error: no eval server; playing a random move");
+  }
+
+  if (opt_.rootMateDepth > 0 && opt_.rootMateNodes > 0) {
+    // The guard sees the actual opening sample, not just MCTS's greedy pick.
+    const bool flip = pos_.sideToMove == chu::Gote;
+    if (!searched) {
+      for (const auto& move : legal)
+        res.rootMoves.push_back({flip ? chu::flipMove(move) : move});
+    }
+    MateGuardLimits limits;
+    limits.nodeLimit = opt_.rootMateNodes;
+    limits.stop = &stop_;
+    limits.deadline = std::min(hardDeadline,
+        Clock::now() + std::chrono::milliseconds(opt_.rootMateTimeMs));
+    const auto guardStart = Clock::now();
+    const auto guard = guardUsiMove(pos_, repetition_, res,
+        flip ? chu::flipMove(best) : best, opt_.rootMateDepth, limits);
+    best = flip ? chu::flipMove(guard.move) : guard.move;
+    for (const auto& move : guard.rejected)
+      say("info string root mate guard: rejected " +
+          chu::moveToUsi(flip ? chu::flipMove(move) : move));
+    say("info string root mate guard: depth " + std::to_string(opt_.rootMateDepth) +
+        " nodes " + std::to_string(limits.nodes) +
+        " ms " + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+            Clock::now() - guardStart).count()) +
+        " cancelled " + (limits.cancelled ? "yes" : "no"));
+    if (guard.allLost)
+      say("info string root mate guard: all moves lost, proof-line length " +
+          std::to_string(guard.lossPlies));
   }
 
   {
@@ -463,6 +535,7 @@ int Engine::run() {
       }
       finishSearch(false);
       stop_ = false;
+      mctsStop_ = false;
       searching_ = true;
       worker_ = std::thread(&Engine::search, this, parseGo(tok));
     } else if (c == "gameover") {

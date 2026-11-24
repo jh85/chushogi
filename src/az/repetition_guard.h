@@ -22,6 +22,7 @@ class RepetitionHistory {
   void pop() { states_.pop_back(); }
   RepetitionVerdict verdict() const;
   bool hasThreefold() const;
+  int occurrences(uint64_t key) const;
 
  private:
   struct State {

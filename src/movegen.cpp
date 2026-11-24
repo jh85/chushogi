@@ -71,9 +71,8 @@ bool midStepCaptureBanned(const Position& pos, int from, int mid) {
     return false;
 }
 
-template <RuleSet R>
-std::vector<Move> generate(const Position& pos) {
-  std::vector<Move> out;
+template <RuleSet R, class Sink>
+void generate(const Position& pos, Sink& out) {
   const Color us = pos.sideToMove;
   const Color them = !us;
 
@@ -186,14 +185,84 @@ std::vector<Move> generate(const Position& pos) {
       }
     }
   }
-  return out;
+}
+
+struct RoyalCaptureSink {
+  int royal;
+  std::vector<Move> moves;
+  void push_back(const Move& move) {
+    if (move.to == royal || move.mid == royal) moves.push_back(move);
+  }
+};
+
+struct CheckingSink {
+  Position work;
+  int royal;
+  std::vector<int> candidates;
+  std::vector<Move> moves;
+
+  CheckingSink(const Position& pos, int target) : work(pos), royal(target) {
+    // Other pieces can give discovered checks only along sliding lines.
+    // Keep existing direct checkers too (chu permits a previous non-evasion).
+    for (int sq = 0; sq < kSquares; ++sq) {
+      const auto piece = pos.board[sq];
+      if (!piece || colorOf(piece) != pos.sideToMove) continue;
+      bool potential = pieceAttacks(pos, sq, royal, pos.sideToMove,
+                                    kNoSquare, kNoSquare);
+      const int dx = sqX(royal) - sqX(sq), dy = sqY(royal) - sqY(sq);
+      for (auto dir : roleMoves()[roleOf(piece)].proj) {
+        const auto p = physical(dir, pos.sideToMove);
+        potential |= dx * p.dy == dy * p.dx && dx * p.dx + dy * p.dy > 0;
+      }
+      if (potential) candidates.push_back(sq);
+    }
+  }
+
+  void push_back(const Move& move) {
+    if (move.to == royal || move.mid == royal) {
+      moves.push_back(move);
+      return;
+    }
+    const auto us = work.sideToMove;
+    const MoveUndo undo(work, move);
+    work.apply(move);
+    bool check = pieceAttacks(work, move.to, royal, us, kNoSquare, kNoSquare);
+    if (!check) for (int sq : candidates) {
+      if (sq == move.from) continue;
+      if (pieceAttacks(work, sq, royal, us, kNoSquare, kNoSquare)) {
+        check = true;
+        break;
+      }
+    }
+    undo.restore(work);
+    if (check) moves.push_back(move);
+  }
+};
+
+template <class Sink>
+void dispatch(const Position& pos, Sink& sink) {
+  if (pos.rules == RuleSet::JCSA) generate<RuleSet::JCSA>(pos, sink);
+  else generate<RuleSet::Lishogi>(pos, sink);
 }
 
 }  // namespace
 
 std::vector<Move> generateLegal(const Position& pos) {
-  return pos.rules == RuleSet::JCSA ? generate<RuleSet::JCSA>(pos)
-                                    : generate<RuleSet::Lishogi>(pos);
+  std::vector<Move> moves;
+  dispatch(pos, moves);
+  return moves;
+}
+
+std::vector<Move> generateChecking(const Position& pos, int royalSquare) {
+  CheckingSink sink(pos, royalSquare);
+  dispatch(pos, sink);
+  return std::move(sink.moves);
+}
+
+std::vector<Move> generateRoyalCaptures(const Position& pos, int royalSquare) {
+  RoyalCaptureSink sink{royalSquare, {}};
+  dispatch(pos, sink);
+  return std::move(sink.moves);
 }
 
 bool isLegal(const Position& pos, const Move& m) {

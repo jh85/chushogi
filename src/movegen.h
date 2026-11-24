@@ -36,6 +36,11 @@ namespace chu {
 // All legal moves for the side to move, under pos.rules.
 std::vector<Move> generateLegal(const Position& pos);
 
+// Legal checking moves or captures of the specified single enemy royal.
+// Filtering happens while emitting moves; quiet moves are not materialized.
+std::vector<Move> generateChecking(const Position& pos, int royalSquare);
+std::vector<Move> generateRoyalCaptures(const Position& pos, int royalSquare);
+
 // True if `m` is among the legal moves (used when replaying ordered USI move
 // lists through the conversion layer).
 bool isLegal(const Position& pos, const Move& m);

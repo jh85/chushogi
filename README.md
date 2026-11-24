@@ -848,6 +848,93 @@ Regression checks: `make az-repetition-guard-test` and
 both colors, interrupted attacks, ordinary draws, Lishogi nonroyal pursuit,
 mate-override precedence and missing-inference fallback.
 
+### Bounded mate protection in USI play
+
+The JHBR3-style settings `RootMateDepth` and `LeafMateDepth` are available in
+USI mode. To use the requested seven-ply root guard and five-ply leaf probes:
+
+```
+setoption name RootMateDepth value 7
+setoption name LeafMateDepth value 5
+```
+
+For chu-server, append `--usi-option RootMateDepth=7
+--usi-option LeafMateDepth=5` to the bridge launch options. Rebuild with
+`make chushogi-az` and restart the engine; the checkpoint is unchanged.
+
+* `RootMateDepth` defaults to **0**, which disables this additional guard.
+  Positive values are clamped to 1–7 and rounded down to an odd depth.
+  After MCTS and any opening sample, test the selected candidate for an
+  opponent checking mate. Reject it only on a proof, then test the next
+  eligible candidate by visits. Unknown or cancelled probes retain that
+  candidate. Existing offensive mate overrides, proved-loss selection,
+  immediate royal protection and perpetual-attack exclusions remain active.
+  If all candidates are known lost, prefer the longest available proof line
+  (a delay estimate, not exact minimax distance).
+* `LeafMateDepth` defaults to **3**, accepts 0–7 with the same odd rounding,
+  and **0 disables leaf probes**. It uses the same fixed-depth routine as
+  the root guard, with `LeafMateNodes` defaulting to **20000 per new node**
+  (0 disables its work). Depth counts through the final mating check.
+  The legacy `ProbeDepth` selects the old BNS leaf backend, using its
+  original internal-depth convention and `ProbeNodes` budget (default 2000).
+  The two depth settings are mutually exclusive: the last one set selects
+  the backend, and setting either depth to zero disables both. USI defaults
+  are `LeafMateDepth=3` and `ProbeDepth=0`. Logs identify the selected backend.
+* `RootMateNodes` defaults to **20000**, shared by all root candidates and
+  iterative depths within one `go`; **0 disables the additional guard**.
+  `RootMateTimeMs` defaults to **100**, a total guard time allowance. With a
+  move clock, reserve at most 20% of the move allowance, capped by this
+  setting, for the post-search guard. An explicit `stop` cancels it too.
+  For a larger allowance, e.g. a ten-second byoyomi, try
+  `RootMateNodes=200000` and `RootMateTimeMs=1000`; these caps still do not
+  promise to resolve every seven-ply threat. Logs report rejected moves,
+  actual nodes and cancellation.
+
+The shared shallow routine uses compile-time odd depths 1/3/5/7, a specialized
+one-ply base, a three-ply path ending in that base, filtered checking/capture
+move generation, incremental material counts, and three-square move undo.
+It performs no general BNS/df-pn search or PV extraction. Root probes adjudicate
+the full supplied repetition history on every explored branch, replaying
+attack counters lazily only when a fourth occurrence is possible. MCTS leaf
+probes have canonical board keys rather than full attack counters; they
+conservatively report unknown whenever a proof branch repeats a board.
+Both modes enforce the 1000-ply cap.
+Unlike shogi, chu shogi permits ignoring a check: every legal defender reply
+is considered, including captures of the attacker's last royal. A final mating
+check also requires verification of the subsequent actual royal capture before
+a draw/foul/cap can intervene. Multiple defender royals, including a prince
+created during the line, are conservatively unknown unless the game has ended.
+This is a checking-mate search; quiet threats and unresolved searches can
+still escape detection.
+
+The general mate solver (`MateNodes`, native `mate`, and legacy `ProbeDepth`)
+remains **BNS by default**, ported from JHBR3's route-branch-number search.
+Its optional `setPnDnArithmetic(true)` control uses df-pn-style min/sum
+arithmetic in the same solver; it is not selected by USI play. BNS and the
+fixed-depth shallow routine serve different purposes. Node counts from BNS
+and the shallow search do not represent equal work; use elapsed time and
+proved-mate coverage when comparing their budgets.
+
+The November 24 pilot used 11 tactical positions at four depths. On the 38
+queries completed by both root implementations, the optimized routine took
+0.31 seconds versus 2.81 seconds for the initial generic guard, with matching
+verdicts. Shallow leaf searches at 20000 nodes retained all 10 positive proofs
+found by BNS at 2000 nodes across the 44 queries. This calibrates these small
+test sets, not general solver strength. In eight real-game positions at 256
+MCTS simulations, the new depth-three profile took 2.58 versus 2.75 seconds;
+depth five took 5.14 versus 4.65 seconds. Start with `RootMateDepth=7` and
+`LeafMateDepth=3`; deeper leaves remain an option to test under the actual
+playing clock, rather than an established throughput improvement.
+
+These options affect USI play only. Native self-play, checkpoint tournaments,
+training settings and frozen experiment binaries are unchanged. Run
+`make az-usi-mate-guard-test PY=/venv/main/bin/python` for depth boundaries,
+budget cancellation, candidate rejection, both colors, all-lost fallback and
+USI clock/option checks. `make az-shallow-mate-test` additionally compares
+checking-move generation against exhaustive legal-move filtering, validates
+undo across promotions and lion double moves under both rule sets, and checks
+the shared MCTS leaf integration.
+
 ### Opening-only sampling in USI play
 
 USI play samples from MCTS root visits during the first `OpeningSamplingPlies`

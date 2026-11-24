@@ -75,6 +75,11 @@ bool RepetitionHistory::hasThreefold() const {
   return false;
 }
 
+int RepetitionHistory::occurrences(uint64_t key) const {
+  return static_cast<int>(std::count_if(states_.begin(), states_.end(),
+      [&](const State& state) { return state.key == key; }));
+}
+
 std::vector<chu::Move> perpetualLossMoves(const chu::Position& root,
                                         const RepetitionHistory& history,
                                         int maxPlyCap) {

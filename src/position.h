@@ -38,6 +38,37 @@ struct Position {
   Position flipped() const;
 };
 
+// A move changes at most three squares, including lion igui (from == to).
+// Save distinct squares so double captures and returns restore exactly.
+struct MoveUndo {
+  std::array<int16_t, 3> squares{};
+  std::array<uint8_t, 3> pieces{};
+  int count = 0;
+  int16_t lastLionCapture;
+  int moveNumber;
+  Color sideToMove;
+
+  MoveUndo(const Position& pos, const Move& move)
+      : lastLionCapture(pos.lastLionCapture), moveNumber(pos.moveNumber),
+        sideToMove(pos.sideToMove) {
+    for (int sq : {int(move.from), int(move.mid), int(move.to)}) {
+      if (sq == kNoSquare) continue;
+      bool duplicate = false;
+      for (int i = 0; i < count; ++i) duplicate |= squares[i] == sq;
+      if (!duplicate) {
+        squares[count] = sq;
+        pieces[count++] = pos.board[sq];
+      }
+    }
+  }
+  void restore(Position& pos) const {
+    for (int i = 0; i < count; ++i) pos.board[squares[i]] = pieces[i];
+    pos.lastLionCapture = lastLionCapture;
+    pos.moveNumber = moveNumber;
+    pos.sideToMove = sideToMove;
+  }
+};
+
 // Promotion-zone helpers (Chushogi.promotionRanks / backrank).
 inline bool inPromotionZone(int sq, Color c) {
   int y = sqY(sq);

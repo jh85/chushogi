@@ -98,7 +98,7 @@ int royalCount(const Position& pos, Color color) {
 }
 
 template <RuleSet R>
-StatusResult evaluate(const Position& pos) {
+StatusResult evaluate(const Position& pos, const bool* hasLegalMoves = nullptr) {
   // Same order as scalashogi Chushogi.status (minus repetition). Under JCSA
   // only the baring rule differs: the game ends by royal capture (the capture
   // reading of R-E1), a stalemated player loses and two lone royals draw
@@ -109,7 +109,7 @@ StatusResult evaluate(const Position& pos) {
   const bool bareGote = bareKing<R>(pos, Gote);
   if (bareSente || bareGote)
     return {GameEnd::BareKing, bareSente ? Gote : Sente};
-  if (generateLegal(pos).empty())
+  if (hasLegalMoves ? !*hasLegalMoves : generateLegal(pos).empty())
     return {GameEnd::Stalemate, !pos.sideToMove};
   if (insufficientMaterial(pos)) return {GameEnd::Draw, -1};
   return {GameEnd::Playing, -1};
@@ -120,6 +120,11 @@ StatusResult evaluate(const Position& pos) {
 StatusResult evaluateStatus(const Position& pos) {
   return pos.rules == RuleSet::JCSA ? evaluate<RuleSet::JCSA>(pos)
                                     : evaluate<RuleSet::Lishogi>(pos);
+}
+
+StatusResult evaluateStatus(const Position& pos, bool hasLegalMoves) {
+  return pos.rules == RuleSet::JCSA ? evaluate<RuleSet::JCSA>(pos, &hasLegalMoves)
+                                    : evaluate<RuleSet::Lishogi>(pos, &hasLegalMoves);
 }
 
 const char* gameEndName(GameEnd end) {

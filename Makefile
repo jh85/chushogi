@@ -24,10 +24,10 @@ libchushogi.a: $(LIBOBJ)
 
 # AlphaZero side: encoding inspection / MCTS / self-play binary.
 AZSRC := src/types.cpp src/position.cpp src/sfen.cpp src/usi.cpp src/movegen.cpp src/status.cpp src/mate.cpp \
-         src/az/encode.cpp src/az/mcts.cpp src/az/repetition_guard.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/usi_mode.cpp src/az/root_audit.cpp src/az/main.cpp
+         src/az/encode.cpp src/az/mcts.cpp src/az/repetition_guard.cpp src/az/shallow_mate.cpp src/az/usi_mate_guard.cpp src/az/selfplay.cpp src/az/eval_client.cpp src/az/usi_mode.cpp src/az/root_audit.cpp src/az/main.cpp
 AZBIN := chushogi-az
 
-$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/repetition_guard.h src/az/selfplay.h src/az/eval_client.h src/az/usi_mode.h src/az/usi_sampling.h src/az/root_audit.h src/usi_engine.h
+$(AZBIN): $(AZSRC) src/types.h src/position.h src/sfen.h src/usi.h src/movegen.h src/attacks.h src/status.h src/mate.h src/az/encode.h src/az/mcts.h src/az/repetition_guard.h src/az/shallow_mate.h src/az/usi_mate_guard.h src/az/selfplay.h src/az/eval_client.h src/az/usi_mode.h src/az/usi_sampling.h src/az/root_audit.h src/usi_engine.h
 	$(CXX) $(CXXFLAGS) -o $@ $(AZSRC)
 
 PY ?= /data2/cs/venv/bin/python
@@ -49,11 +49,20 @@ az-root-safety-test:
 	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-root-safety-test tests/az_root_safety_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-root-safety-test
 
+az-usi-mate-guard-test: $(AZBIN)
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-usi-mate-guard-test tests/az_usi_mate_guard_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-usi-mate-guard-test
+	$(PY) tests/az_usi_mate_guard_test.py
+
+az-shallow-mate-test:
+	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-shallow-mate-test tests/az_shallow_mate_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
+	/tmp/chushogi-az-shallow-mate-test
+
 az-repetition-guard-test:
 	$(CXX) $(CXXFLAGS) -o /tmp/chushogi-az-repetition-guard-test tests/az_repetition_guard_test.cpp $(filter-out src/az/main.cpp src/az/usi_mode.cpp src/az/eval_client.cpp,$(AZSRC))
 	/tmp/chushogi-az-repetition-guard-test
 
-az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-usi-sampling-test az-root-safety-test az-repetition-guard-test
+az-test: $(BIN) $(AZBIN) az-search-value-test az-sampling-test az-usi-sampling-test az-usi-mate-guard-test az-shallow-mate-test az-root-safety-test az-repetition-guard-test
 	$(PY) tests/az_buffer_test.py
 	$(PY) tests/az_tournament_test.py
 	$(PY) tests/az_fork_test.py
@@ -102,4 +111,4 @@ random-games: $(BIN)
 clean:
 	rm -f $(BIN) libchushogi.a $(LIBOBJ)
 
-.PHONY: test clean random-games cases az-search-value-test az-sampling-test az-usi-sampling-test az-root-safety-test az-repetition-guard-test
+.PHONY: test clean random-games cases az-search-value-test az-sampling-test az-usi-sampling-test az-usi-mate-guard-test az-shallow-mate-test az-root-safety-test az-repetition-guard-test

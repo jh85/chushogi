@@ -22,6 +22,7 @@
 #include <functional>
 #include <memory>
 #include <random>
+#include <unordered_set>
 #include <vector>
 
 #include "../mate.h"
@@ -66,6 +67,8 @@ struct MctsConfig {
   size_t rootMateNodes = 0;  // BNS budget at the root; 0 disables the override
   int probeDepth = 0;        // shallow forced-capture probe per new node (plies)
   size_t probeNodes = 2000;  // BNS budget per new node
+  int shallowMateDepth = 0;  // USI fixed-depth routine; 0 keeps legacy BNS probes
+  size_t shallowMateNodes = 20000;  // different work units from BNS node counts
   // bestMove skips a root move after which the opponent can capture the
   // mover's last royal, unless every move allows that. Visits and the
   // policy target are unchanged. USI play on; self-play off.
@@ -174,6 +177,7 @@ class Mcts {
   int root_ = -1;
   chu::Position rootPos_;
   std::vector<uint64_t> gameHashes_;
+  std::unordered_set<uint64_t> shallowGameKeys_;
   int gamePly_ = 0;
   std::unique_ptr<chu::MateSolver> mate_;  // reused across probes
   chu::MateSolver& mateSolver();
@@ -182,6 +186,7 @@ class Mcts {
 // Stable 64-bit key of a position (board + side + lion history) for
 // repetition detection.
 uint64_t positionKey(const chu::Position& pos);
+uint64_t canonicalPositionKey(const chu::Position& pos);
 
 // True if after `m` the opponent has a legal reply that captures the mover's
 // last royal. False if adjudication already ended the game, the mover has no royal

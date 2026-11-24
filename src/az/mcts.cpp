@@ -7,6 +7,7 @@
 #include "../mate.h"
 #include "../movegen.h"
 #include "../status.h"
+#include "shallow_mate.h"
 
 namespace az {
 
@@ -19,6 +20,22 @@ uint64_t positionKey(const chu::Position& pos) {
   h ^= static_cast<uint64_t>(pos.sideToMove) + 1;
   h *= 1099511628211ull;
   h ^= static_cast<uint64_t>(pos.lastLionCapture + 2);
+  h *= 1099511628211ull;
+  return h;
+}
+
+uint64_t canonicalPositionKey(const chu::Position& pos) {
+  if (pos.sideToMove == chu::Sente) return positionKey(pos);
+  uint64_t h = 1469598103934665603ull;
+  for (int s = 0; s < chu::kSquares; ++s) {
+    h ^= chu::flipPiece(pos.board[chu::flipSquare(s)]) + 1;
+    h *= 1099511628211ull;
+  }
+  h ^= uint64_t(chu::Sente) + 1;
+  h *= 1099511628211ull;
+  const int lion = pos.lastLionCapture == chu::kNoSquare
+      ? chu::kNoSquare : chu::flipSquare(pos.lastLionCapture);
+  h ^= uint64_t(lion + 2);
   h *= 1099511628211ull;
   return h;
 }
@@ -229,9 +246,18 @@ Mcts::Descent Mcts::descend() {
       // Shallow mate probe: if the side to move at the child can force the
       // royal capture, the child is a proven win for it — the parent edge
       // gets value 0 (never walk into a forced mate).
-      if (cfg_.probeDepth > 0) {
-        mateSolver().setMaxPly(cfg_.probeDepth);
-        chu::MateAnswer ma = mateSolver().solve(d.pos, cfg_.probeNodes);
+      if (cfg_.probeDepth > 0 || cfg_.shallowMateDepth > 0) {
+        chu::MateAnswer ma;
+        if (cfg_.shallowMateDepth > 0) {
+          const ShallowMateHistory previous{&shallowGameKeys_, &d.hashPath, d.hashPath.size() - 1};
+          ShallowMateLimits limits;
+          limits.nodeLimit = cfg_.shallowMateNodes;
+          limits.stop = cfg_.stop;
+          ma = probeShallowMate(d.pos, previous, cfg_.shallowMateDepth, limits, cfg_.maxPlyCap);
+        } else {
+          mateSolver().setMaxPly(cfg_.probeDepth);
+          ma = mateSolver().solve(d.pos, cfg_.probeNodes);
+        }
         if (ma.result == chu::MateResult::kMate) {
           child.terminal = 1;
           child.proofMatePly = ma.matePly;
@@ -320,6 +346,11 @@ SearchResult Mcts::search(const chu::Position& root,
   gameHashes_ = gameHashes;
   gamePly_ = gamePly;
   rootPos_ = root;
+  shallowGameKeys_.clear();
+  if (cfg_.shallowMateDepth > 0) {
+    shallowGameKeys_.insert(gameHashes.begin(), gameHashes.end());
+    shallowGameKeys_.insert(canonicalPositionKey(root));
+  }
 
   SearchResult res;
   root_ = newNode();
@@ -419,7 +450,7 @@ SearchResult Mcts::search(const chu::Position& root,
     // Adjudicated terminal loss is immediate. Tsume PVs can stop before
     // royal capture; conservatively require the whole probe horizon + 2
     // extra plies to fit before the game cap.
-    return child->proofMatePly == 0 ||
+    return child->proofMatePly == 0 || cfg_.shallowMateDepth > 0 ||
            gamePly_ + 1 + cfg_.probeDepth + 2 <= cfg_.maxPlyCap;
   };
   for (const Edge& e : rootNode.edges) {

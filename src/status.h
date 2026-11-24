@@ -24,6 +24,10 @@ struct StatusResult {
 // Game-end status of the position under pos.rules.
 StatusResult evaluateStatus(const Position& pos);
 
+// Same adjudication when the caller already knows whether any legal move
+// exists. Avoids generating the same moves twice inside a search node.
+StatusResult evaluateStatus(const Position& pos, bool hasLegalMoves);
+
 const char* gameEndName(GameEnd end);
 const char* colorName(int color);
 

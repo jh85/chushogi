@@ -570,11 +570,11 @@ tracing refutations (e.g. tsukuri08's escape 2d1d!).
     Edo-era rule: the Okazaki amendment (allowing the counter-strike against
     an unprotected lion) is NOT implemented — scalashogi's own tests forbid
     capturing an unprotected lion on another square during the ban turn.
-    One lishogi quirk to be aware of: the ban filter only examines the
-    destination square of each move, so a horned falcon / soaring eagle
-    capturing a lion at the MID step of a two-step move (igui hit-and-run) is
-    still allowed during the ban turn, even though Wikipedia's "hit-and-run"
-    wording suggests it should be banned. We mirror lishogi either way.
+    The ban covers every step of a horned falcon's / soaring eagle's double
+    move: a lion on the mid square (igui or pass-through hit-and-run) is
+    protected like one on the destination. Lishogi has done so since
+    scalashogi fcf0664 (2026-10-23); before it, only the destination was
+    tested, and this engine mirrored that until the commit after d578c81.
 - No check-evasion restriction: chu shogi is played until a royal (king or
   prince) is actually captured.
 
@@ -591,8 +591,6 @@ cites. Only these rules differ from lishogi's:
   the capturing piece lifted, so X-rays count; each lion separately);
 - the ban also covers a kirin that took the lion and promoted on the capture
   square (lishogi exempts that square);
-- the ban also covers the mid square of a horned falcon's or soaring eagle's
-  double move (lishogi tests only the destination);
 - lance (R-P3, R-P4): no last-rank promotion; it promotes only by entering
   the zone or capturing in it, and one that reaches the last rank unpromoted
   is a dead piece;
@@ -665,12 +663,12 @@ last-lion-capture square instead of hand pieces (chu shogi has no drops).
   move must be in the generated legal move list, and the resulting SFEN must
   match the recorded SFEN exactly (board, turn, lion-capture field, move
   number).
-- `tests/rule_test.py` — 44 crafted positions probing the rules that replays
+- `tests/rule_test.py` — 46 crafted positions probing the rules that replays
   cannot prove (over-generation): lion immunity-from-capture cases with kings
   (R1: adjacent/protected/hidden-protector/tsukegui/pawn-and-go-between
   defenders/multi-lion exposure; R2: the recapture ban, its same-square
   exception, the absent Okazaki amendment, hit-and-run coverage incl. the
-  mid-step quirk), lion/falcon/eagle two-step geometry, jitto/igui, promotion
+  mid-step ban), lion/falcon/eagle two-step geometry, jitto/igui, promotion
   conditions incl. pawn/lance last-rank deferral, initial position contents.
 - `tests/perft_test.py` + `tests/perft_cases.tsv` — exact legal-move counts
   for 287 positions taken from scalashogi's own test fixtures (the lishogi

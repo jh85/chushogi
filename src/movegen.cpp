@@ -59,18 +59,6 @@ bool counterStrikeBanned(const Position& pos, int from, int sq) {
     return true;
 }
 
-// R-L4 (delta row 2): hit-and-run captures during the ban. lishogi tests only
-// the destination of a double move, so a horned falcon or soaring eagle may
-// take a lion on the mid square; JCSA bans every capture of the protected
-// lion, the mid square included.
-template <RuleSet R>
-bool midStepCaptureBanned(const Position& pos, int from, int mid) {
-  if constexpr (R == RuleSet::JCSA)
-    return counterStrikeBanned<R>(pos, from, mid);
-  else
-    return false;
-}
-
 template <RuleSet R, class Sink>
 void generate(const Position& pos, Sink& out) {
   const Color us = pos.sideToMove;
@@ -144,9 +132,13 @@ void generate(const Position& pos, Sink& out) {
     if (!hasLionPower(role)) continue;
     for (int ms : shortDests) {
       if (dist(s, ms) != 1) continue;  // first step must be adjacent
-      // A falcon or eagle that may not take the lion on the mid square has
-      // no move through it (a lion may always take an adjacent lion).
-      if (!lion && midStepCaptureBanned<R>(pos, s, ms)) continue;
+      // R-L4 (delta row 2): the ban covers every step of a double move. A
+      // horned falcon or soaring eagle that may not take the lion on the mid
+      // square has no move through it, as in lishogi since scalashogi
+      // fcf0664 ("Prevent illegal lion recapture in midstep", 2026-10-23;
+      // before it, lishogi tested only the destination). A lion may always
+      // take an adjacent lion.
+      if (!lion && counterStrikeBanned<R>(pos, s, ms)) continue;
       // Returning to the origin (igui after a capture, or jitto pass) is
       // always included once the mid step itself is playable.
       out.push_back({static_cast<int16_t>(s), static_cast<int16_t>(ms),
